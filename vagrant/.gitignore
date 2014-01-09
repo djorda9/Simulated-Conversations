@@ -7,3 +7,4 @@ setup_py.patch
 sqlite-3.5.9.tar.gz
 ssl.patch
 ssl_py.patch
+simcon/db.sqlite3  # no need to clobber each others db for now
