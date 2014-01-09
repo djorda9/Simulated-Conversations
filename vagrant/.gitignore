@@ -1,0 +1,9 @@
+#adding some ignores to void things after unpacking, NOTE:  this seemed to be easiest way to handle all our various installs
+.vagrant/*
+bootstrap.sh
+Django-1.6.tar.gz
+Python-2.6.8.tar.gz
+setup_py.patch
+sqlite-3.5.9.tar.gz
+ssl.patch
+ssl_py.patch
