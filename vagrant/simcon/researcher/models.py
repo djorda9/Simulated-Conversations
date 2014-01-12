@@ -7,9 +7,11 @@ from django.contrib.auth.models import User  # for User tie in
 # but it seems cleaner to use the existing auth model
 class Researcher (models.Model):  
     user = models.ForeignKey (User)   # tie into auth user table
-    authLevel = models.IntegerField() # authentication level
-    #TODO provide admin with a way of modifying this
+    authLevel = models.IntegerField("Authorization level", default=0) # authentication level
     
     def __unicode__(self):
-        return u"Researcher: %s with authLevel: %d" % (self.user.get_username(), self.authLevel)
-        
+        return u"Researcher: %s with authLevel: %d" % (self.user.username, self.authLevel)
+       
+    #following is the proposed permissions
+    #class Meta:
+        #permissions = (("can_add_researchers", "Can add researchers"),)
