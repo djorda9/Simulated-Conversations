@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
+    <meta name="author" content="Nathanial Myers, ">
+
+    <title>Simulated Conversations</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="signin.css" rel="stylesheet">
+
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container">
+      <p>If permissions aren't yet set, display error and exit.....</p>
+        <div class="alert alert-danger">Permissions for this folder/file aren't set up to record and save audio files yet! Please set the correct permissions.</div>
+
+      <p>If database connection is unsuccessful, display error and exit....</p>
+        <div class="alert alert-danger">Your database connection was unsuccessful. Edit the details in this file and retry the connection.</div>
+
+      <p>If no researchers exist in database yet, display this and exit....</p>
+        <div class="alert alert-info">Welcome to the Simulated Conversations software package. To get started, first create a researcher account. This account will be the super-user, so you will be able to create and delete other researchers.</div>
+      <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-6">
+          <form class="form-signin" role="form">
+            <input type="text" class="form-control" placeholder="User name" required autofocus>
+            <input type="password" class="form-control" placeholder="Password" required>
+            <input type="password" class="form-control" placeholder="Password (retype)" required>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
+          </form>
+        </div>
+      </div>
+
+      <p>If all of the above conditions are already met, display this.....</p>
+      <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-6">
+          <form class="form-signin" role="form">
+            <h2 class="form-signin-heading">Please sign in</h2>
+            <input type="text" class="form-control" placeholder="User name" required autofocus>
+            <input type="password" class="form-control" placeholder="Password" required>
+            <label class="checkbox">
+              <input type="checkbox" value="remember-me"> Remember me
+            </label>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+          </form>
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+  </body>
+</html>
+
