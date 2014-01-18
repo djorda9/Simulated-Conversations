@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'researcher',           #added by Nick to fascilitate researcher app
+    'response',				#added by Griff to facilitate response app
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,6 +48,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+
+#MEDIA_ROOT = ''      
+#absolute file system path to directory containing audio files
+#part of response app model.  Must be different than STATIC_ROOT	-Griff
 
 ROOT_URLCONF = 'simcon.urls'
 
