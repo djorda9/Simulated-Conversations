@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'researcher',           #added by Nick to fascilitate researcher app
     'response',				#added by Griff to facilitate response app
+    'student',				#added by Jason to facilitate student app
 )
 
 MIDDLEWARE_CLASSES = (
