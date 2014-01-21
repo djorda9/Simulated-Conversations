@@ -23,7 +23,7 @@ SECRET_KEY = 'xb5@_&)+qo7edldwq95!^wdd)a&%5g3(d!2ud4-!_ta@6b-t(3'
 DEBUG = True
 
 TEMPLATE_DEBUG = True
-TEMPLATE_DIRS = os.path.join(BASE_DIR, 'django_templates')
+TEMPLATE_DIRS = os.path.join(BASE_DIR, 'templates')
 
 ALLOWED_HOSTS = []
 
@@ -37,11 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'researcher',           #added by Nick to fascilitate researcher app
-    'response',				#added by Griff to facilitate response app
-    'student',				#added by Jason to facilitate student app
-    'generatelink',         #added by Daniel to facilitate GenerateLink app
-    'sharedresponses',      #added by Daniel to facilitate SharedResponse app
+    'simcon',
 )
 
 MIDDLEWARE_CLASSES = (

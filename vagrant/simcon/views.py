@@ -5,13 +5,3 @@ def Submission(request):
 
 def Login(request):
     return render(request, 'Student_Login.html')
-
-
-
-
-
-
-
-
-
-
