@@ -3,7 +3,7 @@ from django.db import models
 
 ####NOTE#####	-Griff
 #This does not align exactly with the database example in the spec (as of v.2)
-#response metadata is no longer in pageinstance but split into a separate
+#response metadata is no longer in pageInstance but split into a separate
 # db called "conversation"
 #
 #correct db outline is as follows:
@@ -36,6 +36,10 @@ class Conversation(models.Model):
 	dateTime		=	models.DateTimeField(auto_now_add=True)
 			#dateTime sets automatically on creation
 			
+	def __unicode__(self):
+		return u" %s: %s" % (str(self.dateTime), self.studentName)
+	
+				
 class Response(models.Model):
 #	pageInstanceID	=	models.ForeignKey(PageInstance) 
 	conversationID	=	models.ForeignKey(Conversation)
@@ -46,3 +50,5 @@ class Response(models.Model):
 # 	within MEDIA_ROOT, set upload_to=$PATH.  To do the madia management 
 #	manually change this to a FilePathField 
 
+	def __unicode__(self):
+		return u"%d: %s" %(self.order, self.choice)
