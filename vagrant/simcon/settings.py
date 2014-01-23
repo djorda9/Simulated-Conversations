@@ -23,7 +23,7 @@ SECRET_KEY = 'xb5@_&)+qo7edldwq95!^wdd)a&%5g3(d!2ud4-!_ta@6b-t(3'
 DEBUG = True
 
 TEMPLATE_DEBUG = True
-TEMPLATE_DIRS = os.path.join(BASE_DIR, 'templates')
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'), )
 
 ALLOWED_HOSTS = []
 
@@ -31,13 +31,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'simcon',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'simcon',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -87,3 +87,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+AUTH_PROFILE_MODULE = 'simcon.researcher'

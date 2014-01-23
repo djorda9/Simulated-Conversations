@@ -2,20 +2,24 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here. 
-# NOTE(Nick):  spec refers to keeping the researcher ID, username, password 
-#              in this model but it seems cleaner to use the existing 
-#              auth model
-class Researcher(models.Model):  
-    user = models.ForeignKey (User)   # tie into auth user table
-    authLevel = models.IntegerField("Authorization level", default=0) # authentication level
+class Researcher (models.Model):  
+    user = models.OneToOneField (User)   # tie into auth user table
     
     def __unicode__(self):
-        return u"Researcher: %s with authLevel: %d" % (self.user.username, self.authLevel)
+        if self.user.has_perm('researcher.authLevel2'):
+            return u"Super Researcher: %s" % self.user.username
+        else:
+            return u"Researcher: %s" % self.user.username
        
-    #following is the proposed permissions
-    #class Meta:
-    #permissions = (("can_add_researchers", "Can add researchers"),)
+    class Meta:
+        permissions = (("authLevel1", "Normal researcher"),
+                       ("authLevel2", "Can create and delete researchers"),
+                       ("authLevel3", "Can promote other researchers to authLevel2")) # may want this to reduce runaway super user creation, can be ignored
+                       
+        # NOTE: a common pattern is to use a decorator as follows:
+        # from django.contrib.auth.decorators import permission_required
+        # @permission_required('researcher.authLevel2')
+        # def my_view_requiring_authLevel2(request):
 
 ####NOTE#####   -Griff
 #This does not align exactly with the database example in the spec (as of v.2)
