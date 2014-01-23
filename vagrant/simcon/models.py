@@ -6,10 +6,12 @@ class Researcher (models.Model):
     user = models.OneToOneField (User)   # tie into auth user table
     
     def __unicode__(self):
-        if self.user.has_perm('researcher.authLevel2'):
+        if self.user.has_perm('simcon.authLevel2'):
             return u"Super Researcher: %s" % self.user.username
-        else:
+        elif self.user.has_perm('simcon.authLevel1'):
             return u"Researcher: %s" % self.user.username
+        else:
+            return u"Not a researcher: %s" % self.user.username
        
     class Meta:
         permissions = (("authLevel1", "Normal researcher"),
@@ -99,5 +101,8 @@ class StudentAccess(models.Model):
              self.expirationDate)
 
 class Template(models.Model):
-    # FIXME dummy template model to suppress warnings while integrating
-    pass
+    templateID = models.AutoField(primary_key=True)
+    researcherID = models.ForeignKey(Researcher)
+    #from mockups it looks like templates should have a short name
+    def __unicode__(self):
+        return u'%s %s' % (self.templateID, self.researcherID.user.username)
