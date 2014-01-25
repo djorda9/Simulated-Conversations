@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^student/(?P<VKey>\d{10})/$', student.views.StudentLogin),
-    url(r'^student/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentVideoInstance),
+    url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentVideoInstance),
+    url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentResponseInstance),
     url(r'^student/submission/$', student.views.Submission),
 

@@ -29,8 +29,9 @@ def StudentLogin(request):
     expiration = access.expirationDate
     currentdate = datetime.datetime.now()
     if(currentdate < expiration)
-        #template = access.templateID
-        return render(request, 'Student_Login.html')
+        template = access.templateID
+        pageinstance = template.firstInstanceID
+        return render(request, 'Student_Login.html', {'TID': template}, {'PIID':pageinstance}, {'ValKey':VKey})
     else
         print "Conversation link has expired"
 
