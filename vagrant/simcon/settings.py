@@ -38,9 +38,11 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #'debug_toolbar',
 )
 
 MIDDLEWARE_CLASSES = (
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,3 +91,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_PROFILE_MODULE = 'simcon.researcher'
+
+#DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.request',
+)
