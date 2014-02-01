@@ -24,36 +24,30 @@
     <div class="container">
       <form role="form">
         <div class="form-group">
-          <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Enter your name">
+          <input type="text" class="form-control" id="SName" placeholder="Enter your name">
         </div>
         <div class="form-group">
-          <input type="email" class="form-control" id="exampleInputPassword1" placeholder="Email (optional)">
+          <input type="email" class="form-control" id="SEmail" placeholder="Email (optional)">
         </div>
         <button type="submit" class="btn btn-default">Next</button>
       </form>
 <hr>
-      {# refresh page? #}
       <div class="panel panel-info">
         <div class="panel-heading">Use Policy Acceptance</div>
         <div class="panel-body">
-          <p>I agree to blah blah blah.</p>
+          <p>I agree to have my audio recordings used for research.</p>
           <form role="form">
             <div class="checkbox">
               <label>
                 <input type="checkbox"> I accept
               </label>
             </div>
-            <button type="submit" class="btn btn-default">Begin Conversation</button>
+            <button type="submit" class="btn btn-default"><a href="/student/video/{{ValKey}}&{{TID}}&{{PIID}}/">Begin Conversation</a></button>
           </form>
         </div>
       </div>
 <hr>
-{# Python code: T = Conversation(researcherID='Researcher2', studentName = 'Bob', studentEmail = '', dateTime = datetime.datetime.strptime(testDate, "%Y-%m-%d %H:%M")) #}
-{# T.save() #}
 
-    {# submit to student video instance (via URL): validationKey, templateID, studentName, studentEmail, and the page instance ID of the firstInstanceID of the template #}
-    {# url: student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/ #}
-    {# change class of submit button to a url including these values? #}
     </div> <!-- /container -->
     <!-- Bootstrap core JavaScript
     ================================================== -->
