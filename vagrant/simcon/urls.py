@@ -7,7 +7,10 @@ admin.autodiscover()
    # url(r'^$', 'simcon.views.home', name='home'),
    # url(r'^blog/', include('blog.urls')),
 urlpatterns = patterns('simcon.views',
+    url(r'login/$', 'login_page', name="login"),
     url(r'^admin/template-wizard/$', 'TemplateWizard'),
+    url(r'^generatelink/$', 'GenerateLink', name="GenerateLink"),
+    url(r'^links/$', 'Links', name="Links"),
     )
 
 urlpatterns += patterns('',

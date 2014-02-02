@@ -1,6 +1,7 @@
 # Simulated Conversation Models
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 class Researcher (models.Model):  
     user = models.OneToOneField (User)   # tie into auth user table
@@ -87,12 +88,12 @@ class SharedResponses(models.Model):
     class Meta:
         unique_together = ("responseID", "researcherID")
 
-
+#The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
 class StudentAccess(models.Model):
     studentAccessID = models.AutoField(primary_key=True)
     templateID = models.ForeignKey('Template')
     researcherID = models.ForeignKey('Researcher')
-    validationKey = models.CharField(max_length = 50)
+    validationKey = models.CharField(max_length = 50, unique=True)
     expirationDate = models.DateField()
     
     def __unicode__(self):
@@ -100,6 +101,16 @@ class StudentAccess(models.Model):
             (self.studentAccessID, self.templateID, 
              self.researcherID, self.validationKey, 
              self.expirationDate)
+
+    # Returns a url for the student login page with the passed 'key'.
+    def get_link(self, key):
+        student_site = "/student/"
+        return settings.SITE_ID + student_site + key + "/"
+
+    #Returns a url for the student login page without a key passed.
+    def get_base_link(self):
+        student_site = "/student/"
+        return settings.SITE_ID + student_site
 
 #Templates: a list of templates and who they belong to. The firstInstanceID points to a 
 #templateFlowRelID which is the first video in the template. Deleted refers to if a template was deleted.
@@ -113,10 +124,10 @@ class Template(models.Model):
     version         = models.IntegerField(default = 1)    # particular version of this template, base 1
     
     def __unicode__(self):
-        if version > 1:
-            return u"%s Version: %d" % (shortDesc, version)
+        if self.version > 1:
+            return u"%s Version: %d" % (self.shortDesc, self.version)
         else:
-            return u"%s" % shortDesc
+            return u"%s" % self.shortDesc
             
 #PageInstance: this relates videos or responses to a template. The template is referenced by
 #templateID and researcherID. videoOrResponse tells you whether it's a VIDEO INSTANCE or a 

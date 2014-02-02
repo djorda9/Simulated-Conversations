@@ -20,3 +20,19 @@ vagrant/simcon/student/models.py
 vagrant/simcon/simcon/urls.py
 
 vagrant/simcon/simcon/urls.py
+
+*.sqlite3
+
+vagrant/.idea/encodings.xml
+
+vagrant/.idea/misc.xml
+
+vagrant/.idea/modules.xml
+
+vagrant/.idea/scopes/scope_settings.xml
+
+vagrant/.idea/vagrant.iml
+
+vagrant/.idea/vcs.xml
+
+vagrant/.idea/workspace.xml

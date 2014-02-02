@@ -1,0 +1,32 @@
+<!-- This template is used to generate a link to a simulated conversation that the researcher select.  It uses the
+GenerateLink view.-->
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+{% block title %}Generate Link{% endblock %}
+{% block content %}
+    <h3>Generate Link</h3>
+    {% if link %}
+        <b>Link: </b>
+        <a href="{{link}}">{{link}}</a>
+    {% endif %}
+    {% if key %}
+        <b><br>Key: {{key}}<br><br></b>
+    {% endif %}
+    <input type=button onClick="location.href='{% url "Links" %}'"  value='View Generated Links'><br><br>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script>  $(function() {$( "#datepicker" ).datepicker();});
+    </script>
+
+    <form action = "/generatelink/" method = "post"> {% csrf_token %}
+        {% for field in form %}
+        <div class = "field_error_wrapper">
+            {{field.errors}}
+            {{field.label_tag}}</br>
+            {{field}}
+        </div>
+    {% endfor %}
+    <input type = "submit" value = "Submit" />
+    </form>
+{% endblock %}
