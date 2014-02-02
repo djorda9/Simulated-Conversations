@@ -2,6 +2,7 @@ from django.shortcuts import render, render_to_response
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse
 from django.views.generic import View
+import re
 #import logging
 
 #logger = logging.getLogger(__name__)
@@ -19,8 +20,12 @@ def TemplateWizard(request):
             '''
             User has demanded to add a video to the pool in the left pane
             '''
-            request.session['videos'].append(request.POST['new_video']) #TODO grab code from long youtube url
-            request.session.modified = True
+            videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['new_video'], 0)
+            if videoCode:
+              request.session['videos'].append(videoCode.group(1))
+              request.session.modified = True
+            else:
+              print "Invalid video link."
         elif request.POST.get('removeVideoFromPool'):
             '''
             User has demanded to delete a video from the pool in the left pane

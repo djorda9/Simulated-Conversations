@@ -15,6 +15,11 @@
     <!-- Bootstrap core CSS -->
     <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
 
+    <!-- prevent line breaks when using form fields -->
+    <style type="text/css">
+    form {display:inline; margin:0px; padding:0px;}
+    </style>
+
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -29,7 +34,6 @@
       <div class="starter-template">
         <h2>Conversation Template Wizard</h2>
         <div class="alert alert-success">Here's how to use this page.... blah blah blah.</div>
-        <form role="form" method="post" action="."> {% csrf_token %}
           <div class="form-group">
           <label for="exampleInputEmail1">Conversation Title</label>
           <input type="text" name = "conversationTitle" class="form-control" placeholder="Enter a title">
@@ -39,17 +43,30 @@
               <h4><u>Videos</u></h4>
               <ol id="videolist">
               {% for vid in request.session.videos %}
-                  <li><input type="image" name="submit" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded" width="40" height="30"><input type="submit" name="removeVideoFromPool" class="glyphicon glyphicon-trash" value="{{vid}}"> </li>
+                  <li>
+                    <form role="form" method="post" action="." name="formVideo{{vid}}"> {% csrf_token %}
+                      <input type="image" name="submit" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded" width="40" height="30">
+                    </form>
+                    <form role="form" method="post" action="." name="formRemoveVideo{{vid}}"> {% csrf_token %}
+                      <input type="hidden" name="removeVideoFromPool" value="{{vid}}">
+                      <button type="button" class="btn btn-default btn-xs" onclick="document.formRemoveVideo{{vid}}.submit()">
+                        <span class="glyphicon glyphicon-trash"></span> Remove
+                      </button>
+                    </form>
+                    Links to... 
+                  </li>
               {% endfor %}
               </ol>
 
-              <!--form id="video_form" name="video_list" class="form-inline" role="form" method="post" action="."-->
+              <form role="form" method="post" action="." name="formAddVideo"> {% csrf_token %}
                 <div class="form-group">
                   <input id="video_name" name="new_video" type="text" class="form-control" placeholder="Enter web address of YouTube video">
+                  <input type="hidden" name="addVideoToPool" value="addVideoToPool">
+                  <button type="button" class="btn btn-default btn-sm" onclick="document.formAddVideo.submit()">
+                    <span class="glyphicon glyphicon-circle-arrow-right"></span> Add Video
+                  </button>
                 </div>
-                <!--div id="addvideo" class="btn btn-default" role="button">Add Video&raquo;</div-->
-                <input name="addVideoToPool" type="submit" value="Add Video"><!--Add Video&raquo;</button-->
-              <!--/form-->
+              </form>
             </div>
             <div class="col-md-8">
               <div class="panel panel-default">
