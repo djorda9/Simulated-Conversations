@@ -143,10 +143,13 @@ class PageInstance(models.Model):
     enablePlayback  = models.BooleanField(default = True)
     
     def __unicode__(self):
-        if videoOrResponse == "video":  # consider change this to query videoLink not null?
+        if self.videoOrResponse == "video":  # consider change this to query videoLink not null?
             return u"Video instance"
         else:
             return u"Response instance"
+
+    def get_pageInstanceID(self):
+        return self.pageInstanceID
 
 #TemplateResponseRel: this relates the several possible responses to one pageInstanceID, ordered by 
 # optionNumber. If the pageInstance is a response, the next page instance will be referenced here.
@@ -168,4 +171,10 @@ class TemplateFlowRel(models.Model):
     templateID         = models.ForeignKey(Template)
     pageInstanceID     = models.ForeignKey(PageInstance, related_name='templateflowrel_page')
     nextPageInstanceID = models.ForeignKey(PageInstance, related_name='templateflowrel_nextpage')
+
+    def curr_page(self):
+        return self.pageInstanceID
+
+    def nex_page(self):
+        return self.nextPageInstanceID
 

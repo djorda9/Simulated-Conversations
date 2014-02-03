@@ -1,15 +1,18 @@
 from django.shortcuts import render, render_to_response, redirect
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.db import transaction
 from models import StudentAccess
 from forms import StudentAccessForm
+from forms import ShareTemplateForm
 from forms import LoginForm
 from models import Researcher
 from models import Template
+from models import PageInstance
+from models import TemplateFlowRel
 from django.views.generic import View
 #import logging
 
@@ -123,7 +126,7 @@ def GenerateLink(request):
     template = None
     current_user = get_researcher(request.user)
     if request.method == 'POST':
-        form = StudentAccessForm(request.POST)
+        form = StudentAccessForm(request.POST, researcher=current_user)
         if form.is_valid():
             template =form.cleaned_data['templateID']
             validation_key = User.objects.make_random_password(length=10)
@@ -153,6 +156,96 @@ def get_researcher(current_user):
 def Links(request):
     researcher_links = StudentAccess.objects.filter(researcherID=get_researcher(request.user)).order_by('-studentAccessID')
     return render_to_response('links.html', {'researcher_links':researcher_links}, context_instance=RequestContext(request))
+
+# This view is used to share a template with another researcher.
+@permission_required('simcon.authLevel1')
+def ShareTemplate(request):
+    user_templateID = request.GET.get('user_templateID', -1)
+    current_user = get_researcher(request.user)
+    researcher_userId = None
+
+    #A list of pageInstanceStruct for storing the old and new PageInstance used when coping the
+    #TemplateFlowRel
+    old_new_pages = []
+    if request.method == 'POST':
+        form = ShareTemplateForm(request.POST, researcher=current_user)
+        if form.is_valid():
+            researcher = form.cleaned_data['researcherID']
+            template = form.cleaned_data['templateID']
+
+            try:
+                with transaction.atomic():
+                    #Copy information in template table to the researcher selected.
+                    copied_template = Template(researcherID=researcher, shortDesc=template.shortDesc, deleted=False,
+                                               firstInstanceID=template.firstInstanceID)
+                    copied_template.save()
+
+                    #Copies each PageInstance associated with the selected template.
+                    pages = PageInstance.objects.filter(templateID=template)
+                    for page in pages:
+                        temp = PageInstance(templateID=copied_template, videoOrResponse=page.videoOrResponse,
+                                            videoLink=page.videoLink, richText=page.richText,
+                                            enablePlayback=page.enablePlayback)
+                        temp.save()
+                        new_old = pageInstanceStruct(old=page, new=temp)
+                        old_new_pages.append(new_old)
+
+                    #Copies each TemplateFlowRel associated with the selected template.
+                    flow = TemplateFlowRel.objects.filter(templateID=template)
+                    for old in flow:
+                        current_page = old.pageInstanceID
+                        next_page = old.nextPageInstanceID
+
+                        for i in old_new_pages:
+                            oldId =  i.get_old()
+                            if oldId.pageInstanceID==current_page.get_pageInstanceID():
+                                current_page = i.newPageInstance
+                            if next_page <> None:
+                                if oldId.pageInstanceID==next_page.get_pageInstanceID():
+                                    next_page = i.newPageInstance
+
+                        temp = TemplateFlowRel(templateID=copied_template, pageInstanceID=current_page,
+                                               nextPageInstanceID=next_page)
+                        temp.save()
+
+                        #Updates the copied template's firstInstance with the copied firstInstance
+                        if old.templateFlowRelID==copied_template.firstInstanceID.templateFlowRelID:
+                            copied_template.firstInstanceID = temp
+                            copied_template.save()
+
+                    form = ShareTemplateForm(researcher=current_user)
+                    researcher_userId = researcher.user.get_full_name()
+
+            except ValueError as e:
+                failed = "Required data is missing in database in order to copy the template."
+                return render_to_response('share_template.html', {'failed':failed, 'form':form}, context_instance = RequestContext(request))
+    else:
+        if(user_templateID > -1):
+            template = Template.objects.get(pk=user_templateID)
+            form = ShareTemplateForm(initial = {'templateID':template}, researcher=current_user)
+        else:
+            form = ShareTemplateForm(researcher=current_user)
+    return render_to_response('share_template.html', {'success':researcher_userId, 'form':form}, context_instance = RequestContext(request))
+
+
+# Holds the PageInstance being copied and the PageInstance that was copied.
+class pageInstanceStruct(object):
+    oldPageInstance = None
+    newPageInstance = None
+
+    def __init__(self, *args, **kwargs):
+        old = kwargs.pop('old',None)
+        new = kwargs.pop('new',None)
+        self.oldPageInstance = old
+        self.newPageInstance = new
+
+    def get_old(self):
+        return self.oldPageInstance
+
+    def get_new(self):
+        return self.newPageInstance
+
+
 
 # Temporary Login Page
 def login_page(request):
