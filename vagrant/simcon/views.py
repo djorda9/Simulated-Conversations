@@ -1,15 +1,17 @@
 from django.shortcuts import render, render_to_response, redirect
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from models import StudentAccess
 from forms import StudentAccessForm
+from forms import ShareTemplateForm
 from forms import LoginForm
 from models import Researcher
 from models import Template
+from models import PageInstance
+from models import TemplateFlowRel
 from django.views.generic import View
 #import logging
 
@@ -123,7 +125,7 @@ def GenerateLink(request):
     template = None
     current_user = get_researcher(request.user)
     if request.method == 'POST':
-        form = StudentAccessForm(request.POST)
+        form = StudentAccessForm(request.POST, researcher=current_user)
         if form.is_valid():
             template =form.cleaned_data['templateID']
             validation_key = User.objects.make_random_password(length=10)
@@ -153,6 +155,85 @@ def get_researcher(current_user):
 def Links(request):
     researcher_links = StudentAccess.objects.filter(researcherID=get_researcher(request.user)).order_by('-studentAccessID')
     return render_to_response('links.html', {'researcher_links':researcher_links}, context_instance=RequestContext(request))
+
+# This view is used to share a template with another researcher.
+@permission_required('simcon.authLevel1')
+def ShareTemplate(request):
+    user_templateID = request.GET.get('user_templateID', -1)
+    current_user = get_researcher(request.user)
+    researcher_userId = None
+    old_new_pages = []
+    if request.method == 'POST':
+        form = ShareTemplateForm(request.POST, researcher=current_user)
+        if form.is_valid():
+            researcher = form.cleaned_data['researcherID']
+            template = form.cleaned_data['templateID']
+            copied_template = Template(researcherID=researcher, shortDesc=template.shortDesc, deleted=False,
+                                       firstInstanceID=template.firstInstanceID)
+            copied_template.save()
+            pages = PageInstance.objects.filter(templateID=template)
+            for page in pages:
+                temp = PageInstance(templateID=copied_template, videoOrResponse=page.videoOrResponse,
+                                    videoLink=page.videoLink, richText=page.richText,
+                                    enablePlayback=page.enablePlayback)
+                temp.save()
+                new_old = pageInstanceStruct(old=page, new=temp)
+                old_new_pages.append(new_old)
+
+            flow = TemplateFlowRel.objects.filter(templateID=template)
+            for old in flow:
+                try:
+                    current_page = old.pageInstanceID
+                except ValueError as e:
+                    current_page = None
+                    
+                try:
+                    next_page = old.nextPageInstanceID
+                except ValueError as e:
+                    next_page = None
+
+                for i in old_new_pages:
+                    oldId =  i.get_old()
+
+                    if oldId.pageInstanceID==current_page.get_pageInstanceID():
+                        current_page = i.newPageInstance
+                    if next_page <> None:
+                        if oldId.pageInstanceID==next_page.get_pageInstanceID():
+                            next_page = i.newPageInstance
+                temp = TemplateFlowRel(templateID=copied_template, pageInstanceID=current_page,
+                                       nextPageInstanceID=next_page)
+                temp.save()
+                if old.templateFlowRelID==copied_template.firstInstanceID:
+                    copied_template.firstInstanceID = temp
+
+            form = ShareTemplateForm(researcher=current_user)
+            researcher_userId = researcher.user.get_full_name()
+
+    else:
+        if(user_templateID > -1):
+            template = Template.objects.get(pk=user_templateID)
+            form = ShareTemplateForm(initial = {'templateID':template}, researcher=current_user)
+        else:
+            form = ShareTemplateForm(researcher=current_user)
+    return render_to_response('share_template.html', {'success':researcher_userId, 'form':form}, context_instance = RequestContext(request))
+
+class pageInstanceStruct(object):
+    oldPageInstance = None
+    newPageInstance = None
+
+    def __init__(self, *args, **kwargs):
+        old = kwargs.pop('old',None)
+        new = kwargs.pop('new',None)
+        self.oldPageInstance = old
+        self.newPageInstance = new
+
+    def get_old(self):
+        return self.oldPageInstance
+
+    def get_new(self):
+        return self.newPageInstance
+
+
 
 # Temporary Login Page
 def login_page(request):

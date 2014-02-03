@@ -1,0 +1,28 @@
+<!-- This template is used to generate a link to a simulated conversation that the researcher select.  It uses the
+GenerateLink view.-->
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+{% block title %}Share Template{% endblock %}
+{% block content %}
+    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
+    <h3>Share Template</h3>
+
+    {% if success %}
+        <div class="alert alert-success">
+            The conversation template you selected was successfully shared with {{success}}
+        </div>
+    {% endif %}
+
+    <form action = "" method = "post"> {% csrf_token %}
+        {% for field in form %}
+        <div class = "field_error_wrapper">
+            {{field.errors}}
+            {{field.label_tag}}</br>
+            {{field}}
+        </div>
+    {% endfor %}
+    <br>
+    <input type = "submit" value = "Share" />
+    </form>
+
+{% endblock %}

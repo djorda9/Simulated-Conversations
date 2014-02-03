@@ -4,10 +4,14 @@ GenerateLink view.-->
 {% load staticfiles %}
 {% block title %}Generate Link{% endblock %}
 {% block content %}
+    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
+
     <h3>Generate Link</h3>
     {% if link %}
-        <b>Link: </b>
-        <a href="{{link}}">{{link}}</a>
+        <div class="alert alert-success">
+            <b>Link: </b>
+            <a href="{{link}}">{{link}}</a>
+        </div>
     {% endif %}
     {% if key %}
         <b><br>Key: {{key}}<br><br></b>
