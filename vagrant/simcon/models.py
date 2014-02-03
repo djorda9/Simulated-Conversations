@@ -1,6 +1,7 @@
 # Simulated Conversation Models
 from django.db import models
 from django.contrib.auth.models import User
+from tinymce.models import HTMLField  # tinymce for rich text embeds
 
 class Researcher (models.Model):  
     user = models.OneToOneField (User)   # tie into auth user table
@@ -130,6 +131,7 @@ class PageInstance(models.Model):
     videoLink       = models.CharField(max_length = 11, null = True)  # this will store the alphanumberic code of a url such as: http://img.youtube.com/vi/zJ8Vfx4721M
     richText        = models.TextField()    # NOTE:  this has to store raw html
     enablePlayback  = models.BooleanField(default = True)
+    #cont = HTMLField() # this is a drop in db reference for a rich text embed
     
     def __unicode__(self):
         if videoOrResponse == "video":  # consider change this to query videoLink not null?

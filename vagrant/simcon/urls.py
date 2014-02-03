@@ -8,32 +8,19 @@ admin.autodiscover()
    # url(r'^blog/', include('blog.urls')),
 urlpatterns = patterns('simcon.views',
     url(r'^admin/template-wizard/$', 'TemplateWizard'),
+    url(r'^admin/template-wizard-update', 'TemplateWizardUpdate'),#used to do the behind-the-scenes stuff, update session variables
+    url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane'), #used to do the behind-the-scenes stuff, reload the left pane
+    url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane'),#used to do the behind-the-scenes stuff, reload the right pane
     )
-
-#this is used to do the behind-the-scenes stuff on the 
-#  conversation template wizard...update session variables
-urlpatterns += patterns('simcon.views',
-        url(r'^admin/template-wizard-update', 'TemplateWizardUpdate')
-    )
-
-#this is used to do the behind-the-scenes stuff on the
-#  conversation template wizard...reload the left pane
-urlpatterns += patterns('simcon.views',
-        url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane')
-    )
-
-#this is used to do the behind-the-scenes stuff on the
-#  conversation template wizard...reload the right pane
-urlpatterns += patterns('simcon.views',
-        url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane')
-    )
-
+    
+urlpatterns += patterns('',
+    (r'^tinymce/', include('tinymce.urls')), # this is for rich text embeds
+)
 
 urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls))
+        url(r'^admin/', include(admin.site.urls))  # for admin site
     )
-
-
+    
 
 '''
 Include a default page
