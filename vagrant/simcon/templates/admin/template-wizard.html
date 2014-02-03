@@ -44,7 +44,35 @@
           <div class="row">
             <div class="col-md-4">
               <h4><u>Videos</u></h4>
-              <div id="leftPane">{% include "admin/template-wizard-include-left.html" %}</div>
+              <div id="leftPane">
+		<ol id="videolist">
+		{% for vid in request.session.videos %}
+		    <li>
+		      <form role="form" method="post" action="." name="formVideo{{vid}}"> {% csrf_token %}
+			<input type="image" name="submit" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded" width="40" height="30">
+		      </form>
+		      <form role="form" method="post" action="." name="formRemoveVideo{{vid}}"> {% csrf_token %}
+			<input type="hidden" name="removeVideoFromPool" value="{{vid}}">
+			<button type="button" class="btn btn-default btn-xs" id="formRemoveVideoButton" onclick="document.formRemoveVideo{{vid}}.submit()">
+			  <span class="glyphicon glyphicon-trash"></span> Remove
+			</button>
+		      </form>
+		      Links to...
+		    </li>
+		{% endfor %}
+		</ol>
+
+		<form role="form" method="post" action="." name="formAddVideo"> {% csrf_token %}
+		  <div class="form-group">
+		    <input id="video_name" name="new_video" type="text" class="form-control" placeholder="Enter web address of YouTube video">
+		    <input type="hidden" name="addVideoToPool" value="addVideoToPool">
+		    <button type="button" class="btn btn-default btn-sm" onclick="document.formAddVideo.submit()">
+		      <span class="glyphicon glyphicon-circle-arrow-right"></span> Add Video
+		    </button>
+		  </div>
+		</form>
+
+              </div>
             </div>
             <div class="col-md-8">
               <div class="panel panel-default">
@@ -52,7 +80,33 @@
                   <h3 class="panel-title">Video Page Editor</h3>
                 </div>
                 <div class="panel-body">
-                  <div id="rightPane">{% include "admin/template-wizard-include-right.html" %}</div>                  
+                  <div id="rightPane">
+		    {%  if request.session.selectedVideo %}
+		      <img src="http://img.youtube.com/vi/{{ request.session.selectedVideo }}/0.jpg" class="img-rounded" width="160" height="120">
+		      <p> TODO print out title of video </p> {# TODO rich text replacement? http://django-tinymce.readthedocs.org/en/latest/index.html http://simonsstuffan\
+    dthings.blogspot.com/2011/05/django-tinymce-profit.html#}
+
+		      <input type="submit" name="removeVideoResponse" value="Remove Video">
+
+		      {# replace with rich text editor #}<p>
+		      <label for="videoText">Video Text:</label>
+		      <input type="textarea" name="videoText" label="Video text">
+		      <label for="enablePlayback">Enable playback of video?</label><input type="checkbox" name="enablePlayback">
+		      <h3>Responses:</h3>
+		      {% if request.session.responseOptions %}
+		      {% for opt in request.session.responseOptions %}
+		      <p><label for="response{{ forloop.counter}}">Option {{ forloop.counter }}</label><input type="text" name="response{{ forloop.counter }}" placeholder=\
+    "Enter your response" value="{{opt}}"><input type="submit" name="removeResponse" value="Remove Response {{forloop.counter}}"><input type="submit" name="addVideoToRespo\
+    nse" value="Add video to response {{forloop.counter}}"></p>
+		      {% endfor %}
+		      {% endif %}
+		      <input type="submit" name="addoption" value="Add Option">
+
+		    {% else %}
+		      No video selected.
+		    {% endif %}
+
+                  </div>                  
                 </div>
               </div>
             </div>

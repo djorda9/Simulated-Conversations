@@ -33,16 +33,7 @@ def TemplateWizard(request):
         elif request.POST.get('editExistingTemplate'):
             #prepopulate session variables and then reload page
             print "existing temp"
-        else:
-            return HttpResponse("ill formed request")
-        
-    return render(request, 'admin/template-wizard.html')
-
-    
-@permission_required('simcon.authLevel1')
-def TemplateWizardIncludeLeft(request):
-    if request.POST:
-        if request.POST.get('addVideoToPool'):
+        elif request.POST.get('addVideoToPool'):
             '''
             User has demanded to add a video to the pool in the left pane
             '''
@@ -58,22 +49,7 @@ def TemplateWizardIncludeLeft(request):
             '''
             request.session['videos'].remove(request.POST['removeVideoFromPool'])
             request.session.modified = True
-        else:
-            return HttpResponse("ill formed request")
-    else:
-        request.session['videos'] = [] # creating an empty list to hold our videos
-        request.session['videos'].append('zJ8Vfx4721M')  # sample video
-        request.session['videos'].append('IAISUDbjXj0')  #sample video
-        request.session.modified = True
-
-        
-    return render(request, 'admin/template-wizard-include-left.html')
-
-    
-@permission_required('simcon.authLevel1')
-def TemplateWizardIncludeRight(request):
-    if request.POST:
-        if request.POST.get('beginEditingVideo'):
+        elif request.POST.get('beginEditingVideo'):
             print"ok edit video stuff here"  
 #            '''
 #            User has selected a video from the pool to use for a conversation
@@ -135,12 +111,18 @@ def TemplateWizardIncludeRight(request):
 #            res = res.split(' ')
 #            res = int(res[-1])-1 # should be number of response to remove
 #            return HttpResponse('add %d' % res)
+
         else:
             return HttpResponse("ill formed request")
     else:
-        print "nothing was submitted. print default page load thing"
+        request.session['videos'] = [] # creating an empty list to hold our videos
+        request.session['videos'].append('zJ8Vfx4721M')  # sample video
+        request.session['videos'].append('IAISUDbjXj0')  #sample video
+        request.session.modified = True
+
         
-    return render(request, 'admin/template-wizard-include-right.html')
+    return render(request, 'admin/template-wizard.html')
+
 
 
 '''    
