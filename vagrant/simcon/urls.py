@@ -9,9 +9,18 @@ admin.autodiscover()
 urlpatterns = patterns('simcon.views',
     url(r'^admin/template-wizard/$', 'TemplateWizard'),
     )
+urlpatterns += patterns('simcon.views',
+    url(r'^admin/template-wizard-include-left/$', 'TemplateWizardIncludeLeft'),
+    )
+urlpatterns += patterns('simcon.views',
+    url(r'^admin/template-wizard-include-right/$', 'TemplateWizardIncludeRight'),
+    )
 
 urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls)))
+        url(r'^admin/', include(admin.site.urls))
+    )
+
+
 
 #if settings.DEBUG:
 #    import debug_toolbar

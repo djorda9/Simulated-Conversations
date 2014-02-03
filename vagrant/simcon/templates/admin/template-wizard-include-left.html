@@ -1,0 +1,26 @@
+              <ol id="videolist">
+              {% for vid in request.session.videos %}
+                  <li>
+                    <form role="form" method="post" action="." name="formVideo{{vid}}"> {% csrf_token %}
+                      <input type="image" name="submit" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded" width="40" height="30">
+                    </form>
+                    <form role="form" method="post" action="." name="formRemoveVideo{{vid}}"> {% csrf_token %}
+                      <input type="hidden" name="removeVideoFromPool" value="{{vid}}">
+                      <button type="button" class="btn btn-default btn-xs" onclick="document.formRemoveVideo{{vid}}.submit()">
+                        <span class="glyphicon glyphicon-trash"></span> Remove
+                      </button>
+                    </form>
+                    Links to... 
+                  </li>
+              {% endfor %}
+              </ol>
+
+              <form role="form" method="post" action="." name="formAddVideo"> {% csrf_token %}
+                <div class="form-group">
+                  <input id="video_name" name="new_video" type="text" class="form-control" placeholder="Enter web address of YouTube video">
+                  <input type="hidden" name="addVideoToPool" value="addVideoToPool">
+                  <button type="button" class="btn btn-default btn-sm" onclick="document.formAddVideo.submit()">
+                    <span class="glyphicon glyphicon-circle-arrow-right"></span> Add Video
+                  </button>
+                </div>
+              </form>
