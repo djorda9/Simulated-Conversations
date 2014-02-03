@@ -39,11 +39,12 @@ def TemplateWizard(request):
             '''
             videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['new_video'], 0)
             if videoCode:
+              #TODO first check if video exists in pool... dont add twice
               request.session['videos'].append(videoCode.group(1))
               request.session.modified = True
             else:
               print "Invalid video link."
-        elif request.POST.get('removeVideoFromPool'):
+        elif request.POST.get('videoToRemove'):
             '''
             User has demanded to delete a video from the pool in the left pane
             '''
@@ -117,11 +118,47 @@ def TemplateWizard(request):
     else:
         request.session['videos'] = [] # creating an empty list to hold our videos
         request.session['videos'].append('zJ8Vfx4721M')  # sample video
-        request.session['videos'].append('IAISUDbjXj0')  #sample video
+        request.session['videos'].append('DewJHJlYOIU') #sample
         request.session.modified = True
 
         
     return render(request, 'admin/template-wizard.html')
+
+#This is the "behind the scenes" stuff for the template wizard above
+@permission_required('simcon.authLevel1')
+def TemplateWizardUpdate(request):
+    if request.POST:
+        if request.POST.get('new_video'):
+            '''
+            User has demanded to add a video to the pool in the left pane
+            '''
+            videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['new_video'], 0)
+            if videoCode:
+              #TODO first check if video exists in pool... dont add twice
+              request.session['videos'].append(videoCode.group(1))
+              request.session.modified = True
+            else:
+              print "Invalid video link."
+        elif request.POST.get('removeVideoFromPool'):
+            '''
+            User has demanded to delete a video from the pool in the left pane
+            '''
+            if request.POST['removeVideoFromPool']:
+                request.session['videos'].remove(request.POST['removeVideoFromPool'])
+                request.session.modified = True
+    else:
+        return HttpResponse("no POST data")
+    return HttpResponse("null")
+
+#Reload the template wizards left pane if requested
+@permission_required('simcon.authLevel1')
+def TemplateWizardLeftPane(request):
+    return render(request, 'admin/template-wizard-left-pane.html')
+
+#Reload the template wizards right pane if requested
+@permission_required('simcon.authLevel1')
+def TemplateWizardRightPane(request):
+    return render(request, 'admin/template-wizard-right-pane.html')
 
 
 

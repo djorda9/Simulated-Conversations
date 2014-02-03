@@ -10,11 +10,37 @@ urlpatterns = patterns('simcon.views',
     url(r'^admin/template-wizard/$', 'TemplateWizard'),
     )
 
+#this is used to do the behind-the-scenes stuff on the 
+#  conversation template wizard...update session variables
+urlpatterns += patterns('simcon.views',
+        url(r'^admin/template-wizard-update', 'TemplateWizardUpdate')
+    )
+
+#this is used to do the behind-the-scenes stuff on the
+#  conversation template wizard...reload the left pane
+urlpatterns += patterns('simcon.views',
+        url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane')
+    )
+
+#this is used to do the behind-the-scenes stuff on the
+#  conversation template wizard...reload the right pane
+urlpatterns += patterns('simcon.views',
+        url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane')
+    )
+
+
 urlpatterns += patterns('',
         url(r'^admin/', include(admin.site.urls))
     )
 
 
+
+'''
+Include a default page
+urlpatterns += patterns('',
+        url(r'^', include())
+    )
+'''
 
 #if settings.DEBUG:
 #    import debug_toolbar

@@ -21,7 +21,74 @@
     </style>
 
     <!-- jQuery addition -->
-    <script type="text/javascript" src="{% static "jquery-1.2.1.js" %}"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
+
+
+    <script>
+
+    $(document).ready(function(){      
+    <!-- the snippet below ensures the AJAX POST has a CSRF token for django -->
+      $(document).ajaxSend(function(event, xhr, settings) {
+	  function getCookie(name) {
+	      var cookieValue = null;
+	      if (document.cookie && document.cookie != '') {
+		  var cookies = document.cookie.split(';');
+		  for (var i = 0; i < cookies.length; i++) {
+		      var cookie = jQuery.trim(cookies[i]);
+		      // Does this cookie string begin with the name we want?
+		      if (cookie.substring(0, name.length + 1) == (name + '=')) {
+			  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			  break;
+		      }
+		  }
+	      }
+	      return cookieValue;
+	  }
+	  function sameOrigin(url) {
+	      // url could be relative or scheme relative or absolute
+	      var host = document.location.host; // host + port
+	      var protocol = document.location.protocol;
+	      var sr_origin = '//' + host;
+	      var origin = protocol + sr_origin;
+	      // Allow absolute or scheme relative URLs to same origin
+	      return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+		  (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+		  // or any other URL that isn't scheme relative or absolute i.e relative.
+		  !(/^(\/\/|http:|https:).*/.test(url));
+	  }
+	  function safeMethod(method) {
+	      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	  }
+
+	  if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+	      xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+	  }
+      });
+      <!-- end snippet -->
+      
+      <!-- here's the ajax/jquery code to remove a video from pool-->
+      $("#leftPane").on("click", "button.removeVideoButton", function(){
+           var removeVideoFromPool = $(this).val();
+           var data = { removeVideoFromPool:removeVideoFromPool };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           $("#leftPane").load("/admin/template-wizard-left-pane");
+                       } };
+           $.ajax(args);
+      });
+      <!-- here's the code to add a video to the pool -->
+      $("#leftPane").on("click", "button.addVideoButton", function(){
+           var new_video = $("#video_name").val();
+           var data = { new_video:new_video };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                            $("#leftPane").load("/admin/template-wizard-left-pane");
+                       } };
+           $.ajax(args);
+      });
+    });
+    </script>
+
+
+
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -45,33 +112,7 @@
             <div class="col-md-4">
               <h4><u>Videos</u></h4>
               <div id="leftPane">
-		<ol id="videolist">
-		{% for vid in request.session.videos %}
-		    <li>
-		      <form role="form" method="post" action="." name="formVideo{{vid}}"> {% csrf_token %}
-			<input type="image" name="submit" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded" width="40" height="30">
-		      </form>
-		      <form role="form" method="post" action="." name="formRemoveVideo{{vid}}"> {% csrf_token %}
-			<input type="hidden" name="removeVideoFromPool" value="{{vid}}">
-			<button type="button" class="btn btn-default btn-xs" id="formRemoveVideoButton" onclick="document.formRemoveVideo{{vid}}.submit()">
-			  <span class="glyphicon glyphicon-trash"></span> Remove
-			</button>
-		      </form>
-		      Links to...
-		    </li>
-		{% endfor %}
-		</ol>
-
-		<form role="form" method="post" action="." name="formAddVideo"> {% csrf_token %}
-		  <div class="form-group">
-		    <input id="video_name" name="new_video" type="text" class="form-control" placeholder="Enter web address of YouTube video">
-		    <input type="hidden" name="addVideoToPool" value="addVideoToPool">
-		    <button type="button" class="btn btn-default btn-sm" onclick="document.formAddVideo.submit()">
-		      <span class="glyphicon glyphicon-circle-arrow-right"></span> Add Video
-		    </button>
-		  </div>
-		</form>
-
+                {% include "admin/template-wizard-left-pane.html" %}
               </div>
             </div>
             <div class="col-md-8">
@@ -81,31 +122,7 @@
                 </div>
                 <div class="panel-body">
                   <div id="rightPane">
-		    {%  if request.session.selectedVideo %}
-		      <img src="http://img.youtube.com/vi/{{ request.session.selectedVideo }}/0.jpg" class="img-rounded" width="160" height="120">
-		      <p> TODO print out title of video </p> {# TODO rich text replacement? http://django-tinymce.readthedocs.org/en/latest/index.html http://simonsstuffan\
-    dthings.blogspot.com/2011/05/django-tinymce-profit.html#}
-
-		      <input type="submit" name="removeVideoResponse" value="Remove Video">
-
-		      {# replace with rich text editor #}<p>
-		      <label for="videoText">Video Text:</label>
-		      <input type="textarea" name="videoText" label="Video text">
-		      <label for="enablePlayback">Enable playback of video?</label><input type="checkbox" name="enablePlayback">
-		      <h3>Responses:</h3>
-		      {% if request.session.responseOptions %}
-		      {% for opt in request.session.responseOptions %}
-		      <p><label for="response{{ forloop.counter}}">Option {{ forloop.counter }}</label><input type="text" name="response{{ forloop.counter }}" placeholder=\
-    "Enter your response" value="{{opt}}"><input type="submit" name="removeResponse" value="Remove Response {{forloop.counter}}"><input type="submit" name="addVideoToRespo\
-    nse" value="Add video to response {{forloop.counter}}"></p>
-		      {% endfor %}
-		      {% endif %}
-		      <input type="submit" name="addoption" value="Add Option">
-
-		    {% else %}
-		      No video selected.
-		    {% endif %}
-
+		    {%  include "admin/template-wizard-right-pane.html" %}
                   </div>                  
                 </div>
               </div>
@@ -123,15 +140,6 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js">
-    </script>
-    <script>
-    /*$(document).ready(function(){
-      $("#addvideo").click(function(){
-        $("#videolist").append("<li>Appended video</li>");
-      });
-    });*/
-    </script>
     <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
   </body>
 </html>

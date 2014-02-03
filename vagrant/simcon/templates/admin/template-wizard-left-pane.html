@@ -1,0 +1,21 @@
+{% block content %}
+
+                <ol id="videolist">
+                {% for vid in request.session.videos %}
+                    <li>
+                      <input type="image" name="submit" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded" width="40" height="30">
+                      <button type="button" class="btn btn-default btn-xs removeVideoButton" id="formRemoveVideoButton{{vid}}" value="{{vid}}">
+                          <span class="glyphicon glyphicon-trash"></span> Remove
+                        </button>
+                      Links to...
+                    </li>
+                {% endfor %}
+                </ol>
+
+                <input id="video_name" name="new_video" type="text" class="form-control" placeholder="Enter web address of YouTube video">
+                <button type="button" class="btn btn-default btn-sm addVideoButton" id="formAddVideoButton">
+                  <span class="glyphicon glyphicon-circle-arrow-right"></span> Add Video
+                </button>
+
+
+{% endblock %}
