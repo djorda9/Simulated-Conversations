@@ -88,6 +88,9 @@ class SharedResponses(models.Model):
     class Meta:
         unique_together = ("responseID", "researcherID")
 
+    def __unicode__(self):
+        return '%s' % self.sharedResponseID
+
 #The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
 class StudentAccess(models.Model):
     studentAccessID = models.AutoField(primary_key=True)

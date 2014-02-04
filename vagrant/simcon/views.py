@@ -4,15 +4,20 @@ from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from django.db import transaction
+from django.db import transaction, IntegrityError
+from datetime import datetime
 from models import StudentAccess
 from forms import StudentAccessForm
 from forms import ShareTemplateForm
 from forms import LoginForm
+from forms import ShareResponseForm
+from models import Response
 from models import Researcher
 from models import Template
 from models import PageInstance
 from models import TemplateFlowRel
+from models import SharedResponses
+from models import Conversation
 from django.views.generic import View
 #import logging
 
@@ -227,6 +232,45 @@ def ShareTemplate(request):
             form = ShareTemplateForm(researcher=current_user)
     return render_to_response('share_template.html', {'success':researcher_userId, 'form':form}, context_instance = RequestContext(request))
 
+# This view is used to share a response with another researcher.  To pass the responseID, add ?responseID=[responseID]
+# to end of the url.
+@permission_required('simcon.authLevel1')
+def ShareResponse(request):
+    user_responseID = request.GET.get('responseID', -1)
+    current_user = get_researcher(request.user)
+    success = None
+    failed = None
+    if(user_responseID < 0):
+        failed = "The ResponseID was not provided."
+    else:
+        user_response = Response.objects.get(pk=user_responseID)
+        conversation = Conversation.objects.get(pk=user_response.conversationID.id)
+        conversation_researcher = get_researcher(conversation.researcherID)
+        if current_user.user==conversation_researcher.user:
+            if request.method == 'POST':
+                form = ShareResponseForm(request.POST, researcher=current_user)
+                if form.is_valid():
+                    researcher = form.cleaned_data['researcherID']
+                    if user_response == None:
+                        failed = "The ResponseID that was supplied is invalid."
+                    else:
+                        shared = SharedResponses(responseID=user_response, researcherID=researcher,
+                                                 dateTimeShared=datetime.now())
+                        try:
+                            shared.save()
+                        except IntegrityError as e:
+                            failed = "The respose has already been shared with " + researcher.user.get_full_name()
+                            return render_to_response('share_response.html', {'success':success, 'failed':failed, 'form':form},
+                                      context_instance = RequestContext(request))
+
+                        success = researcher.user.get_full_name()
+            else:
+                form = ShareResponseForm(researcher=current_user)
+        else:
+            failed = "You do not have permission to share this response"
+            form = ShareResponseForm(researcher=current_user)
+    return render_to_response('share_response.html', {'success':success, 'failed':failed, 'form':form},
+                              context_instance = RequestContext(request))
 
 # Holds the PageInstance being copied and the PageInstance that was copied.
 class pageInstanceStruct(object):
