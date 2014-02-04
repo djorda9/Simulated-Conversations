@@ -2,6 +2,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.files import File
+import datetime
 
 class Researcher (models.Model):  
     user = models.OneToOneField (User)   # tie into auth user table
@@ -180,4 +182,3 @@ class TemplateFlowRel(models.Model):
 
     def nex_page(self):
         return self.nextPageInstanceID
-

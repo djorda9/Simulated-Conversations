@@ -18,6 +18,7 @@ from models import PageInstance
 from models import TemplateFlowRel
 from models import SharedResponses
 from models import Conversation
+from models import fill_table
 from django.views.generic import View
 #import logging
 
@@ -238,6 +239,7 @@ def ShareTemplate(request):
 def ShareResponse(request):
     user_responseID = request.GET.get('responseID', -1)
     current_user = get_researcher(request.user)
+    form = None
     success = None
     failed = None
     if(user_responseID < 0):
@@ -268,7 +270,7 @@ def ShareResponse(request):
                 form = ShareResponseForm(researcher=current_user)
         else:
             failed = "You do not have permission to share this response"
-            form = ShareResponseForm(researcher=current_user)
+            #form = ShareResponseForm(researcher=current_user)
     return render_to_response('share_response.html', {'success':success, 'failed':failed, 'form':form},
                               context_instance = RequestContext(request))
 
