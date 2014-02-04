@@ -6,20 +6,15 @@ from django.contrib.auth.decorators import permission_required
 # Custom model admins
 # Note: flat admin may handle our mockups better
 # TODO:  filter templates, responses, etc by user ownership, so they can only see things they own
-#        make the things not needing a query a button on the template?
 class TemplateAdmin(admin.ModelAdmin):
     actions = ['edit_template', 'share_template', 'generate_link']
     
-    #@permission_required('simcon.authLevel1') #TODO fix this, also need to rewire for an empty queryset, or move this to a button in template?
-    #def new_template(self, request, queryset):
-    #    "Navigate to new template interface"
-    #    pass
-    #new_template.short_description = "New Template >>"
-    
     #@permission_required('simcon.authLevel1') #TODO fix this
     def edit_template(self, request, queryset):
-        "Edit the selected template(s)"
-        self.message_user(request, "Edit template %s" % request.user.username)
+        "Edit the selected template"
+        
+        self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.objects.all().aggregate(Count('templateID'))))
+        #TODO redirect to template_wizard, increment a version
     edit_template.short_description = "Edit template"
     
     @permission_required('simcon.authLevel1') #TODO fix this
@@ -57,3 +52,11 @@ class ResponseAdmin(admin.ModelAdmin):
 admin.site.register(models.Researcher, ResearcherAdmin)
 admin.site.register(models.Template, TemplateAdmin)
 admin.site.register(models.Response, ResponseAdmin)
+
+#temporarily adding all
+admin.site.register(models.Conversation)
+admin.site.register(models.SharedResponses)
+admin.site.register(models.StudentAccess)
+admin.site.register(models.PageInstance)
+admin.site.register(models.TemplateResponseRel)
+admin.site.register(models.TemplateFlowRel)

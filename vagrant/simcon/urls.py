@@ -11,16 +11,15 @@ urlpatterns = patterns('simcon.views',
     url(r'^admin/template-wizard-update', 'TemplateWizardUpdate'),#used to do the behind-the-scenes stuff, update session variables
     url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane'), #used to do the behind-the-scenes stuff, reload the left pane
     url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane'),#used to do the behind-the-scenes stuff, reload the right pane
+    
+    #url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
     )
     
 urlpatterns += patterns('',
     (r'^tinymce/', include('tinymce.urls')), # this is for rich text embeds
+    url(r'^admin/', include(admin.site.urls)),  # for admin site
 )
-
-urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls))  # for admin site
-    )
-    
+   
 
 '''
 Include a default page

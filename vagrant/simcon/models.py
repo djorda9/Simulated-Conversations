@@ -108,16 +108,16 @@ class StudentAccess(models.Model):
 class Template(models.Model):
     templateID      = models.AutoField(primary_key = True)
     researcherID    = models.ForeignKey(Researcher)
-    firstInstanceID = models.ForeignKey("TemplateFlowRel")
+    firstInstanceID = models.ForeignKey("TemplateFlowRel", blank=True, null=True)
     shortDesc       = models.TextField()
     deleted         = models.BooleanField(default = False)   # whether or not this template has been deleted
     version         = models.IntegerField(default = 1)    # particular version of this template, base 1
     
     def __unicode__(self):
-        if version > 1:
-            return u"%s Version: %d" % (shortDesc, version)
+        if self.version > 1:
+            return u"%s Version: %d" % (self.shortDesc, self.version)
         else:
-            return u"%s" % shortDesc
+            return u"%s" % self.shortDesc
             
 #PageInstance: this relates videos or responses to a template. The template is referenced by
 #templateID and researcherID. videoOrResponse tells you whether it's a VIDEO INSTANCE or a 
@@ -126,7 +126,7 @@ class Template(models.Model):
 #If it's a response instance, these values will be blank.
 class PageInstance(models.Model):
     pageInstanceID  = models.AutoField(primary_key = True)
-    templateID      = models.ForeignKey(Template)
+    templateID      = models.ForeignKey(Template, blank=True, null=True)
     videoOrResponse = models.CharField(max_length = 8, default = "response") #considering omitting this and just using videoLink to determine variety...
     videoLink       = models.CharField(max_length = 11, null = True)  # this will store the alphanumberic code of a url such as: http://img.youtube.com/vi/zJ8Vfx4721M
     richText        = models.TextField()    # NOTE:  this has to store raw html
@@ -134,7 +134,7 @@ class PageInstance(models.Model):
     #cont = HTMLField() # this is a drop in db reference for a rich text embed
     
     def __unicode__(self):
-        if videoOrResponse == "video":  # consider change this to query videoLink not null?
+        if self.videoOrResponse == "video":  # consider change this to query videoLink not null?
             return u"Video instance"
         else:
             return u"Response instance"
@@ -147,7 +147,10 @@ class TemplateResponseRel(models.Model):
     pageInstanceID        = models.ForeignKey(PageInstance, related_name='templateresponserel_page')
     responseText          = models.TextField()
     optionNumber          = models.IntegerField(default = 1)
-    nextPageInstanceID    = models.ForeignKey(PageInstance, related_name='templateresponserel_nextpage')
+    nextPageInstanceID    = models.ForeignKey(PageInstance, related_name='templateresponserel_nextpage', blank=True, null=True)
+    
+    def __unicode__(self):
+        return u"Template response relation for template: %s" % self.templateID.shortDesc
 
 #TemplateFlowRel: this determines how the template will flow. A template is referenced by
 # templateID and researcherID. The first page in the flow will be determined by the 
@@ -159,4 +162,7 @@ class TemplateFlowRel(models.Model):
     templateID         = models.ForeignKey(Template)
     pageInstanceID     = models.ForeignKey(PageInstance, related_name='templateflowrel_page')
     nextPageInstanceID = models.ForeignKey(PageInstance, related_name='templateflowrel_nextpage')
+      
+    def __unicode__(self):
+        return u"Template flow relation for template: %s" % self.templateID.shortDesc
 
