@@ -30,9 +30,10 @@ def TemplateWizard(request):
             #store session variables into template tables
             #print success message
             #provide link back to main page
+            #for now this renders the wizard page, but render a "success page" instead.
+            return render(request, 'admin/template-wizard.html')
         elif request.POST.get('editExistingTemplate'):
             #prepopulate session variables and then reload page
-            print "existing temp"
 #            '''
 #            User has selected a video from the pool to use for a conversation
 #            '''
@@ -43,6 +44,7 @@ def TemplateWizard(request):
 #            # init options releated to this video, not sure if videos will be singular for sure in a conversation?
 #            request.session['responseOptions'] = ['Enter your option'] 
 #            request.session.modified = True
+            return render(request, 'admin/template-wizard.html')
 
         else:
             return HttpResponse("ill formed request")
@@ -69,9 +71,7 @@ def TemplateWizard(request):
         request.session['videos'].append('zJ8Vfx4721M')  # sample video
         request.session['videos'].append('DewJHJlYOIU') #sample 
         request.session.modified = True
-
-        
-    return render(request, 'admin/template-wizard.html')
+        return render(request, 'admin/template-wizard.html')
 
 #This is the "behind the scenes" stuff for the template wizard above
 @permission_required('simcon.authLevel1')
