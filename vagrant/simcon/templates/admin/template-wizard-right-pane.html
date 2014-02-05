@@ -1,22 +1,63 @@
 {% block content %}
-                {%  if request.session.selectedVideo %}
-                  <img src="http://img.youtube.com/vi/{{ request.session.selectedVideo }}/0.jpg" class="img-rounded" width="160" height="120">
-                  <p> TODO print out title of video </p> {# TODO rich text replacement? http://django-tinymce.readthedocs.org/en/latest/index.html http://simonsstuffandthings.blogspot.com/2011/05/django-tinymce-profit.html#}
+{% load simcon_extras %}
+                {% if request.session.selectedVideo != "" %}
+                  <input type="hidden" id="selectedVideo" value="{{ request.session.selectedVideo }}">
+                  <button type="button" class="btn btn-default btn-sm saveVideoPageButton pull-right" id="formSaveVideoPageButton{{vid}}" value="{{request.session.selectedVideo}}">
+                      <span class="glyphicon glyphicon-save"></span> Save Video Page
+                  </button><br>
+                  <div style="text-align:center;">
+		    <object width="400" height="243">
+		      <param name="movie"
+			     value="https://www.youtube.com/v/{{ request.session.selectedVideo }}?version=3&autoplay=0"></param>
+		      <param name="allowScriptAccess" value="always"></param>
+		      <embed src="https://www.youtube.com/v/{{ request.session.selectedVideo }}?version=3&autoplay=0"
+			     type="application/x-shockwave-flash"
+			     allowscriptaccess="always"
+			     width="400" height="243"></embed>
+		    </object><br>
+                  </div>
+                  {# Rich Text box http://django-tinymce.readthedocs.org/en/latest/index.html #}
                   
-                  <input type="submit" name="removeVideoResponse" value="Remove Video">
-                  
-                  {# replace with rich text editor #}<p>
-                  <label for="videoText">Video Text:</label>
-                  <input type="textarea" name="videoText" label="Video text">
-                  <label for="enablePlayback">Enable playback of video?</label><input type="checkbox" name="enablePlayback">
-                  <h3>Responses:</h3>
-                  {% if request.session.responseOptions %}
-                  {% for opt in request.session.responseOptions %}
-                  <p><label for="response{{ forloop.counter}}">Option {{ forloop.counter }}</label><input type="text" name="response{{ forloop.counter }}" placeholder="Enter your response" value="{{opt}}"><input type="submit" name="removeResponse" value="Remove Response {{forloop.counter}}"><input type="submit" name="addVideoToResponse" value="Add video to response {{forloop.counter}}"></p>
-                  {% endfor %}
-                  {% endif %}
-                  <input type="submit" name="addoption" value="Add Option">
-                  
+                  <div style="text-align:center;">
+                    <label for="enablePlayback">Enable playback of video?</label> <input type="checkbox" id="enablePlayback"
+                    {% for chk in request.session.enablePlayback %}
+                      {% if chk == request.session.selectedVideo %} 
+                        checked 
+                      {% endif %}
+                    {% endfor %}>
+                  </div>
+                  <h4><u>Responses:</u></h4>
+		    <div class="form-group">
+                      <table>
+                        <input type="hidden" id="addResponseParentVideo" value="{{request.session.selectedVideo}}">
+                      {% for parent in request.session.responseParentVideo %}
+                        {% if parent == request.session.selectedVideo %}
+                            <tr>
+                            <td>{{ request.session.responseText|get_at_index:forloop.counter0 }}</td>
+	     		    <td><input type="image" src="http://img.youtube.com/vi/{{ request.session.responseChildVideo|get_at_index:forloop.counter0 }}/0.jpg" class="img-rounded editVideoImage" width="40" height="30">
+			    <button type="button" class="btn btn-default btn-xs removeResponseButton" value="{{forloop0.counter}}">
+			      <span class="glyphicon glyphicon-trash"></span> Remove Response
+			    </button></td>
+                          </tr>
+                        {% endif %}
+                      {% endfor %}
+                      </table>
+		      <label for="addResponseText">Add Response Option:</label>
+		      <input type="text" id="addResponseText" class="form-control" placeholder="Enter the response text">
+                      <select id="addResponseChildVideo" class="form-control">
+                        <option value="none">Select a video to link this response to</option>
+                        {% for vid in request.session.videos %}
+                          {% if vid != request.session.selectedVideo %}
+                            <option value="{{ vid }}">Video {{forloop.counter}}</option>
+                          {% endif %}
+                        {% endfor %}
+                      </select>
+                      <button type="button" class="btn btn-default btn-xs" id="addResponseButton" value="addResponseButton">
+                         <span class="glyphicon glyphicon-plus"></span> Add Response Option 
+                      </button>
+		    </div>
+                    
+                    
                 {% else %}
                   No video selected.
                 {% endif %}

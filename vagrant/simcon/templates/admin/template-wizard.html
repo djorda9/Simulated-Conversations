@@ -71,7 +71,9 @@
            var removeVideoFromPool = $(this).val();
            var data = { removeVideoFromPool:removeVideoFromPool };
            var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                           $("#leftPane").load("/admin/template-wizard-left-pane");
+                           $("#leftPane").load("/admin/template-wizard-left-pane")
+                           <!-- check if its the video to be deleted, and load the empty right pane if so -->
+                           $("#rightPane").load("/admin/template-wizard-right-pane")
                        } };
            $.ajax(args);
       });
@@ -80,7 +82,95 @@
            var new_video = $("#video_name").val();
            var data = { new_video:new_video };
            var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                            $("#leftPane").load("/admin/template-wizard-left-pane");
+                            $("#leftPane").load("/admin/template-wizard-left-pane")
+                       } };
+           $.ajax(args);
+      });
+      <!-- select a video to edit the video/response page (by clicking button)-->
+      $("#leftPane").on("click", "button.editVideoButton", function(){
+          var editVideo = $(this).val();
+          var data = { editVideo:editVideo };
+          var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                            <!-- TODO before loading right pane, check if there is data there, and save it if so -->
+                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                     }};
+          $.ajax(args);
+      });
+      <!-- show instructions near top of page-->
+      $("#instrucLink").on("click", "#showInstruc", function(){
+          $("#instrucLink").html('<br><br><button type=button class="btn btn-default btn-xs" id=hideInstruc> Hide Instructions </button>')
+          $("#instructions").html(
+            '<div class="alert alert-success">'+
+              'Heres how to use this page.... blah blah blah.'+
+            '</div>')
+      });
+      <!-- hide instructions near top of page-->
+      $("#instrucLink").on("click", "#hideInstruc", function(){
+          $("#instrucLink").html('<br><br><button type=button class="btn btn-default btn-xs" id=showInstruc> Show Instructions </button>')
+          $("#instructions").html(' ')
+      });
+      <!-- this function is called to save the video editor page -->
+      var saveVideoPage = function(){
+         var data = new Array();
+         data['enablePlayback'] = $("#enablePlayback").val();
+         for (res in $("$responses .response")){
+            data['response'][res] = $(this)[res].val();
+         }
+         var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                            <!-- this isnt finished... -->
+                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                     }};
+          $.ajax(args);
+
+      }
+      <!-- add a response option on the video editor page -->
+      $("#rightPane").on("click", "#addResponseButton", function(){
+        if($("#addResponseChildVideo").val() != "none" && $("#addResponseText").val() != ""){
+           var addResponseText = $("#addResponseText").val();
+           var addResponseParentVideo = $("#addResponseParentVideo").val();
+           var addResponseChildVideo = $("#addResponseChildVideo").val();
+           var addResponse = "submit"; <!-- a placehold to signify in the view what action to take -->
+           var data = { addResponse:addResponse, addResponseText:addResponseText, addResponseParentVideo:addResponseParentVideo, addResponseChildVideo:addResponseChildVideo };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                       } };
+           $.ajax(args);
+        }
+      });
+      <!-- remove a response option on the video editor page -->
+      $("#rightPane").on("click", "button.removeResponseButton", function(){
+           var removeResponseId = $("#removeResponseId").val();
+           var removeResponse = "submit"; <!-- a placehold to signify in the view what action to take -->
+           var data = { addResponse:removeResponse, removeResponseId:removeResponseId };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                       } };
+           $.ajax(args);
+      });
+      <!-- save video page -->
+      $("#rightPane").on("click", "#saveVideoPage", function(){
+           var saveVideoPage = $("#saveVideoPage").val();
+           var data = { saveVideoPage:saveVideoPage };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                       } };
+           $.ajax(args);
+      });
+      <!-- enable/disable playback -->
+      $("#rightPane").on("click", "#enablePlayback", function(){
+           var enablePlayback = $("#enablePlayback").val();
+           var vid = $("#selectedVideo").val();
+           var data = { enablePlayback:enablePlayback, vid:vid };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                       } };
+           $.ajax(args);
+      });
+      <!-- save the whole template -->
+      $("#rightPane").on("click", "#saveTemplateButton", function(){
+           var data = { submitTemplate:"submit" };
+           var args = { type:"POST", url:"/admin/template-wizard", data:data, cache:false, complete:function(){
+                           <!--load submit page-->
                        } };
            $.ajax(args);
       });
@@ -102,11 +192,21 @@
     <div class="container">
 
       <div class="starter-template">
-        <h2>Conversation Template Wizard</h2>
-        <div class="alert alert-success">Here's how to use this page.... blah blah blah.</div>
+        <div class="row">
+          <div class="col-md-7">
+            <h2>Conversation Template Wizard</h2>
+          </div>
+          <div class="col-md-2" id="instrucLink">
+            <br><br><button type="button" class="btn btn-default btn-xs" id="showInstruc"> Show Instructions </button>
+          </div>
+          <div class="col-md-3">
+            <br><button type="button" id="saveTemplateButton" class="btn btn-default btn-lg">Save Template &raquo; </button>
+          </div>
+        </div>
+          <div id="instructions"></div>
           <div class="form-group">
-          <label for="exampleInputEmail1">Conversation Title</label>
-          <input type="text" name = "conversationTitle" class="form-control" placeholder="Enter a title">
+          <label for="conversationTitle">Conversation Title</label>
+          <input type="text" id="conversationTitle" class="form-control" placeholder="Enter a title">
           </div>
           <div class="row">
             <div class="col-md-4">
@@ -117,7 +217,7 @@
             </div>
             <div class="col-md-8">
               <div class="panel panel-default">
-                <div class="panel-heading">
+                <div class="panel-heading videoEditorTitle" id="videoEditorTitle">
                   <h3 class="panel-title">Video Page Editor</h3>
                 </div>
                 <div class="panel-body">
@@ -129,7 +229,6 @@
             </div>
           </div>
           <hr>
-          <button type="submit" class="btn btn-default">Save Template &raquo; </button>
         <!--/form-->
 
       </div>

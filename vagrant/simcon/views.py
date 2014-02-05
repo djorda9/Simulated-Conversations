@@ -33,25 +33,6 @@ def TemplateWizard(request):
         elif request.POST.get('editExistingTemplate'):
             #prepopulate session variables and then reload page
             print "existing temp"
-        elif request.POST.get('addVideoToPool'):
-            '''
-            User has demanded to add a video to the pool in the left pane
-            '''
-            videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['new_video'], 0)
-            if videoCode:
-              #TODO first check if video exists in pool... dont add twice
-              request.session['videos'].append(videoCode.group(1))
-              request.session.modified = True
-            else:
-              print "Invalid video link."
-        elif request.POST.get('videoToRemove'):
-            '''
-            User has demanded to delete a video from the pool in the left pane
-            '''
-            request.session['videos'].remove(request.POST['removeVideoFromPool'])
-            request.session.modified = True
-        elif request.POST.get('beginEditingVideo'):
-            print"ok edit video stuff here"  
 #            '''
 #            User has selected a video from the pool to use for a conversation
 #            '''
@@ -62,63 +43,31 @@ def TemplateWizard(request):
 #            # init options releated to this video, not sure if videos will be singular for sure in a conversation?
 #            request.session['responseOptions'] = ['Enter your option'] 
 #            request.session.modified = True
-#        elif request.POST.get('removeVideoResponse'):
-#            '''
-#            User has requested that the active video be removed
-#            '''
-#            #TODO clean up session of all things related to this video
-#            del request.session['selectedVideo']
-#            del request.session['responseOptions']
-#            request.session.modified = True
-#        elif request.POST.get('addoption'):
-#            '''
-#            User has requested to add a new option to the conversation
-#            '''
-#            #load responseOptions
-#            i = 1
-#            while request.POST.get('response%d' % i):  # cycle through existing options and load them into responseOptions
-#                request.session['responseOptions'][i-1] = request.POST.get('response%d' % i)
-#                i += 1
-#            request.session.modified = True
-#            request.session['responseOptions'].append('Enter your option') #add an option
-#            request.session.modified = True
-#        elif request.POST.get('removeResponse'):
-#            '''
-#            User has requested a response option be removed
-#            '''
-#            #load responseOptions
-#            i = 1
-#            while request.POST.get('response%d' % i):  # cycle through existing options and load them into responseOptions
-#                request.session['responseOptions'][i-1] = request.POST.get('response%d' % i)
-#                i += 1
-#            request.session.modified = True
-            #TODO if response size < 2, don't do this
-#            res = request.POST.get('removeResponse')
-#            res = res.split(' ')
-#            res = int(res[-1])-1 # should be number of response to remove
-#            request.session['responseOptions'].pop(res) # remove this instance
-#            request.session.modified = True
-#        elif request.POST.get('addVideoToResponse'):
-#            '''
-#            User has requested that a video be added to this response option, involves redirecting the either video click
-#            '''
-#            #load responseOptions
-#            i = 1
-#            while request.POST.get('response%d' % i):  # cycle through existing options and load them into responseOptions
-#                request.session['responseOptions'][i-1] = request.POST.get('response%d' % i)
-#                i += 1
-#            request.session.modified = True
-#            res = request.POST.get('addVideoToResponse')
-#            res = res.split(' ')
-#            res = int(res[-1])-1 # should be number of response to remove
-#            return HttpResponse('add %d' % res)
 
         else:
             return HttpResponse("ill formed request")
     else:
-        request.session['videos'] = [] # creating an empty list to hold our videos
+        # set up the session variables:
+         # if session variables exist, dont do anything
+         # THIS IS ACTUALLY DONE ABOVE: if they are editing the template, pre-poopulate the session vars
+           # save the old id in a var
+         # if its new, do the following....
+        
+        # DATA MODEL:
+        request.session["selectedVideo"] = "" # the currently selected video to edit
+        request.session['videos'] = [] # creating an empty list to hold our videos in the pool
+        # django doesn't appear to support multidimensional arrays in session variables.
+        # so, the best way I could think to add correlating responses under each video,
+        # is to add a responseText, and at the same time add the responseParentVideo that it 
+        # corresponds to. The id's should match up, so to find all responses that link to a video,
+        # loop though responseParentVideo until you find it, and reference that id in responseText. 
+        # Same goes for all the responseChildVideo's it links to. -nate
+        request.session['responseText'] = [] #create an empty list to hold responses text
+        request.session['responseParentVideo'] = [] #create an empty list to hold responses video (like a foreign key)
+        request.session['responseChildVideo'] = []
+        request.session['enablePlayback'] = [] #if the video exists in this list, enable playback.
         request.session['videos'].append('zJ8Vfx4721M')  # sample video
-        request.session['videos'].append('DewJHJlYOIU') #sample
+        request.session['videos'].append('DewJHJlYOIU') #sample 
         request.session.modified = True
 
         
@@ -134,9 +83,16 @@ def TemplateWizardUpdate(request):
             '''
             videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['new_video'], 0)
             if videoCode:
-              #TODO first check if video exists in pool... dont add twice
-              request.session['videos'].append(videoCode.group(1))
-              request.session.modified = True
+              #first check if video exists in pool... dont add twice
+               #NOTE: this doesnt work. it still adds it.
+              addIt = True
+              for check in request.session['videos']:
+                if check == request.POST['new_video']:
+                  addIt = False
+              if addIt == True:
+                request.session['videos'].append(videoCode.group(1))
+                request.session['enablePlayback'].append(videoCode.group(1))
+                request.session.modified = True
             else:
               print "Invalid video link."
         elif request.POST.get('removeVideoFromPool'):
@@ -144,8 +100,59 @@ def TemplateWizardUpdate(request):
             User has demanded to delete a video from the pool in the left pane
             '''
             if request.POST['removeVideoFromPool']:
+                if request.POST['removeVideoFromPool'] == request.session['selectedVideo']:
+                    request.session['selectedVideo'] = ""
                 request.session['videos'].remove(request.POST['removeVideoFromPool'])
+                #TODO delete all associated responses + rich text
                 request.session.modified = True
+        elif request.POST.get('editVideo'):
+            '''
+            User selected a video to edit. Populate the right pane.
+            '''
+            editVideo = request.POST.get('editVideo')
+            request.session['selectedVideo'] = editVideo
+            request.session.modified = True;
+        elif request.POST.get('saveVideo'):
+            '''
+            Save the video page that is being edited
+            '''
+            #TODO save some video attributes.....
+            request.session.selectedVideo = ""
+            request.session.modified = True;
+        elif request.POST.get('addResponse'):
+            '''
+            Add a response to the right pane
+            '''
+            request.session["responseText"].append(request.POST["addResponseText"])
+            request.session["responseParentVideo"].append(request.POST["addResponseParentVideo"])
+            request.session["responseChildVideo"].append(request.POST["addResponseChildVideo"])
+            request.session.modified = True
+        elif request.POST.get('removeResponse'):
+            '''
+            Remove a response from the right pane
+            '''
+            #NOTE: this doesn't work. need to find how to delete by index....
+            index = request.POST["removeResponseId"]
+            request.session["responseText"].remove(index)
+            request.session["responseParentVideo"].remove(index)
+            request.session["responseChildVideo"].remove(index)
+            request.session.modified = True
+        elif request.POST.get('saveVideoPage'):
+            '''
+            User requested to save a video page's richtext
+            '''
+            #TODO this doesnt do anything yet
+            print("needs to save richtext")
+        elif request.POST.get('enablePlayback'):
+            '''
+            User selected to Enable/disable playback on youtube video
+            '''
+            #NOTE this doesnt work. for some reason, the checkbox is sending "on" no matter if its on or not.
+            if request.POST['enablePlayback'] == "on":
+              request.session["enablePlayback"].append(request.POST["vid"])
+            else:
+              request.session["enablePlayback"].remove(request.POST["vid"])
+            request.session.modified = True               
     else:
         return HttpResponse("no POST data")
     return HttpResponse("null")
