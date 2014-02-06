@@ -7,12 +7,11 @@ admin.autodiscover()
    # url(r'^$', 'simcon.views.home', name='home'),
    # url(r'^blog/', include('blog.urls')),
 urlpatterns = patterns('simcon.views',
-    url(r'^admin/template-wizard/$', 'TemplateWizard'),
+    url(r'^admin/template-wizard$', 'TemplateWizard'),
     url(r'^admin/template-wizard-update', 'TemplateWizardUpdate'),#used to do the behind-the-scenes stuff, update session variables
     url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane'), #used to do the behind-the-scenes stuff, reload the left pane
     url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane'),#used to do the behind-the-scenes stuff, reload the right pane
-    
-    #url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
+    url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
     )
     
 urlpatterns += patterns('',

@@ -147,7 +147,7 @@ class TemplateResponseRel(models.Model):
     pageInstanceID        = models.ForeignKey(PageInstance, related_name='templateresponserel_page')
     responseText          = models.TextField()
     optionNumber          = models.IntegerField(default = 1)
-    nextPageInstanceID    = models.ForeignKey(PageInstance, related_name='templateresponserel_nextpage', blank=True, null=True)
+    nextPageInstanceID    = models.ForeignKey(PageInstance, blank=True, null=True, related_name='templateresponserel_nextpage' )
     
     def __unicode__(self):
         return u"Template response relation for template: %s" % self.templateID.shortDesc
@@ -159,9 +159,9 @@ class TemplateResponseRel(models.Model):
 # you need to look up the nextPageInstanceID based on which optionNumber it is in the TemplateReponseRel table.
 class TemplateFlowRel(models.Model):
     templateFlowRelID  = models.AutoField(primary_key = True)
-    templateID         = models.ForeignKey(Template)
-    pageInstanceID     = models.ForeignKey(PageInstance, related_name='templateflowrel_page')
-    nextPageInstanceID = models.ForeignKey(PageInstance, related_name='templateflowrel_nextpage')
+    templateID         = models.ForeignKey(Template, blank=True, null=True)
+    pageInstanceID     = models.ForeignKey(PageInstance, blank=True, null=True, related_name='templateflowrel_page')
+    nextPageInstanceID = models.ForeignKey(PageInstance, default=None, blank=True, null=True, related_name='templateflowrel_nextpage')
       
     def __unicode__(self):
         return u"Template flow relation for template: %s" % self.templateID.shortDesc

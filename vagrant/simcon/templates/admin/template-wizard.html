@@ -161,7 +161,10 @@ Admin | Template Wizard
       });
       <!-- enable/disable playback -->
       $("#rightPane").on("click", "#enablePlayback", function(){
-           var enablePlayback = $("#enablePlayback").val();
+           var enablePlayback = "off";
+           if ($("#enablePlayback").is(":checked"))
+                enablePlayback = "on";
+           //var enablePlayback = $("#enablePlayback").val();
            var vid = $("#selectedVideo").val();
            var data = { enablePlayback:enablePlayback, vid:vid };
            var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
@@ -170,10 +173,13 @@ Admin | Template Wizard
            $.ajax(args);
       });
       <!-- save the whole template -->
-      $("#rightPane").on("click", "#saveTemplateButton", function(){
-           var data = { submitTemplate:"submit" };
+      $("#templateSaver").on("click", "#saveTemplateButton", function(){
+           var convoTitle = $("#conversationTitle").val();
+           var data = { saveTemplateButton:"saveTemplateButton", conversationTitle: convoTitle };
            var args = { type:"POST", url:"/admin/template-wizard", data:data, cache:false, complete:function(){
                            <!--load submit page-->
+                           alert("probably successfully saved template!");
+                           $("body").load("/admin/template-wizard")
                        } };
            $.ajax(args);
       });
@@ -192,7 +198,7 @@ Admin | Template Wizard
 
   {% block content %}
 
-    <div class="container">
+    <div id="mainBody" class="container">
 
       <div class="starter-template">
         <div class="row">
@@ -202,7 +208,7 @@ Admin | Template Wizard
           <div class="col-md-2" id="instrucLink">
             <br><br><button type="button" class="btn btn-default btn-xs" id="showInstruc"> Show Instructions </button>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-3" id="templateSaver">
             <br><button type="button" id="saveTemplateButton" class="btn btn-default btn-lg">Save Template &raquo; </button>
           </div>
         </div>
