@@ -141,15 +141,17 @@ Admin | Template Wizard
         }
       });
       <!-- remove a response option on the video editor page -->
-      $("#rightPane").on("click", "button.removeResponseButton", function(){
-           var removeResponseId = $("#removeResponseId").val();
-           var removeResponse = "submit"; <!-- a placehold to signify in the view what action to take -->
-           var data = { addResponse:removeResponse, removeResponseId:removeResponseId };
+      //$("#rightPane").on("click", "#removeResponseButton", function(){
+      function removeMe(removeResponseId){
+           alert("removing response");
+           //var removeResponseId = $(this).val();
+           var removeResponse = "removeResponse"; <!-- a placehold to signify in the view what action to take -->
+           var data = { removeResponse:removeResponse, removeResponseId:removeResponseId };
            var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
                            $("#rightPane").load("/admin/template-wizard-right-pane")
                        } };
            $.ajax(args);
-      });
+      }
       <!-- save video page -->
       $("#rightPane").on("click", "#saveVideoPage", function(){
            var saveVideoPage = $("#saveVideoPage").val();

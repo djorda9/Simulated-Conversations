@@ -26,7 +26,6 @@ def Login(request):
 # or create a new one.
 @permission_required('simcon.authLevel1')
 def TemplateWizard(request):
-    logger.info("in templatewizard")
     c = {}
     c.update(csrf(request))
     if request.POST:
@@ -39,7 +38,7 @@ def TemplateWizard(request):
                #if yes, save as new version
             #TODO store session variables into template tables
             '''
-            Storing session variables into temporary data elements
+            Storing session variables into the database template mappings
             '''
             temp = Template(researcherID = Researcher.objects.get(user=request.user), 
                              shortDesc   = request.POST.get('conversationTitle')) # NOTE: need firstInstanceID (TemplateFlowRel), added retroactively
@@ -100,7 +99,7 @@ def TemplateWizard(request):
             #TODO for now this renders the wizard page, but render a "success page" instead.
             return render(request, 'admin/template-wizard.html')
         elif request.POST.get('editExistingTemplate'):
-            logger.info("loading existing template")
+            #logger.info("loading existing template")
             #prepopulate session variables and then reload page
 #            '''
 #            User has selected a video from the pool to use for a conversation
@@ -144,8 +143,6 @@ def TemplateWizard(request):
 #This is the "behind the scenes" stuff for the template wizard above
 @permission_required('simcon.authLevel1')
 def TemplateWizardUpdate(request):
-    
-    logger.info("template wizard updating")
     c = {}
     c.update(csrf(request))
     if request.POST:
@@ -205,7 +202,8 @@ def TemplateWizardUpdate(request):
             Remove a response from the right pane
             '''
             #NOTE: this doesn't work. need to find how to delete by index....
-            index = request.POST["removeResponseId"]
+            logger.info("removing response")
+            index = int(request.POST["removeResponseId"])
             request.session["responseText"].remove(index)
             request.session["responseParentVideo"].remove(index)
             request.session["responseChildVideo"].remove(index)
@@ -220,8 +218,7 @@ def TemplateWizardUpdate(request):
             '''
             User selected to Enable/disable playback on youtube video
             '''
-            #NOTE this doesnt work. for some reason, the checkbox is sending "on" no matter if its on or not.
-            logger.info("post in enablePlayback is %s, vid is %s" % (request.POST['enablePlayback'], request.POST["vid"]))
+            #I think this now works -Nick
             if request.session['selectedVideo'] not in request.session['enablePlayback']:
               request.session["enablePlayback"].append(request.session['selectedVideo'])
             else:
@@ -230,13 +227,11 @@ def TemplateWizardUpdate(request):
     else:
         logger.error("No post data")
         return HttpResponse("no POST data")
-    logger.info("return null httpresponse")
     return HttpResponse("null")
 
 #Reload the template wizards left pane if requested
 @permission_required('simcon.authLevel1')
 def TemplateWizardLeftPane(request):
-    logger.info("left pane reloading")
     c = {}
     c.update(csrf(request))
     return render(request, 'admin/template-wizard-left-pane.html')
@@ -244,30 +239,7 @@ def TemplateWizardLeftPane(request):
 #Reload the template wizards right pane if requested
 @permission_required('simcon.authLevel1')
 def TemplateWizardRightPane(request):
-    logger.info("right pane reloading")
     c = {}
     c.update(csrf(request))
     return render(request, 'admin/template-wizard-right-pane.html')
 
-
-
-'''    
-class TemplateView(View):
-    def get(self, request, *args, **kwargs):
-        return HttpResponse('This is GET request')
-
-    def post(self, request, *args, **kwargs):
-        return HttpResponse('This is POST request')
-        
-
- from django.conf.urls import patterns, url
-
-from myapp.views import MyView
-
-urlpatterns = patterns('',
-    url(r'^mine/$', MyView.as_view(), name='my-view'),
-) # in urls
- 
-'''
-#@permission_required('simcon.authLevel1')
-#def UpdateVideos(request):

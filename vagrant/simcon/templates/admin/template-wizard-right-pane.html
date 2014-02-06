@@ -35,7 +35,7 @@
                             <tr>
                             <td>{{ request.session.responseText|get_at_index:forloop.counter0 }}</td>
 	     		    <td><input type="image" src="http://img.youtube.com/vi/{{ request.session.responseChildVideo|get_at_index:forloop.counter0 }}/0.jpg" class="img-rounded editVideoImage" width="40" height="30">
-			    <button type="button" class="btn btn-default btn-xs removeResponseButton" value="{{forloop0.counter}}">
+			    <button type="button" id="removeResponseButton" onclick="removeMe({{forloop0.counter}})" class="btn btn-default btn-xs removeResponseButton" value="{{forloop0.counter}}">
 			      <span class="glyphicon glyphicon-trash"></span> Remove Response
 			    </button></td>
                           </tr>
