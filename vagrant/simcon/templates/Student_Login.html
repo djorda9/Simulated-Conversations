@@ -7,19 +7,18 @@
 	
       <form action = "/studentinfo/" method = "post">
         <div class="form-group">
-{# need to somehow submit this as a variable for video/response instance views #}
           <input type="text" class="form-control" id="SName" placeholder="Enter your name">
         </div>
         <div class="form-group">
           <input type="email" class="form-control" id="SEmail" placeholder="Email (optional)">
         </div>
-      </form>
+
 <hr>
-      <div class="panel panel-info">
-        <div class="panel-heading">Use Policy Acceptance</div>
-        <div class="panel-body">
-          <p>I agree to have my audio recordings collected and used for research.</p>
-          <form role="form">
+        <div class="panel panel-info">
+          <div class="panel-heading">Use Policy Acceptance</div>
+          <div class="panel-body">
+            <p>I agree to have my audio recordings collected and used for research.</p>
+		  
 {# code borrowed from forum user gillweb: http://www.htmlforums.com/client-side-scripting/t-disable-submit-button-until-checkbox-is-checked-83884.html #}
 {# on 2/17/2014. purpose of code is to prevent user from beginning conversation without checking checkbox first #}
             <div class="checkbox">
@@ -27,16 +26,13 @@
                 <input type="checkbox" onClick="document.apply['progress'].disabled =(document.apply['progress'].disabled)? false : true"> I accept
               </label>
             </div>
-			{% if {{VoR}} == "response" %}
-			  <input type="submit" id="progress" name="progress" value="Begin Conversation" class="btn btn-default" style="float: right;" href="/student/response/{{ValKey}}&{{TID}}&{{PIID}}/" disabled></button>
-			{% else if {{VoR}} == "video" %}
-			  <input type="submit" id="progress" name="progress" value="Begin Conversation" class="btn btn-default" style="float: right;" href="/student/video/{{ValKey}}&{{TID}}&{{PIID}}/" disabled></button>
-			{% else %}
-			  First page of conversation doesn't exist
-			{% endif %}
-          </form>
+			<input type="hidden" id = "tempID" value = "{{TID.templateID}}">
+			<input type="hidden" id = "reseID" value = "{{TID.researcherID}}">
+
+			<input type="submit" value="Begin Conversation" class="btn btn-default" style="float: right;" disabled></button>
+          </div>
         </div>
-      </div>
+      </form>
 	  
 	</div>
 <hr>

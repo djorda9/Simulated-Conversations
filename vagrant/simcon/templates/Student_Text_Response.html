@@ -1,4 +1,4 @@
-<!-- This template is used to allow the student to givew a text version of their response.  It uses the 
+<!-- This template is used to allow the student to give a text version of their response.  It uses the 
 StudentResponseInstance view.-->
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
@@ -11,20 +11,13 @@ StudentResponseInstance view.-->
 
         <form name="StudentTextChoiceForm" action="/studenttextchoice/" method="POST">
 		  <div><br>
-          { % for i in range(1:10) % }
-            { % if {{responses[i-1]}} != "NA" % }
-              <input type="radio" name="choices" value="{{responses[i-1]}}"> {{responses[i-1]}}<br>
-            { % endif % }
+          { % for i in {{responses.objects.all()}} % }
+            <input type="radio" id="choice" value=responses.object.order_by('optionNumber')[i-1].optionNumber>{{responses.objects.order_by('optionNumber')[i-1].responseText}}<br>
           { % endfor % }
           </div>
-        </form>
 
-		
-	  {% if {{newPID}} != "endpoint" %}
-        <button type="submit" class="btn btn-default" action="/student/response/{{ValKey}}&{{TID}}&{{newPID}}/">Next Video</button>
-	  {% else %}
-	    <button type="submit" class="btn btn-default" action="/student/submission/">Submission</button>
-      {% endif %}
+          <button type="submit" class="btn btn-default">Next</button>
+        </form>
 
     </div> <!-- /container -->
 

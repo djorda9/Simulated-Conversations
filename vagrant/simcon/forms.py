@@ -47,10 +47,3 @@ class ShareTemplateForm(forms.Form):
             self.fields['templateID'] = forms.ModelChoiceField(queryset=Template.objects.filter
                                         (researcherID=self.researcher).filter(deleted=0),
                                             empty_label='Select a conversation template')
-
-class StudentNameForm(forms.Form):
-    SName = forms.CharField()
-    SEmail = forms.CharField()
-
-class StudentTextChoiceForm(forms.Form):
-    StudentChoice = forms.IntegerField()

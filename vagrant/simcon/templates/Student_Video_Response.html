@@ -19,9 +19,11 @@
         { % endif % }
         <div class="well well-sm">{{text}}</div>
 
-        { % if {{newPID}} != "endpoint" % }
-		<form name="input" action="/student/response/{{ValKey}}&{{TID}}&{{newPID}}/">
-        { % else if {{newPID}} == "endpoint"v %}
+        { % if request.session.PIID != "endpoint" % }
+		<form name="input" action="/student/response/">
+		  <input type="submit" class="btn btn-default" value="Record Audio">
+		</form>
+        { % else if request.session.PIID == "endpoint" %}
 		<form name="input" action="/student/submission/">
         { % endif % }		
 		  {# need to include recorder #}
