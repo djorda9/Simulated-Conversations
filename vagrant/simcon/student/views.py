@@ -1,6 +1,7 @@
 from django.template import loader, Context
 from django.shortcuts import render
-from simcom.models import Template
+from models import Template
+from models import StudentAccess
 import datetime
 
 def StudentVideoInstance(request):

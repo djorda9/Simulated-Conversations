@@ -6,7 +6,7 @@ from django.db import models
 import datetime
 from django.core.files import File
 
-from simcom.models import *
+from models import *
 
 #auth user table?
 T = Researcher(user='Researcher1', authLevel='0')
