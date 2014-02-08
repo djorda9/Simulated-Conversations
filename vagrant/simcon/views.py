@@ -202,11 +202,10 @@ def TemplateWizardUpdate(request):
             Remove a response from the right pane
             '''
             #NOTE: this doesn't work. need to find how to delete by index....
-            logger.info("removing response")
             index = int(request.POST["removeResponseId"])
-            request.session["responseText"].remove(index)
-            request.session["responseParentVideo"].remove(index)
-            request.session["responseChildVideo"].remove(index)
+            request.session["responseText"].pop(index)
+            request.session["responseParentVideo"].pop(index)
+            request.session["responseChildVideo"].pop(index)
             request.session.modified = True
         elif request.POST.get('saveVideoPage'):
             '''

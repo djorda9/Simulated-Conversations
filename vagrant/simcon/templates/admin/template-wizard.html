@@ -140,18 +140,18 @@ Admin | Template Wizard
            $.ajax(args);
         }
       });
-      <!-- remove a response option on the video editor page -->
-      //$("#rightPane").on("click", "#removeResponseButton", function(){
-      function removeMe(removeResponseId){
-           alert("removing response");
-           //var removeResponseId = $(this).val();
-           var removeResponse = "removeResponse"; <!-- a placehold to signify in the view what action to take -->
-           var data = { removeResponse:removeResponse, removeResponseId:removeResponseId };
-           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                           $("#rightPane").load("/admin/template-wizard-right-pane")
-                       } };
-           $.ajax(args);
-      }
+
+      $("#rightPane").on("click", "#removeResponseButton", function(){
+          var removeResponseId = $(this).val();
+          alert("removing button: " + removeResponseId);
+          var removeResponse = "removeResponse";
+          var data = { removeResponse:removeResponse, removeResponseId:removeResponseId };
+          var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                            <!-- TODO before loading right pane, check if there is data there, and save it if so -->
+                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                     }};
+          $.ajax(args);
+      });
       <!-- save video page -->
       $("#rightPane").on("click", "#saveVideoPage", function(){
            var saveVideoPage = $("#saveVideoPage").val();
