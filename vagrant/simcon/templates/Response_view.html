@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+{% load generatelink_extras %}
+{% block title %}Recorded Conversations{% endblock %}
+{% block content %}
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <h2>Recorded Conversations</h2>
+          <p>
+            <form class="form-inline" role="form">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter a search term">
+              </div>
+              <button type="submit" class="btn btn-default">Search</button>
+            </form>
+
+
+            <ul>
+    {% for conversation in conversationSet %}
+    	{% template=Template.objects.get(templateID=conversation.templateID) %}
+        <li><a href="#">{{ template.ShortDesc }}</a></li>
+    {% endfor %}
+    </ul>
+
+          
+            <h4><u>Responses shared with you</u></h4>
+            <ul>
+              {% shared = SharedResponses.objects.filter(researcherID=currentUser) %}
+              
+              {% for response in shared %}
+              {% sharedResponse=Templates.objects.get(templateID=Conversation.templateID && Conversation.ID=shared.responseID) %}
+              <li>
+                <a href="#">{{sharedResponse.ShortDesc}}</a>
+              </li>
+              <li>
+                <a href="#">Sim Conv</a>
+              </li>
+            </ul>
+          </p>
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+{% endblock %}
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+  </body>
+</html>
+
