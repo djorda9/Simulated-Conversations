@@ -292,3 +292,10 @@ urlpatterns = patterns('',
 '''
 #@permission_required('simcon.authLevel1')
 #def UpdateVideos(request):
+
+#@permission_required('simcon.authLevel1')
+def Responses(request):
+	current_user = get_researcher(request.user)
+	conversationSet=StudentAccess.objects.filter(researcherID=current_user)
+	return render_to_response('Response_view.html', {'conversationSet':conversationSet, 'currentUser':current_user}, context_instance=RequestContext(request))
+
