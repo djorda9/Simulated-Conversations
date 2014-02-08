@@ -62,8 +62,8 @@ class Conversation(models.Model):
                 return u" %s: %s" % (str(self.dateTime), self.studentName)
         
 class Response(models.Model):
-#       pageInstanceID  = models.ForeignKey(PageInstance) 
-        conversationID  = models.ForeignKey(Conversation)
+        pageInstanceID  = models.ForeignKey('PageInstance') 
+        conversationID  = models.ForeignKey('Conversation')
         order           = models.SmallIntegerField()
         choice          = models.CharField(max_length=1000)
         audioFile       = models.FileField(upload_to='test')
@@ -77,7 +77,7 @@ class Response(models.Model):
 # Note(Daniel): Implemented the SharedResponse class per the design spec.
 class SharedResponses(models.Model):
     sharedResponseID = models.AutoField(primary_key=True)
-    responseID = models.ForeignKey('Response')
+    responseID = models.ForeignKey('Conversation')
     researcherID = models.ForeignKey('Researcher')
     dateTimeShared = models.DateTimeField(auto_now=True)
 
