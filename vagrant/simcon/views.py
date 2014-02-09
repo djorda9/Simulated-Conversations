@@ -16,6 +16,16 @@ import re
 import logging
 logger = logging.getLogger("simcon")
 
+from django import forms # for forms
+from django.core.urlresolvers import reverse
+from tinymce.widgets import TinyMCE
+from tinymce.models import HTMLField  # tinymce for rich text embeds
+
+
+class RichTextForm(forms.Form):
+    somefield = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+
+   
 def Submission(request):
     return render(request, 'Student_Submission.html')
 
@@ -138,6 +148,7 @@ def TemplateWizard(request):
         request.session['videos'].append('zJ8Vfx4721M')  # sample video
         request.session['videos'].append('DewJHJlYOIU') #sample 
         request.session.modified = True
+
         return render(request, 'admin/template-wizard.html')
 
 #This is the "behind the scenes" stuff for the template wizard above
@@ -201,7 +212,6 @@ def TemplateWizardUpdate(request):
             '''
             Remove a response from the right pane
             '''
-            #NOTE: this doesn't work. need to find how to delete by index....
             index = int(request.POST["removeResponseId"])
             request.session["responseText"].pop(index)
             request.session["responseParentVideo"].pop(index)
@@ -240,5 +250,6 @@ def TemplateWizardLeftPane(request):
 def TemplateWizardRightPane(request):
     c = {}
     c.update(csrf(request))
-    return render(request, 'admin/template-wizard-right-pane.html')
+    widge = RichTextForm()
+    return render(request, 'admin/template-wizard-right-pane.html', {'widge': widge})
 

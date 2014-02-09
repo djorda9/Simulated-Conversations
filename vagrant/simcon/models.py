@@ -129,9 +129,9 @@ class PageInstance(models.Model):
     templateID      = models.ForeignKey(Template, blank=True, null=True)
     videoOrResponse = models.CharField(max_length = 8, default = "response") #considering omitting this and just using videoLink to determine variety...
     videoLink       = models.CharField(max_length = 11, null = True)  # this will store the alphanumberic code of a url such as: http://img.youtube.com/vi/zJ8Vfx4721M
-    richText        = models.TextField()    # NOTE:  this has to store raw html
+    #richText        = models.TextField()    # NOTE:  this has to store raw html
+    richText        = HTMLField() # rich text field
     enablePlayback  = models.BooleanField(default = True)
-    #cont = HTMLField() # this is a drop in db reference for a rich text embed
     
     def __unicode__(self):
         if self.videoOrResponse == "video":  # consider change this to query videoLink not null?

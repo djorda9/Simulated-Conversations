@@ -1,3 +1,9 @@
+{% block extrahead %}
+{% if widge %}
+{{ widge.media }}
+{% endif %}
+{% endblock %}
+
 {% block content %}
 {% load simcon_extras %}
                 {% if request.session.selectedVideo != "" %}
@@ -26,6 +32,7 @@
                       {% endif %}
                     {% endfor %}>
                   </div>
+                  {{widge.as_p }}
                   <h4><u>Responses:</u></h4>
 		    <div class="form-group">
                       <table>
@@ -41,6 +48,7 @@
                           </tr>
                         {% endif %}
                       {% endfor %}
+                          
                       </table>
 		      <label for="addResponseText">Add Response Option:</label>
 		      <input type="text" id="addResponseText" class="form-control" placeholder="Enter the response text">
