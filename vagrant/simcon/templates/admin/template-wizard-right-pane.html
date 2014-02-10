@@ -23,7 +23,7 @@
 		    </object><br>
                   </div>
                   {# Rich Text box http://django-tinymce.readthedocs.org/en/latest/index.html #}
-                  
+                  {{widge.as_p }}
                   <div style="text-align:center;">
                     <label for="enablePlayback">Enable playback of video?</label> <input type="checkbox" id="enablePlayback"
                     {% for chk in request.session.enablePlayback %}
@@ -32,7 +32,6 @@
                       {% endif %}
                     {% endfor %}>
                   </div>
-                  {{widge.as_p }}
                   <h4><u>Responses:</u></h4>
 		    <div class="form-group">
                       <table>

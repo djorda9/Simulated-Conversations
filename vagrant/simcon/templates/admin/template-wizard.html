@@ -140,7 +140,7 @@ Admin | Template Wizard
            $.ajax(args);
         }
       });
-
+      <!-- remove response button -->
       $("#rightPane").on("click", "#removeResponseButton", function(){
           var removeResponseId = $(this).val();
           alert("removing button: " + removeResponseId);
@@ -166,7 +166,6 @@ Admin | Template Wizard
            var enablePlayback = "off";
            if ($("#enablePlayback").is(":checked"))
                 enablePlayback = "on";
-           //var enablePlayback = $("#enablePlayback").val();
            var vid = $("#selectedVideo").val();
            var data = { enablePlayback:enablePlayback, vid:vid };
            var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
@@ -180,8 +179,9 @@ Admin | Template Wizard
            var data = { saveTemplateButton:"saveTemplateButton", conversationTitle: convoTitle };
            var args = { type:"POST", url:"/admin/template-wizard", data:data, cache:false, complete:function(){
                            <!--load submit page-->
+                           // TODO populate this based on success/failure
                            alert("probably successfully saved template!");
-                           $("body").load("/admin/template-wizard")
+                           $("#mainBody").load("/admin/template-submit")
                        } };
            $.ajax(args);
       });

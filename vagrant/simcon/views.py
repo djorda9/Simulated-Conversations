@@ -21,10 +21,9 @@ from django.core.urlresolvers import reverse
 from tinymce.widgets import TinyMCE
 from tinymce.models import HTMLField  # tinymce for rich text embeds
 
-
+# class for rich text field in a form
 class RichTextForm(forms.Form):
-    somefield = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
-
+    richText = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
    
 def Submission(request):
     return render(request, 'Student_Submission.html')
@@ -40,7 +39,7 @@ def TemplateWizard(request):
     c.update(csrf(request))
     if request.POST:
         if request.POST.get('saveTemplateButton'):
-            logger.info("Inserting conversation into database")
+            #logger.info("Inserting conversation into database")
             #TODO check if values are valid
                #if not, send back to edit page and display errors
             #TODO check if conversation already existed
@@ -107,7 +106,7 @@ def TemplateWizard(request):
             #TODO print success message
             #TODO provide link back to main page
             #TODO for now this renders the wizard page, but render a "success page" instead.
-            return render(request, 'admin/template-wizard.html')
+            return HttpResponse("Success")#render(request, 'admin/template-wizard-submission.html')
         elif request.POST.get('editExistingTemplate'):
             #logger.info("loading existing template")
             #prepopulate session variables and then reload page
@@ -162,16 +161,17 @@ def TemplateWizardUpdate(request):
             User has demanded to add a video to the pool in the left pane
             '''
             videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['new_video'], 0)
-            if videoCode:
+            videoCode = videoCode.group(1) # just pertinent code
+            if videoCode and videoCode not in request.session['videos']:
               #first check if video exists in pool... dont add twice
                #NOTE: this doesnt work. it still adds it.
-              addIt = True
-              for check in request.session['videos']:
-                if check == request.POST['new_video']:
-                  addIt = False
-              if addIt == True:
-                request.session['videos'].append(videoCode.group(1))
-                request.session['enablePlayback'].append(videoCode.group(1))
+              #addIt = True
+              #for check in request.session['videos']:
+              #  if check == request.POST['new_video']:
+              #    addIt = False
+              #if addIt == True:
+                request.session['videos'].append(videoCode)
+                request.session['enablePlayback'].append(videoCode)
                 request.session.modified = True
             else:
               print "Invalid video link."
