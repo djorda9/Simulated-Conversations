@@ -2,7 +2,7 @@
 import models
 from django.contrib import admin
 from django.contrib.auth.decorators import permission_required
-from django.http import Http404
+from django.core.exceptions import PermissionDenied
 
 # Custom model admins
 # Note: flat admin may handle our mockups better
@@ -14,7 +14,7 @@ class TemplateAdmin(admin.ModelAdmin):
         "Edit the selected template"
         
         if not request.user.has_perm("simcon.authLevel1"):
-            raise Http404  # TODO find something more appropriate
+            raise PermissionDenied 
         #self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.objects.all().aggregate(Count('templateID'))))
         self.message_user(request, "Editing template!")
         #TODO redirect to template_wizard, increment a version
@@ -24,14 +24,14 @@ class TemplateAdmin(admin.ModelAdmin):
         "Share the selected template(s)"
         
         if not request.user.has_perm("simcon.authLevel1"):
-            raise Http404
+            raise PermissionDenied
     share_template.short_description = "Share these templates"
     
     def generate_link(self, request, queryset):
         "Generate a link for the selected template(s)"
         
         if not request.user.has_perm("simcon.authLevel1"):
-            raise Http404
+            raise PermissionDenied
     generate_link.short_description = "Generate a link"
        
     
@@ -42,7 +42,7 @@ class ResearcherAdmin(admin.ModelAdmin):
     def promote_users(self, request, queryset):
         "Promote the selected researcher(s)"
         if not request.user.has_perm("simcon.authLevel1"):
-            raise Http404
+            raise PermissionDenied
         
     promote_users.short_description = "Promote selected user(s)"
     
@@ -54,7 +54,7 @@ class ResponseAdmin(admin.ModelAdmin):
         "View the selected response(s)"
         
         if not request.user.has_perm("simcon.authLevel1"):
-            raise Http404
+            raise PermissionDenied
     view_response.short_description = "View selected response"
 
 # register models and modeladmins
