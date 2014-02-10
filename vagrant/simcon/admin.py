@@ -1,7 +1,8 @@
-# researcher admin
+# admin
 import models
 from django.contrib import admin
 from django.contrib.auth.decorators import permission_required
+from django.http import Http404
 
 # Custom model admins
 # Note: flat admin may handle our mockups better
@@ -9,24 +10,28 @@ from django.contrib.auth.decorators import permission_required
 class TemplateAdmin(admin.ModelAdmin):
     actions = ['edit_template', 'share_template', 'generate_link']
     
-    #@permission_required('simcon.authLevel1') #TODO fix this
     def edit_template(self, request, queryset):
         "Edit the selected template"
         
-        self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.objects.all().aggregate(Count('templateID'))))
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise Http404  # TODO find something more appropriate
+        #self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.objects.all().aggregate(Count('templateID'))))
+        self.message_user(request, "Editing template!")
         #TODO redirect to template_wizard, increment a version
     edit_template.short_description = "Edit template"
     
-    @permission_required('simcon.authLevel1') #TODO fix this
     def share_template(self, request, queryset):
         "Share the selected template(s)"
-        pass
+        
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise Http404
     share_template.short_description = "Share these templates"
     
-    @permission_required('simcon.authLevel1') #TODO fix this
     def generate_link(self, request, queryset):
         "Generate a link for the selected template(s)"
-        pass
+        
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise Http404
     generate_link.short_description = "Generate a link"
        
     
@@ -36,7 +41,9 @@ class ResearcherAdmin(admin.ModelAdmin):
     @permission_required('simcon.authLevel3') #TODO fix this
     def promote_users(self, request, queryset):
         "Promote the selected researcher(s)"
-        pass
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise Http404
+        
     promote_users.short_description = "Promote selected user(s)"
     
 class ResponseAdmin(admin.ModelAdmin):
@@ -45,7 +52,9 @@ class ResponseAdmin(admin.ModelAdmin):
     
     def view_response(self, request, queryset):
         "View the selected response(s)"
-        pass
+        
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise Http404
     view_response.short_description = "View selected response"
 
 # register models and modeladmins
