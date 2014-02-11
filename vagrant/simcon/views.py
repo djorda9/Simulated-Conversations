@@ -28,7 +28,7 @@ def StudentVideoInstance(request):
 
     try:
         page = PageInstance.objects.get(pageInstanceID = PIID, templateID = TID)
-    except PageInstance,Invalid:
+    except PageInstance.Invalid:
         print "Page Instance ID is invalid"
 
     try:
@@ -38,13 +38,13 @@ def StudentVideoInstance(request):
         print "Validation Key is invalid"
 
     # if student name/email exist, then update the Conversation model
-    if(SName && SEmail) {
+    try:
+        # if we can get the conversation, then don't save a new instance of this conversation
+        conv = Conversation.objects.get(templateID = TID, StudentName)
+    except PageInstance,Invalid:
+        # if we couldn't get the conversation, then it doesn't exist, so create it.
         T = Conversation(template=TID, researcherID = TID.researcherID, studentName = SName, studentEmail = SEmail, dateTime = datetime.datetime.strptime(datetime.datetime.now(), "%Y-%m-%d %H:%M"))
         T.save()
-        # make sure this only executes once
-        SName = None
-        SEmail = None
-    }
 
     #create context variables for video web page
     vidLink = page.videoLink
@@ -110,15 +110,22 @@ def StudentResponseInstance(request):
 #        order           = models.SmallIntegerField()
 #        choice          = models.CharField(max_length=1000)
 #        audioFile       = models.FileField(upload_to='test')
-#    T = Response(pageInstanceID=PIID, conversationID = T, studentEmail = SEmail, dateTime = datetime.datetime.strptime(testDate, "%Y-%m-%d %H:%M"))
-#    T.save()
+    try:
+        conv = Conversation.objects.get(templateID = TID, studentName = SName)
+    except TemplateResponseRel.Invalid:
+        print "no conversation for this response"
+    #something like this needs to be submitted in a form
+	#T = Response(pageInstanceID=PIID, conversationID = conv.PK, order = , choice = , audioFile = )
+    #T.save()
+
     t = loader.get_template('Student_Text_Response.html')
     c = Context({
     'responses': responses,
     'newPID': theResponses.nextPageInstanceID,
     'message': 'I am the Student Text Response View.',
     'ValKey': VKey,
-    'TID': TID
+    'TID': TID,
+    'conv': conv
     })
     return t.render(c)
 
