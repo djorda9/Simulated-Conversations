@@ -2,6 +2,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.files import File
+import datetime
 
 class Researcher (models.Model):  
     user = models.OneToOneField (User)   # tie into auth user table
@@ -87,6 +89,9 @@ class SharedResponses(models.Model):
     # Note - This requirement was not specified in the design spec.
     class Meta:
         unique_together = ("responseID", "researcherID")
+
+    def __unicode__(self):
+        return '%s' % self.sharedResponseID
 
 #The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
 class StudentAccess(models.Model):
@@ -177,4 +182,3 @@ class TemplateFlowRel(models.Model):
 
     def nex_page(self):
         return self.nextPageInstanceID
-

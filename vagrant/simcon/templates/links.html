@@ -13,7 +13,7 @@
         <table border="1">
             <tr>
                 <th align="center">Link ID</th>
-                <th align="center">Template ID</th>
+                <th align="center">Template</th>
                 <th align="center">Validation Key</th>
                 <th align="center">Expiration Date</th>
                 <th align="center">URL</th>
@@ -22,7 +22,7 @@
         {% for researcher_link in researcher_links %}
             <tr>
                 <td align="center">{{researcher_link.studentAccessID}}</td>
-                <td align="center">{{researcher_link.templateID.templateID}}</td>
+                <td align="center">{{researcher_link.templateID}}</td>
                 <td align="center">{{researcher_link.validationKey}}</td>
                 <td align="center">{{researcher_link.expirationDate}}</td>
                 <!-- Gets and makes a hyperlink to the generated link url -->

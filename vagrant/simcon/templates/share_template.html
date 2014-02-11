@@ -19,16 +19,18 @@ GenerateLink view.-->
         </div>
     {% endif %}
 
-    <form action = "" method = "post"> {% csrf_token %}
-        {% for field in form %}
-        <div class = "field_error_wrapper">
-            {{field.errors}}
-            {{field.label_tag}}</br>
-            {{field}}
-        </div>
-    {% endfor %}
-    <br>
-    <input type = "submit" value = "Share" />
-    </form>
+    {% if form %}
+        <form action = "" method = "post"> {% csrf_token %}
+            {% for field in form %}
+            <div class = "field_error_wrapper">
+                {{field.errors}}
+                {{field.label_tag}}</br>
+                {{field}}
+            </div>
+        {% endfor %}
+        <br>
+        <input type = "submit" value = "Share" />
+        </form>
+    {% endif %}
 
 {% endblock %}
