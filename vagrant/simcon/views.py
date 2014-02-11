@@ -19,7 +19,7 @@ import datetime
 #logger = logging.getLogger(__name__)
 
 def StudentVideoInstance(request):
-    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
+    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
     # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
     try:
         templ = Template.objects.get(templateID = TID)
@@ -27,11 +27,12 @@ def StudentVideoInstance(request):
         print "Template ID is invalid"
 
     try:
-        pi = PageInstance.objects.get(pageInstanceID = PIID)
+        page = PageInstance.objects.get(pageInstanceID = PIID, templateID = TID)
     except PageInstance,Invalid:
         print "Page Instance ID is invalid"
 
     try:
+        #possible case: someone changes validation key to a different validation key, would still succeed
         valid = StudentAccess.objects.get(validationKey = VKey)
     except StudentAccess.Invalid:
         print "Validation Key is invalid"
@@ -40,13 +41,17 @@ def StudentVideoInstance(request):
     if(SName && SEmail) {
         T = Conversation(template=TID, researcherID = TID.researcherID, studentName = SName, studentEmail = SEmail, dateTime = datetime.datetime.strptime(datetime.datetime.now(), "%Y-%m-%d %H:%M"))
         T.save()
+        # make sure this only executes once
+        SName = None
+        SEmail = None
     }
 
     #create context variables for video web page
-    page = PageInstance.objects.get(pageInstanceID = PIID)
     vidLink = page.videoLink
     text = page.richText
     playback = page.enablePlayback
+    #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
+    #otherwise, set PIID to 0. this will make this page end up at the Student Submission page.
     try:
         nextpage = TemplateResponseRel,objects.get(pageInstanceID = PIID)
         newPID = nextPageInstanceID
@@ -54,17 +59,8 @@ def StudentVideoInstance(request):
         newPID = 0
     if(!new_PID)
         new_PID = 0
-	#upload to Responses table which PageInstanceID we're at with the current datetime. If all values already exist but the timedate is different,
-    # then the page was refreshed, display an error, and after a few seconds go to beginning of conversation
-#class Response(models.Model):
-#       pageInstanceID  = models.ForeignKey(PageInstance) 
-#        conversationID  = models.ForeignKey(Conversation)
-#        order           = models.SmallIntegerField()
-#        choice          = models.CharField(max_length=1000)
-#        audioFile       = models.FileField(upload_to='test')
-#    S = Response(pageInstanceID=PIID, conversationID = T, studentEmail = SEmail, dateTime = datetime.datetime.strptime(testDate, "%Y-%m-%d %H:%M"))te
-#    T.save()
 
+    # there are ways to compact this code, but this is the most explicit way to render a template
     t = loader.get_template('Student_Video_Response.html')
     c = Context({
     'vidLink': vidLink,
@@ -86,7 +82,7 @@ def StudentResponseInstance(request):
         print "Template ID is invalid"
 
     try:
-        pi = PageInstance.objects.get(pageInstanceID = PIID)
+        pi = PageInstance.objects.get(pageInstanceID = PIID, templateID = TID)
     except PageInstance,Invalid:
         print "Page Instance ID is invalid"
 
@@ -100,14 +96,22 @@ def StudentResponseInstance(request):
     except TemplateResponseRel.Invalid:
         print "no responses to this page is invalid"
 
-    #create a dictionary for all of the possible response options
-    responses = {'r1':0,'r2':0,'r3':0,'r4':0,'r5':0,'r6':0,'r7':0,'r8':0,'r9':0,'r10':0}
+    #create a list for all of the possible response options
+    responses = []
 
     for(i in 1:theResponses.optionNumber) {
-        responses[i] = theResponses.responseText[i]
+        responses.append(theResponses.responseText[i])
     }
-    #upload to Responses table which PageInstanceID we're at with the current datetime. If all values already exist but the timedate is different,
+	#upload to Responses table which PageInstanceID we're at with the current datetime. If all values already exist but the timedate is different,
     # then the page was refreshed, display an error, and after a few seconds go to beginning of conversation
+#class Response(models.Model):
+#       pageInstanceID  = models.ForeignKey(PageInstance) 
+#        conversationID  = models.ForeignKey(Conversation)
+#        order           = models.SmallIntegerField()
+#        choice          = models.CharField(max_length=1000)
+#        audioFile       = models.FileField(upload_to='test')
+#    T = Response(pageInstanceID=PIID, conversationID = T, studentEmail = SEmail, dateTime = datetime.datetime.strptime(testDate, "%Y-%m-%d %H:%M"))
+#    T.save()
     t = loader.get_template('Student_Text_Response.html')
     c = Context({
     'responses': responses,
