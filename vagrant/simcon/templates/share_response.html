@@ -1,11 +1,10 @@
-<!-- This template is used to generate a link to a simulated conversation that the researcher select.  It uses the
-GenerateLink view.-->
+<!-- This template is used to share responses with other researchers.-->
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
 {% block title %}Share Response{% endblock %}
 {% block content %}
     <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
-    <h3>Share Template</h3>
+    <h3>Share Responses</h3>
 
     {% if success %}
         <div class="alert alert-success">
@@ -17,6 +16,22 @@ GenerateLink view.-->
         <div class="alert alert-danger">
             {{failed}}
         </div>
+    {% endif %}
+
+    {% if shared %}
+        <table border="1">
+            <tr>
+                <th align="center">Researcher</th>
+                <th align="center">Date Shared</th>
+            </tr>
+            <!--Gets the information for each generated link from the StudentAccess table -->
+            {% for share in shared %}
+                <tr>
+                    <td align="center">{{share.researcherID}}</td>
+                    <td align="center">{{share.dateTimeShared}}</td>
+                </tr>
+            {% endfor %}
+        </table>
     {% endif %}
 
     {% if form %}

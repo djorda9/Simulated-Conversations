@@ -38,3 +38,7 @@ vagrant/.idea/vcs.xml
 vagrant/.idea/workspace.xml
 
 vagrant/.idea/.name
+
+Vagrantfile
+
+bootstrap.sh
