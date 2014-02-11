@@ -1,12 +1,18 @@
-<html>
-<body>
-Please select a text version of your recorded response:
-{# lookup template. show text responses #}
-{# show option to play back recorded audio #}
-<form method="LINK" action="page1.html">
-<input type="submit" Value="Next Page ->">
-</form>
-{# lookup next page based on text response #}
+{{% block content %}
 
-</body>
-</html>
+  <body>
+    <div class="container">
+      <h2><u>Let's Go To The Park</u></h2>
+      <h3>Video title</h3>
+      <p>Choose the response that best matches the audio you just recorded.</p>
+      { % for(i in 1:10) % }
+        { % if {{responses[i]}} != 0 % }
+          <p><button type="button" class="btn btn-default">{{responses[i]}}</button></p>
+        { % endif % }
+      { % endfor % }
+
+    </div> <!-- /container -->
+    {# next video response #}
+    <button type="submit" class="btn btn-default"><a href="/student/video/{{ValKey}}&{{TID}}&{{newPID}}/">Next Video</a></button>
+
+{ % endblock % }
