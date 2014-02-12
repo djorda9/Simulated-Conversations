@@ -181,4 +181,8 @@ class TemplateFlowRel(models.Model):
         return self.pageInstanceID
 
     def nex_page(self):
+<<<<<<< HEAD
         return self.nextPageInstanceID
+=======
+        return self.nextPageInstanceID
+>>>>>>> 6979cb7d289f48db578845d5135976be6503c170
