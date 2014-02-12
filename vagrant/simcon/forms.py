@@ -1,17 +1,10 @@
 from django import forms
 from models import StudentAccess
 from models import Template
-<<<<<<< HEAD
-from models import Response
-from models import Researcher
-from models import Response
-from models import Conversation
-=======
 from models import Researcher
 from models import Response
 from models import Conversation
 
->>>>>>> 6979cb7d289f48db578845d5135976be6503c170
 
 class LoginForm(forms.Form):
     username = forms.CharField()
@@ -28,12 +21,8 @@ class StudentAccessForm(forms.Form):
         super(StudentAccessForm, self).__init__(*args, **kwargs)
         if self.researcher > 0:
             self.fields['templateID'] = forms.ModelChoiceField(queryset=Template.objects.filter
-<<<<<<< HEAD
-                                        (researcherID=self.researcher), empty_label='Select a template')
-=======
                                         (researcherID=self.researcher).filter(deleted=0),
                                             empty_label='Select a template')
->>>>>>> 6979cb7d289f48db578845d5135976be6503c170
 
 class ShareResponseForm(forms.Form):
     researcherID = forms.ModelChoiceField(queryset=Researcher.objects.all(), empty_label='Select a researcher')
@@ -57,8 +46,4 @@ class ShareTemplateForm(forms.Form):
                                             exclude(user=self.researcher),empty_label='Select a researcher')
             self.fields['templateID'] = forms.ModelChoiceField(queryset=Template.objects.filter
                                         (researcherID=self.researcher).filter(deleted=0),
-<<<<<<< HEAD
                                             empty_label='Select a conversation template')
-=======
-                                            empty_label='Select a conversation template')
->>>>>>> 6979cb7d289f48db578845d5135976be6503c170
