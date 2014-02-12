@@ -2,6 +2,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.files import File
+import datetime
 
 class Researcher (models.Model):  
     user = models.OneToOneField (User)   # tie into auth user table
@@ -88,6 +90,9 @@ class SharedResponses(models.Model):
     class Meta:
         unique_together = ("responseID", "researcherID")
 
+    def __unicode__(self):
+        return '%s' % self.sharedResponseID
+
 #The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
 class StudentAccess(models.Model):
     studentAccessID = models.AutoField(primary_key=True)
@@ -143,10 +148,13 @@ class PageInstance(models.Model):
     enablePlayback  = models.BooleanField(default = True)
     
     def __unicode__(self):
-        if videoOrResponse == "video":  # consider change this to query videoLink not null?
+        if self.videoOrResponse == "video":  # consider change this to query videoLink not null?
             return u"Video instance"
         else:
             return u"Response instance"
+
+    def get_pageInstanceID(self):
+        return self.pageInstanceID
 
 #TemplateResponseRel: this relates the several possible responses to one pageInstanceID, ordered by 
 # optionNumber. If the pageInstance is a response, the next page instance will be referenced here.
@@ -169,3 +177,8 @@ class TemplateFlowRel(models.Model):
     pageInstanceID     = models.ForeignKey(PageInstance, related_name='templateflowrel_page')
     nextPageInstanceID = models.ForeignKey(PageInstance, related_name='templateflowrel_nextpage')
 
+    def curr_page(self):
+        return self.pageInstanceID
+
+    def nex_page(self):
+        return self.nextPageInstanceID
