@@ -22,17 +22,9 @@
 			     width="400" height="243"></embed>
 		    </object><br>
                   </div>
-                  {% if videoRichText %}
-                  <script type="text/javascript">
-                  $(document).ready(function (){
-                    console.log("after load with rich text");
-                    tinymce.get('id_richText').setContent("yaya");//videoRichtext|safe
-                  });
-                  </script>
-                  {% endif %}
+                  
                   {# Rich Text box http://django-tinymce.readthedocs.org/en/latest/index.html #}
                   {{widge.as_p }}
-                  
                   <div style="text-align:center;">
                     <label for="enablePlayback">Enable playback of video?</label> <input type="checkbox" id="enablePlayback"
                     {% for chk in request.session.enablePlayback %}

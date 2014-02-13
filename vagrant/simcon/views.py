@@ -252,14 +252,14 @@ def TemplateWizardLeftPane(request):
 def TemplateWizardRightPane(request):
     c = {}
     c.update(csrf(request))
-    widge = RichTextForm()
     
-    #widge = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10, 'value':'blahga'}))
     selVideo = request.session.get('selectedVideo')
     if selVideo:
         key = 'richText/%s' % selVideo
         if request.session.get(key): # we have richText to populate
+            widge = RichTextForm({'richText': request.session[key]}) # preload with the value
             return render(request, 'admin/template-wizard-right-pane.html', {'widge':widge, 'videoRichText': request.session[key]})
             
+    widge = RichTextForm()        
     return render(request, 'admin/template-wizard-right-pane.html', {'widge': widge})
 
