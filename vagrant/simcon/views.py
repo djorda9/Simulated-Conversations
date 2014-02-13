@@ -68,7 +68,7 @@ def TemplateWizard(request):
                 pageInstances.append(PageInstance(templateID = temp,
                                                    videoOrResponse = "video",
                                                    videoLink = vid,
-                                                   richText = "",
+                                                   richText = request.session['richText/%s' % vid],
                                                    enablePlayback = enabPlayback
                                                    ))
                 pageInstances[-1].save()
