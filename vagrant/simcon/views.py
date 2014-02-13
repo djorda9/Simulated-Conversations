@@ -59,7 +59,6 @@ def TemplateWizard(request):
             
             templateFlowRels = []
             
-            
             # build up structure in models
             for i, vid in enumerate(request.session['videos']):
                 enabPlayback = False
@@ -74,15 +73,17 @@ def TemplateWizard(request):
                                                    ))
                 pageInstances[-1].save()
                 #TODO populate nextInstanceID in templateflowrels?
+                
+                #TODO add loop for responseparent video, creating dummy nextpageinstances
                 templateFlowRels.append(TemplateFlowRel(templateID = temp,
-                                                         pageInstanceID = pageInstances[-1]))
+                                                         pageInstanceID = pageInstances[-1]))# TODO nextpageinstanceID 
                 templateFlowRels[-1].save()
             
             temp.firstInstanceID = templateFlowRels[0]
             temp.save()
             
             #TODO do we need an option that could just terminate without a video link?
-            for i, res in enumerate(request.session['responseText']):
+            for i, res in enumerate(request.session['responseText']): #try looping through video list then for loop like same
                 parentVid = request.session['responseParentVideo'][i]
                 childVid =  request.session['responseChildVideo'][i]
                 # res = responseText
@@ -163,43 +164,42 @@ def TemplateWizardUpdate(request):
             videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['new_video'], 0)
             videoCode = videoCode.group(1) # just pertinent code
             if videoCode and videoCode not in request.session['videos']:
-              #first check if video exists in pool... dont add twice
-               #NOTE: this doesnt work. it still adds it.
-              #addIt = True
-              #for check in request.session['videos']:
-              #  if check == request.POST['new_video']:
-              #    addIt = False
-              #if addIt == True:
                 request.session['videos'].append(videoCode)
                 request.session['enablePlayback'].append(videoCode)
                 request.session.modified = True
             else:
-              print "Invalid video link."
+              print "Invalid video link." #TODO make this echo properly back to user
         elif request.POST.get('removeVideoFromPool'):
             '''
             User has demanded to delete a video from the pool in the left pane
             '''
-            if request.POST['removeVideoFromPool']:
-                if request.POST['removeVideoFromPool'] == request.session['selectedVideo']:
+            removeVideo = request.POST.get('removeVideoFromPool')
+            if removeVideo:
+                del request.session['richText/%s' % removeVideo] #TODO remove any rich text saved in session
+                if removeVideo == request.session['selectedVideo']:
                     request.session['selectedVideo'] = ""
-                request.session['videos'].remove(request.POST['removeVideoFromPool'])
-                #TODO delete all associated responses + rich text
+                request.session['videos'].remove(removeVideo)
+                #TODO delete all associated responses
                 request.session.modified = True
         elif request.POST.get('editVideo'):
             '''
             User selected a video to edit. Populate the right pane.
             '''
+            #TODO check if we have unsaved right pane data
             editVideo = request.POST.get('editVideo')
             request.session['selectedVideo'] = editVideo
+            richText = request.session.get('richText/%s' % editVideo)
+            #if richText: # some data for the rich text exists
+                #tinyMCE.activeEditor.setContent(richText) 
             request.session.modified = True;
-        elif request.POST.get('saveVideo'):
-            '''
-            Save the video page that is being edited
-            '''
+        #elif request.POST.get('saveVideo'):
+            #'''
+            #Save the video page that is being edited
+            #'''
             #TODO save some video attributes.....
-            logger.info("video saving")
-            request.session.selectedVideo = ""
-            request.session.modified = True;
+            #logger.info("video saving")
+            #request.session.selectedVideo = ""
+            #request.session.modified = True;
         elif request.POST.get('addResponse'):
             '''
             Add a response to the right pane
@@ -221,8 +221,10 @@ def TemplateWizardUpdate(request):
             '''
             User requested to save a video page's richtext
             '''
-            #TODO this doesnt do anything yet
-            logger.info("issue richtext save")
+            # TODO get this working
+            #logger.info("content from richtext was %s" % request.POST.get('mce'))
+            request.session['richText/%s' % request.session['selectedVideo']] = request.POST.get('mce') # push current tinymce into session
+            request.session.modified = True
         elif request.POST.get('enablePlayback'):
             '''
             User selected to Enable/disable playback on youtube video
@@ -251,5 +253,13 @@ def TemplateWizardRightPane(request):
     c = {}
     c.update(csrf(request))
     widge = RichTextForm()
+    
+    #widge = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10, 'value':'blahga'}))
+    selVideo = request.session.get('selectedVideo')
+    if selVideo:
+        key = 'richText/%s' % selVideo
+        if request.session.get(key): # we have richText to populate
+            return render(request, 'admin/template-wizard-right-pane.html', {'widge':widge, 'videoRichText': request.session[key]})
+            
     return render(request, 'admin/template-wizard-right-pane.html', {'widge': widge})
 

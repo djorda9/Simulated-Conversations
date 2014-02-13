@@ -144,7 +144,7 @@ class PageInstance(models.Model):
 class TemplateResponseRel(models.Model):
     templateResponseRelID = models.AutoField(primary_key = True)
     templateID            = models.ForeignKey(Template)
-    pageInstanceID        = models.ForeignKey(PageInstance, related_name='templateresponserel_page')
+    pageInstanceID        = models.ForeignKey(PageInstance, related_name='templateresponserel_page') # id of dummy page
     responseText          = models.TextField()
     optionNumber          = models.IntegerField(default = 1)
     nextPageInstanceID    = models.ForeignKey(PageInstance, blank=True, null=True, related_name='templateresponserel_nextpage' )

@@ -154,10 +154,14 @@ Admin | Template Wizard
       });
       <!-- save video page -->
       $("#rightPane").on("click", "#saveVideoPage", function(){
+           tinyMCE.triggerSave();
+           alert("save video page clicked");
            var saveVideoPage = $("#saveVideoPage").val();
-           var data = { saveVideoPage:saveVideoPage };
+           var textOfEditor = tinymce.get('id_richText').getContent();
+           var data = { saveVideoPage:saveVideoPage, mce:textOfEditor };
            var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                           //$("#rightPane").load("/admin/template-wizard-right-pane")
+                           //tinymce.get('id_richText').setContent(textOfEditor)
                        } };
            $.ajax(args);
       });

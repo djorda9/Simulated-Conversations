@@ -3,6 +3,12 @@ import models
 from django.contrib import admin
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
+
+from django.shortcuts import redirect, render_to_response, render
+        
+import logging
+logger = logging.getLogger("simcon")
 
 # Custom model admins
 # Note: flat admin may handle our mockups better
@@ -12,12 +18,18 @@ class TemplateAdmin(admin.ModelAdmin):
     
     def edit_template(self, request, queryset):
         "Edit the selected template"
-        
+       
         if not request.user.has_perm("simcon.authLevel1"):
-            raise PermissionDenied 
-        #self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.objects.all().aggregate(Count('templateID'))))
-        self.message_user(request, "Editing template!")
-        #TODO redirect to template_wizard, increment a version
+            raise PermissionDenied  
+            
+        if not queryset or queryset.count() != 1: #We can edit only 1 template
+            return HttpResponse("Can only edit 1 template")
+            
+        #self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.count()))
+        #self.message_user(request, "Editing template!")
+
+        #TODO pump queryset into session, tag to add a version incrementation, maybe have a template id variable?
+        return render(request, 'admin/template-wizard.html', {"queryset": queryset})
     edit_template.short_description = "Edit template"
     
     def share_template(self, request, queryset):
