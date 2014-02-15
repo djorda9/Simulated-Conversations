@@ -12,14 +12,15 @@ urlpatterns = patterns('simcon.views',
     url(r'^generatelink/$', 'GenerateLink', name="GenerateLink"),
     url(r'^links/$', 'Links', name="Links"),
 
-    url(r'^student/(?P<VKey>\d{10})/$', student.views.StudentLogin),
-    url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentVideoInstance),
-    url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentResponseInstance),
-    url(r'^student/submission/$', student.views.Submission),
+    url(r'^student/(?P<VKey>\d{10})/$', 'StudentLogin', name = "StudentLogin"),  #, student.views.StudentLogin),
+    url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentVideoInstance', name = "StudentVideoInstance"),  #, student.views.StudentVideoInstance),
+    url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentResponseInstance', name = "StudentResponceInstance"),  #, student.views.StudentResponseInstance),
+    url(r'^student/submission/$', 'Submission', name = "Submission"),  #, student.views.Submission),
     )
 
-urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls)))
+urlpatterns+=patterns('',
+        url(r'^admin/', include(admin.site.urls))
+                       )
 
 #if settings.DEBUG:
 #    import debug_toolbar
