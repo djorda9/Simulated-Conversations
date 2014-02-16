@@ -13,6 +13,8 @@ from models import Researcher
 from models import Template
 from models import PageInstance
 from models import TemplateFlowRel
+from models import Conversation
+from models import Response
 from django.views.generic import View
 #import logging
 
@@ -293,9 +295,17 @@ urlpatterns = patterns('',
 #@permission_required('simcon.authLevel1')
 #def UpdateVideos(request):
 
-#@permission_required('simcon.authLevel1')
-def Responses(request):
+@permission_required('simcon.authLevel1')
+def Responses(request, RID):
 	current_user = get_researcher(request.user)
-	conversationSet=StudentAccess.objects.filter(researcherID=current_user)
-	return render_to_response('Response_view.html', {'conversationSet':conversationSet, 'currentUser':current_user}, context_instance=RequestContext(request))
+	try:
+		ConversationToGet=Conversation.objects.get(id=RID)
+		if (ConversationToGet.ReasercherID != curren_user):
+			ConversationToGet = None
+		responsesToView=Responses.objects.filter(conversationID=ConversationToGet.id)
+		
+	except:
+		responsesToView=None
+	
+	return render_to_response('Response_view.html', {'responses':responsesToView, 'currentUser':current_user}, context_instance=RequestContext(request))
 
