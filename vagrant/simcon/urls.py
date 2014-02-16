@@ -12,7 +12,7 @@ urlpatterns = patterns('simcon.views',
     url(r'^generatelink/$', 'GenerateLink', name="GenerateLink"),
     url(r'^sharetemplate/$', 'ShareTemplate', name="ShareTemplate"),
     url(r'^links/$', 'Links', name="Links"),
-    url(r'^responses/$','Responses'),
+    url(r'^responses/(\d+)$','Responses'),
     )
 
 urlpatterns += patterns('',
