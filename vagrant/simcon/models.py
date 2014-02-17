@@ -26,6 +26,84 @@ class Researcher (models.Model):
         # @permission_required('researcher.authLevel2')
         # def my_view_requiring_authLevel2(request):
 
+#Templates: a list of templates and who they belong to. The firstInstanceID points to a 
+#templateFlowRelID which is the first video in the template. Deleted refers to if a template was deleted.
+#Version refers to template version
+class Template(models.Model):
+    templateID      = models.AutoField(primary_key = True)
+    researcherID    = models.ForeignKey(Researcher)
+    firstInstanceID = models.ForeignKey("TemplateFlowRel")
+    shortDesc       = models.TextField()
+    deleted         = models.BooleanField(default = False)   # whether or not this template has been deleted
+    version         = models.IntegerField(default = 1)    # particular version of this template, base 1
+    
+    def __unicode__(self):
+        if self.version > 1:
+            return u"%s Version: %d" % (self.shortDesc, self.version)
+        else:
+            return u"%s" % self.shortDesc
+
+####remember to uncomment foreign key entries as models are added####
+class Conversation(models.Model):
+        templateID      = models.ForeignKey('Template')
+        researcherID    = models.ForeignKey('Researcher')
+        studentName     = models.CharField(max_length=50)
+        studentEmail    = models.EmailField(max_length=254)
+        dateTime        = models.DateTimeField(auto_now_add=True)
+
+        def __unicode__(self):
+                return u" %s: %s" % (str(self.dateTime), self.studentName)
+
+    def __unicode__(self):
+        return '%s' % self.sharedResponseID
+
+#The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
+class StudentAccess(models.Model):
+    studentAccessID = models.AutoField(primary_key=True)
+    templateID 		= models.ForeignKey('Template')
+    researcherID 	= models.ForeignKey('Researcher')
+    validationKey 	= models.CharField(max_length = 50)
+    expirationDate 	= models.DateField(auto_now_add=True)
+    
+    def __unicode__(self):
+        return u'%s %s %s %s %s' % \
+            (self.studentAccessID, self.templateID, 
+             self.researcherID, self.validationKey, 
+             self.expirationDate)
+
+    # Returns a url for the student login page with the passed 'key'.
+    def get_link(self, key):
+        student_site = "/student/"
+        return settings.SITE_ID + student_site + key + "/"
+
+    #Returns a url for the student login page without a key passed.
+    def get_base_link(self):
+        student_site = "/student/"
+        return settings.SITE_ID + student_site
+
+#PageInstance: this relates videos or responses to a template. The template is referenced by
+#templateID and researcherID. videoOrResponse tells you whether it's a VIDEO INSTANCE or a 
+#RESPONSE INSTANCE, by literally video or response. If its a video, it will have a videoLink 
+#and richText, with enablePlayback as a boolean that can enable or disable the video playback buttons. 
+#If it's a response instance, these values will be blank.
+class PageInstance(models.Model):
+    pageInstanceID  = models.AutoField(primary_key = True)
+    templateID      = models.ForeignKey(Template)
+    videoOrResponse = models.CharField(max_length = 8, default = "response") #considering omitting this and just using videoLink to determine variety...
+    videoLink       = models.CharField(max_length = 11, null = True)  # this will store the alphanumberic code of a url such as: http://img.youtube.com/vi/zJ8Vfx4721M
+    richText        = models.TextField()    # NOTE:  this has to store raw html
+    enablePlayback  = models.BooleanField(default = True)
+    
+    def __unicode__(self):
+        if self.videoOrResponse == "video":  # consider change this to query videoLink not null?
+            return u"Video instance"
+        else:
+            return u"Response instance"
+
+<<<<<<< HEAD
+    def get_pageInstanceID(self):
+        return self.pageInstanceID
+=======
 ####NOTE#####   -Griff
 #This does not align exactly with the database example in the spec (as of v.2)
 #response metadata is no longer in pageInstance but split into a separate
@@ -50,18 +128,6 @@ class Researcher (models.Model):
 #       studentName- whatever the student provides
 #       studentEmail- "                         "
 #       dateTime- start time for the conversation (sets automatically)
-
-
-####remember to uncomment foreign key entries as models are added####
-class Conversation(models.Model):
-        templateID      = models.ForeignKey('Template')
-        researcherID    = models.ForeignKey('Researcher')
-        studentName     = models.CharField(max_length=50)
-        studentEmail    = models.EmailField(max_length=254)
-        dateTime        = models.DateTimeField(auto_now_add=True)
-
-        def __unicode__(self):
-                return u" %s: %s" % (str(self.dateTime), self.studentName)
         
 class Response(models.Model):
         pageInstanceID  = models.ForeignKey(PageInstance) 
@@ -89,72 +155,7 @@ class SharedResponses(models.Model):
     # Note - This requirement was not specified in the design spec.
     class Meta:
         unique_together = ("responseID", "researcherID")
-
-    def __unicode__(self):
-        return '%s' % self.sharedResponseID
-
-#The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
-class StudentAccess(models.Model):
-    studentAccessID = models.AutoField(primary_key=True)
-    templateID 		= models.ForeignKey('Template')
-    researcherID 	= models.ForeignKey('Researcher')
-    validationKey 	= models.CharField(max_length = 50)
-    expirationDate 	= models.DateField()
-    
-    def __unicode__(self):
-        return u'%s %s %s %s %s' % \
-            (self.studentAccessID, self.templateID, 
-             self.researcherID, self.validationKey, 
-             self.expirationDate)
-
-    # Returns a url for the student login page with the passed 'key'.
-    def get_link(self, key):
-        student_site = "/student/"
-        return settings.SITE_ID + student_site + key + "/"
-
-    #Returns a url for the student login page without a key passed.
-    def get_base_link(self):
-        student_site = "/student/"
-        return settings.SITE_ID + student_site
-
-#Templates: a list of templates and who they belong to. The firstInstanceID points to a 
-#templateFlowRelID which is the first video in the template. Deleted refers to if a template was deleted.
-#Version refers to template version
-class Template(models.Model):
-    templateID      = models.AutoField(primary_key = True)
-    researcherID    = models.ForeignKey(Researcher)
-    firstInstanceID = models.ForeignKey("TemplateFlowRel")
-    shortDesc       = models.TextField()
-    deleted         = models.BooleanField(default = False)   # whether or not this template has been deleted
-    version         = models.IntegerField(default = 1)    # particular version of this template, base 1
-    
-    def __unicode__(self):
-        if self.version > 1:
-            return u"%s Version: %d" % (self.shortDesc, self.version)
-        else:
-            return u"%s" % self.shortDesc
-            
-#PageInstance: this relates videos or responses to a template. The template is referenced by
-#templateID and researcherID. videoOrResponse tells you whether it's a VIDEO INSTANCE or a 
-#RESPONSE INSTANCE, by literally video or response. If its a video, it will have a videoLink 
-#and richText, with enablePlayback as a boolean that can enable or disable the video playback buttons. 
-#If it's a response instance, these values will be blank.
-class PageInstance(models.Model):
-    pageInstanceID  = models.AutoField(primary_key = True)
-    templateID      = models.ForeignKey(Template)
-    videoOrResponse = models.CharField(max_length = 8, default = "response") #considering omitting this and just using videoLink to determine variety...
-    videoLink       = models.CharField(max_length = 11, null = True)  # this will store the alphanumberic code of a url such as: http://img.youtube.com/vi/zJ8Vfx4721M
-    richText        = models.TextField()    # NOTE:  this has to store raw html
-    enablePlayback  = models.BooleanField(default = True)
-    
-    def __unicode__(self):
-        if self.videoOrResponse == "video":  # consider change this to query videoLink not null?
-            return u"Video instance"
-        else:
-            return u"Response instance"
-
-    def get_pageInstanceID(self):
-        return self.pageInstanceID
+>>>>>>> origin/jasons_branch
 
 #TemplateResponseRel: this relates the several possible responses to one pageInstanceID, ordered by 
 # optionNumber. If the pageInstance is a response, the next page instance will be referenced here.

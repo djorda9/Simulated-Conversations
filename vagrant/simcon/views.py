@@ -49,11 +49,12 @@ def StudentVideoInstance(request):
     # if student name/email exist, then update the Conversation model
     try:
         # if we can get the conversation, then don't save a new instance of this conversation
-        conv = Conversation.objects.get(templateID = TID, StudentName)
+        conv = Conversation.objects.get(templateID = TID, StudentName = SName)
     except PageInstance,Invalid:
         # if we couldn't get the conversation, then it doesn't exist, so create it.
         T = Conversation(template=TID, researcherID = TID.researcherID, studentName = SName, studentEmail = SEmail, dateTime = datetime.datetime.strptime(datetime.datetime.now(), "%Y-%m-%d %H:%M"))
         T.save()
+        conv = Conversation.objects.get(templateID = TID, StudentName = SName)
 
     #create context variables for video web page
     vidLink = page.videoLink
@@ -62,12 +63,12 @@ def StudentVideoInstance(request):
     #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
     #otherwise, set PIID to 0. this will make this page end up at the Student Submission page.
     try:
-        nextpage = TemplateResponseRel,objects.get(pageInstanceID = PIID)
-        newPID = nextPageInstanceID
-    except TemplateResponseRel.Invalid:
+        nextpage = TemplateFlowRel.objects.get(pageInstanceID = PIID)
+        newPID = nextpage.nextPageInstanceID
+    except TemplateFlowRel.Invalid:
         newPID = 0
-    if(!new_PID)
-        new_PID = 0
+    #if(!new_PID)
+    #    new_PID = 0
 
     # there are ways to compact this code, but this is the most explicit way to render a template
     t = loader.get_template('Student_Video_Response.html')
@@ -108,9 +109,10 @@ def StudentResponseInstance(request):
     #create a list for all of the possible response options
     responses = []
 
-    for(i in 1:theResponses.optionNumber) {
+    numberOfResponses = theResponses.optionNumber
+    for i in range(1,numberOfResponses):
         responses.append(theResponses.responseText[i])
-    }
+
 	#upload to Responses table which PageInstanceID we're at with the current datetime. If all values already exist but the timedate is different,
     # then the page was refreshed, display an error, and after a few seconds go to beginning of conversation
 #class Response(models.Model):
@@ -149,7 +151,7 @@ def StudentLogin(request):
 
     expiration = access.expirationDate
     currentdate = datetime.datetime.now()
-    if(currentdate < expiration)
+    if(currentdate < expiration):
         template = access.templateID
         pageinstance = template.firstInstanceID
 
@@ -161,8 +163,7 @@ def StudentLogin(request):
         'message': 'I am the Student Login View.'
         })
         return t.render(c)
-    }
-    else
+    else:
         print "Conversation link has expired"
    
 @permission_required('simcon.authLevel1')

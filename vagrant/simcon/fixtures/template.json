@@ -1,0 +1,41 @@
+[
+  {
+    "model": "simcom.Template",
+    "pk": 1,
+    "fields": {
+      "resercherID": 1,
+      "firstInstanceID": 1,
+      "shortDesc": "This is the first template"
+    }
+  },
+  {
+    "model": "simcom.Template",
+    "pk": 2,
+    "fields": {
+      "resercherID": 1,
+      "firstInstanceID": 5,
+      "shortDesc": "This is the second template",
+      "version": 3
+    }
+  },
+  {
+    "model": "simcom.Template",
+    "pk": 3,
+    "fields": {
+      "resercherID": 1,
+      "firstInstanceID": 1,
+      "shortDesc": "This is the third template",
+      "deleted": True
+    }
+  },
+  {
+    "model": "simcom.Template",
+    "pk": 4,
+    "fields": {
+      "resercherID": 1,
+      "firstInstanceID": 5,
+      "shortDesc": "This is the third template",
+      "version": 2
+    }
+  }
+]
