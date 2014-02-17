@@ -15,149 +15,17 @@
 
   <body>
   
-{% if responses %}
 
-	{% for r in responses %}
+{% for r in responses %}
 
-    <div class="container">
-      <!-- Example row of columns -->
-      <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-8">
-          <h2>Responses</h2>
-          <p>
-            <form class="form-inline" role="form">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Enter a search term">
-              </div>
-              <button type="submit" class="btn btn-default">Search</button>
-            </form>
+	<p>response # {{index}} {{r}}</p>
 
-            <ul>
-              <li>
-                <a href="#">Let's Go To The Park</a>
-                <ul>
-                  <li>
-                    <a href="#">Nathan Myers</a>
-                    <ul>
-                      <li>
-                        <a href="#">Dec. 16, 2013</a> - <small><a href="#">Share</a></small> - <small><a href="#">Delete</a></small>
-                        
-                          <table class="table table-striped">
-                            <tr>
-                              <td>
-                                08:52:05 AM
-                              </td>
-                              <td>
-                                <img src="http://img.youtube.com/vi/zJ8Vfx4721M/0.jpg" class="img-rounded" width="40" height="30">
-                              </td>
-                              <td>
-                                "Yes, I'd like to go to the park."
-                              </td>
-                              <td>
-                                <span class="glyphicon glyphicon-play"></span>
-                              <td>
-                              <td>
-                                <span class="glyphicon glyphicon-floppy-save"></span>
-                              <td>
-                            </tr>
-                            <tr>
-                              <td>
-                                08:53:42 AM
-                              </td>
-                              <td>
-                                <img src="http://img.youtube.com/vi/zJ8Vfx4721M/0.jpg" class="img-rounded" width="40" height="30">
-                              </td>
-                              <td>
-                                "Let's go to Macleay Park."
-                              </td>
-                              <td>
-                                <span class="glyphicon glyphicon-play"></span>
-                              <td>
-                              <td>
-                                <span class="glyphicon glyphicon-floppy-save"></span>
-                              <td>
-                            </tr>
-                            <tr>
-                              <td>
-                                08:54:47 AM
-                              </td>
-                              <td>
-                                <img src="http://img.youtube.com/vi/zJ8Vfx4721M/0.jpg" class="img-rounded" width="40" height="30">
-                              </td>
-                              <td>
-                                "Ok, I'll drive."
-                              </td>
-                              <td>
-                                <span class="glyphicon glyphicon-play"></span>
-                              <td>
-                              <td>
-                                <span class="glyphicon glyphicon-floppy-save"></span>
-                              <td>
-                            </tr>
-                          </table>
-                        
-                      </li>
-                      <li>
-                        <a href="#">Dec. 15, 2013</a> - <small><a href="#">Share</a></small> - <small><a href="#">Delete</a></small>
-                      </li>
-                      <li>
-                        <a href="#">Dec. 14, 2013</a> - <small><a href="#">Share</a></small> - <small><a href="#">Delete</a></small>
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <a href="#">Jason Nelson</a>
-                    <ul>
-                      <li>
-                        <a href="#">Dec. 16, 2013</a> - <small><a href="#">Share</a></small> - <small><a href="#">Delete</a></small>
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <a href="#">Some Student</a>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a href="#">Let's Go To The Park v2</a>
-              </li>
-              <li>
-                <a href="#">Let's Go To The Park v3</a>
-              </li>
-              <li>
-                <a href="#">Buying Coffee</a>
-              </li>
-              <li>
-                <a href="#">Sim Conv</a>
-              </li>
-            </ul>
-            <h4><u>Responses shared with you</u></h4>
-            <ul>
-              <li>
-                <a href="#">Let's Go To The Park v2</a>
-              </li>
-              <li>
-                <a href="#">Let's Go To The Park v3</a>
-              </li>
-              <li>
-                <a href="#">Buying Coffee</a>
-              </li>
-              <li>
-                <a href="#">Sim Conv</a>
-              </li>
-            </ul>
-          </p>
-        </div>
-      </div>
 
-    </div> <!-- /container -->
-    {% endfor %}
-{% else %}
+{% empty %}
 
 	<p>Nothing there/access denied</p>
-{% endif %}
 
+{% endfor %}
     <!-- Bootstrap core JavaScript
     ================================================== -->
 
