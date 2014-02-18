@@ -95,9 +95,10 @@ def TemplateWizard(request):
                 #so only keep track of the responses that match this parent video (vid)
                 numberOfResponses = 0
                 #loop through each of the responses....                         
-                for j, res in enumerate(request.session['responseText']):
+                # note that the following three values can be accessed by res[0], res[1], res[2]
+                for j, res in enumerate(zip(request.session['responseText'],request.session['responseParentVideo'],request.session['responseChildVideo'])):
                     # ...that match the video 
-                    if request.session['responseParentVideo'] = vid:
+                    if res[1] == vid:
                         numberOfResponses += 1
                         #..and if this is the first one so far,
                         if numberOfResponses == 1:
@@ -108,20 +109,26 @@ def TemplateWizard(request):
                                                       richText = "",
                                                       enablePlayback = False
                                                       ))                                 
-                            responsesPageInstanceID = pageInstances[-1]   ##### how to get id?
-                            pageInstance[-1].save()
+                            responsesPageInstanceID = pageInstances[-1].pageInstanceID
+                            pageInstances[-1].save()
                             #link the parents pageInstance entry to the one we just created
-                            pageInstanceMatchesVideo = pageInstances[i] #### is that right?
+                            pageInstanceMatchesVideo = pageInstances[i].pageInstanceID
                             templateFlowRels.append(TemplateFlowRel(templateID = temp,
                                                          pageInstanceID = pageInstanceMatchesVideo,
                                                          nextPageInstanceID = responsesPageInstanceID
                                                          ))
                             templateFlowRels[-1].save()
                         #since a parent video references this child video, remove it from possible video heads
-                        possibleVideoHeads.remove(request.session['responseChildVideo'].index(j))    #### is that right way to reference by id j?
-                        #begin adding the responses into the templateResponseRels
-                        insertNextPageInstanceID = "" ####### find the ID of the pageInstance that matches responseChildVideo[j]
-                                                      ####### unless its "endpoint", then just insert "endpoint"
+                        possibleVideoHeads.remove(res[2])
+                        # find the ID of the pageInstance that matches responseChildVideo[j]
+                        # unless its "endpoint", then just insert "endpoint"
+                        if res[2] == "endpoint":
+                            insertNextPageInstanceID = "endpoint"
+                        else:
+                            for k,vid2 in enumerate(request.session['videos']):
+                                if vid2 == res[2]:
+                                    insertNextPageInstanceID = pageInstances[k].pageInstanceID
+                        #begin adding the responses into the templateResponseRels 
                         templateResponseRels.append(TemplateResponseRel(templateID = temp,
                                                          pageInstanceID = responsesPageInstanceID,
                                                          responseText = res,
@@ -133,38 +140,18 @@ def TemplateWizard(request):
             #by now, there should be only one video head if the flow was built correctly.
             if len(possibleVideoHeads) > 1:
                 #if not, produce an error message and go back to template editor.
-                errorMessages.appent("There was no video in the conversation flow that appeared to go first. Make sure the videos in the pool all link to something.")
+                errorMessages.append("There was no video in the conversation flow that appeared to go first. Make sure the videos in the pool all link to something.")
             #if you want to insert more errors, do it here.
             else:
-                #get the pageInstance that references this video
-                firstPageID = possibleVideoHeads[0]   ##### this references the video code, not the pageInstanceID. fix!
-                #insert this video as the templates firstPageInstanceID
-                temp += ""  ##### how to do this?
-                #TODO map these arrays to the actual db
+                #get the pageInstance that references this first video
+                firstPageID = pageInstances[pageInstances.index(possibleVideoHeads[0])]
+                #insert this video as the templates firstInstanceID
+                temp.firstInstanceID = firstPageID
+                temp.save()
+                #TODO map these arrays to the actual db -- should already be done by save() -nm
                 #TODO print success message
                 #TODO provide link back to main page
                 return HttpResponse("Success")#render(request, 'admin/template-wizard-submission.html')
-            '''
-            for i, res in enumerate(request.session['responseText']): #try looping through video list then for loop like same
-                parentVid = request.session['responseParentVideo'][i]
-                childVid =  request.session['responseChildVideo'][i]
-                # res = responseText
-                #TODO add checks if these exist
-                parentPageInstance = pageInstances[request.session['videos'].index(parentVid)] # find parent page instance
-                parentPageInstance.save()
-                
-                childPageInstance  = pageInstances[request.session['videos'].index(childVid)]
-                childPageInstance.save()
-                
-                #TODO perhaps grab optionNumber by indexing our pageInstanceID in templateResponseRel?
-                
-                templateResponseRels.append(TemplateResponseRel(templateID = temp,
-                                                                pageInstanceID = parentPageInstance,
-                                                                responseText = res,
-                                                                optionNumber = 1,# TODO not sure how to grab this from session
-                                                                nextPageInstanceID = childPageInstance))
-                templateResponseRels[-1].save()
-            '''       
         elif request.POST.get('editExistingTemplate'):
             #logger.info("loading existing template")
             #prepopulate session variables and then reload page
