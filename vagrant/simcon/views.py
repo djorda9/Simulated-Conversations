@@ -39,13 +39,22 @@ def TemplateWizard(request):
     c.update(csrf(request))
     if request.POST:
         if request.POST.get('saveTemplateButton'):
+            #variables to translate into db:
+              #request.session['videos']               <-- array of videos in the pools
+              #request.session['responseText']                 <-- these 3 are all associated by id
+              #request.session['responseChildVideo']           <--
+              #request.session['responseParentVideo']          <--
+              #request.POST.get('conversationTitle')
+              #request.session['enablePlayback']       <-- True or False
+
             #logger.info("Inserting conversation into database")
-            #TODO check if values are valid
+
+            #TODO check if values are valid   --- note, the values should all be valid already, due to how we implemented the jQuery add functions. -nm
                #if not, send back to edit page and display errors
-            #TODO check if conversation already existed
+
+            #TODO check if conversation already existed  --- we should maybe have a "edittingTemplate" variable that is set when you open the edit page -nm
                #if yes, check if associated with responses/shared responses
                #if yes, save as new version
-            #TODO store session variables into template tables
             '''
             Storing session variables into the database template mappings
             '''
@@ -54,17 +63,23 @@ def TemplateWizard(request):
             
             temp.save() # need this to create id
             pageInstances = []
-            
             templateResponseRels = []
-            
             templateFlowRels = []
+            errorMessages = []
+           
+            #this is how we will know which video comes first in the relationships
+            possibleVideoHeads = []
+            for vid in request.session['videos']:
+               possibleVideoHeads.append(vid)
             
             # build up structure in models
+            # first create page instance entries for all videos in pool
             for i, vid in enumerate(request.session['videos']):
                 enabPlayback = False
                 if vid in request.session['enablePlayback']:
                     enabPlayback = True
                 
+                #add the page instance for this video
                 pageInstances.append(PageInstance(templateID = temp,
                                                    videoOrResponse = "video",
                                                    videoLink = vid,
@@ -72,17 +87,64 @@ def TemplateWizard(request):
                                                    enablePlayback = enabPlayback
                                                    ))
                 pageInstances[-1].save()
-                #TODO populate nextInstanceID in templateflowrels?
+            #now all the videos have pageInstanceIDs
+
+            #next, for each video, 
+            for i, vid in enumerate(request.session['videos']):     
+                #the pageInstances should correspond to the session videos by id at this point.
+                #so only keep track of the responses that match this parent video (vid)
+                numberOfResponses = 0
+                #loop through each of the responses....                         
+                for j, res in enumerate(request.session['responseText']):
+                    # ...that match the video 
+                    if request.session['responseParentVideo'] = vid:
+                        numberOfResponses += 1
+                        #..and if this is the first one so far,
+                        if numberOfResponses == 1:
+                            #create a page instance for this group of responses.
+                            pageInstances.append(PageInstance(templateID = temp,
+                                                      videoOrResponse = "response",
+                                                      videoLink = "",
+                                                      richText = "",
+                                                      enablePlayback = False
+                                                      ))                                 
+                            responsesPageInstanceID = pageInstances[-1]   ##### how to get id?
+                            pageInstance[-1].save()
+                            #link the parents pageInstance entry to the one we just created
+                            pageInstanceMatchesVideo = pageInstances[i] #### is that right?
+                            templateFlowRels.append(TemplateFlowRel(templateID = temp,
+                                                         pageInstanceID = pageInstanceMatchesVideo,
+                                                         nextPageInstanceID = responsesPageInstanceID
+                                                         ))
+                            templateFlowRels[-1].save()
+                        #since a parent video references this child video, remove it from possible video heads
+                        possibleVideoHeads.remove(request.session['responseChildVideo'].index(j))    #### is that right way to reference by id j?
+                        #begin adding the responses into the templateResponseRels
+                        insertNextPageInstanceID = "" ####### find the ID of the pageInstance that matches responseChildVideo[j]
+                                                      ####### unless its "endpoint", then just insert "endpoint"
+                        templateResponseRels.append(TemplateResponseRel(templateID = temp,
+                                                         pageInstanceID = responsesPageInstanceID,
+                                                         responseText = res,
+                                                         optionNumber = numberOfResponses,
+                                                         nextPageInstanceID = insertNextPageInstanceID         
+                                                         ))
+                        templateResponseRels[-1].save()
                 
-                #TODO add loop for responseparent video, creating dummy nextpageinstances
-                templateFlowRels.append(TemplateFlowRel(templateID = temp,
-                                                         pageInstanceID = pageInstances[-1]))# TODO nextpageinstanceID 
-                templateFlowRels[-1].save()
-            
-            temp.firstInstanceID = templateFlowRels[0]
-            temp.save()
-            
-            #TODO do we need an option that could just terminate without a video link?
+            #by now, there should be only one video head if the flow was built correctly.
+            if len(possibleVideoHeads) > 1:
+                #if not, produce an error message and go back to template editor.
+                errorMessages.appent("There was no video in the conversation flow that appeared to go first. Make sure the videos in the pool all link to something.")
+            #if you want to insert more errors, do it here.
+            else:
+                #get the pageInstance that references this video
+                firstPageID = possibleVideoHeads[0]   ##### this references the video code, not the pageInstanceID. fix!
+                #insert this video as the templates firstPageInstanceID
+                temp += ""  ##### how to do this?
+                #TODO map these arrays to the actual db
+                #TODO print success message
+                #TODO provide link back to main page
+                return HttpResponse("Success")#render(request, 'admin/template-wizard-submission.html')
+            '''
             for i, res in enumerate(request.session['responseText']): #try looping through video list then for loop like same
                 parentVid = request.session['responseParentVideo'][i]
                 childVid =  request.session['responseChildVideo'][i]
@@ -102,12 +164,7 @@ def TemplateWizard(request):
                                                                 optionNumber = 1,# TODO not sure how to grab this from session
                                                                 nextPageInstanceID = childPageInstance))
                 templateResponseRels[-1].save()
-                   
-            
-            #TODO print success message
-            #TODO provide link back to main page
-            #TODO for now this renders the wizard page, but render a "success page" instead.
-            return HttpResponse("Success")#render(request, 'admin/template-wizard-submission.html')
+            '''       
         elif request.POST.get('editExistingTemplate'):
             #logger.info("loading existing template")
             #prepopulate session variables and then reload page

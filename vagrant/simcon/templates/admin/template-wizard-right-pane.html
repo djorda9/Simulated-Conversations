@@ -53,12 +53,13 @@
 		      <label for="addResponseText">Add Response Option:</label>
 		      <input type="text" id="addResponseText" class="form-control" placeholder="Enter the response text">
                       <select id="addResponseChildVideo" class="form-control">
-                        <option value="none">Select a video to link this response to</option>
+                        <option value="none">Select a destination for this response</option>
                         {% for vid in request.session.videos %}
                           {% if vid != request.session.selectedVideo %}
                             <option value="{{ vid }}">Video {{forloop.counter}}</option>
                           {% endif %}
                         {% endfor %}
+                        <option value="endpoint">[Use this response as an end-point]</option>
                       </select>
                       <button type="button" class="btn btn-default btn-xs" id="addResponseButton" value="addResponseButton">
                          <span class="glyphicon glyphicon-plus"></span> Add Response Option 
