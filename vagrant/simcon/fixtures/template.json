@@ -5,7 +5,9 @@
     "fields": {
       "resercherID": 1,
       "firstInstanceID": 1,
-      "shortDesc": "This is the first template"
+      "shortDesc": "This is the first template",
+      "version": 1,
+	  "deleted": False
     }
   },
   {
@@ -34,7 +36,7 @@
     "fields": {
       "resercherID": 1,
       "firstInstanceID": 5,
-      "shortDesc": "This is the third template",
+      "shortDesc": "This is the fourth template",
       "version": 2
     }
   }

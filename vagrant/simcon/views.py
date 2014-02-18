@@ -41,7 +41,7 @@ def StudentVideoInstance(request):
     try:
         # if we can get the conversation, then don't save a new instance of this conversation
         conv = Conversation.objects.get(templateID = TID, StudentName = SName)
-    except PageInstance,Invalid:
+    except Conversation.Invalid:
         # if we couldn't get the conversation, then it doesn't exist, so create it.
         T = Conversation(template=TID, researcherID = TID.researcherID, studentName = SName, studentEmail = SEmail, dateTime = datetime.datetime.strptime(datetime.datetime.now(), "%Y-%m-%d %H:%M"))
         T.save()
@@ -106,18 +106,12 @@ def StudentResponseInstance(request):
 
 	#upload to Responses table which PageInstanceID we're at with the current datetime. If all values already exist but the timedate is different,
     # then the page was refreshed, display an error, and after a few seconds go to beginning of conversation
-#class Response(models.Model):
-#       pageInstanceID  = models.ForeignKey(PageInstance) 
-#        conversationID  = models.ForeignKey(Conversation)
-#        order           = models.SmallIntegerField()
-#        choice          = models.CharField(max_length=1000)
-#        audioFile       = models.FileField(upload_to='test')
     try:
         conv = Conversation.objects.get(templateID = TID, studentName = SName)
     except TemplateResponseRel.Invalid:
         print "no conversation for this response"
     #something like this needs to be submitted in a form
-	#T = Response(pageInstanceID=PIID, conversationID = conv.PK, order = , choice = , audioFile = )
+	#T = Response(pageInstanceID=PIID, conversationID = conv.PK, order = ?, choice = ?, audioFile = ?)
     #T.save()
 
     t = loader.get_template('Student_Text_Response.html')
@@ -142,6 +136,7 @@ def StudentLogin(request):
 
     expiration = access.expirationDate
     currentdate = datetime.datetime.now()
+    #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
     if(currentdate < expiration):
         template = access.templateID
         pageinstance = template.firstInstanceID

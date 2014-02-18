@@ -1,0 +1,2 @@
+INSERT INTO simcon_Template (templateID, researcherID, firstInstanceID, shortDesc, version, deleted) VALUES (1,1,1,"This is the first template",1,"False");
+INSERT INTO simcon_Template (templateID, researcherID, firstInstanceID, shortDesc, version, deleted) VALUES (1,2,5,"This is the second template",2,"True");
