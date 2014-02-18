@@ -17,8 +17,13 @@ from models import Researcher
 from models import Template
 from models import PageInstance
 from models import TemplateFlowRel
+<<<<<<< HEAD
 from models import SharedResponses
 from models import Conversation
+=======
+from models import Conversation
+from models import Response
+>>>>>>> refs/heads/griff
 from django.views.generic import View
 from django.template import loader, Context
 from models import PageInstance
@@ -487,3 +492,18 @@ urlpatterns = patterns('',
 '''
 #@permission_required('simcon.authLevel1')
 #def UpdateVideos(request):
+
+@permission_required('simcon.authLevel1')
+def Responses(request, RID):
+	current_user = get_researcher(request.user)
+	try:
+		ConversationToGet=Conversation.objects.get(id=RID)
+		if (ConversationToGet.ReasercherID != curren_user):
+			ConversationToGet = None
+		responsesToView=Responses.objects.filter(conversationID=ConversationToGet.id)
+		
+	except:
+		responsesToView=None
+	
+	return render_to_response('Response_view.html', {'responses':responsesToView, 'currentUser':current_user}, context_instance=RequestContext(request))
+

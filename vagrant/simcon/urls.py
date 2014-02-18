@@ -13,11 +13,15 @@ urlpatterns = patterns('simcon.views',
     url(r'^sharetemplate/$', 'ShareTemplate', name="ShareTemplate"),
     url(r'^shareresponse/$', 'ShareResponse', name="ShareResponse"),
     url(r'^links/$', 'Links', name="Links"),
+<<<<<<< HEAD
 
     url(r'^student/(?P<VKey>\d{10})/$', student.views.StudentLogin),
     url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentVideoInstance),
     url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentResponseInstance),
     url(r'^student/submission/$', student.views.Submission),
+=======
+    url(r'^responses/(\d+)$','Responses'),
+>>>>>>> refs/heads/griff
     )
 
 urlpatterns += patterns('',
