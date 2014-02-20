@@ -101,7 +101,7 @@ def StudentResponseInstance(request):
     responses = []
 
 #we need to figure out what te responses are so that the student can choose one of them, prompting the rendering of the appropriate video page
-    for i in range(1:10)
+    for i in range(1,10):
         try:
             tempObject = TemplateResponseRel.objects.get(templateID = TID, pageInstanceID = PIID, optionNumber = (i-1))
             responses.append(tempObject.responseText)
@@ -158,8 +158,7 @@ def StudentTextChoice(request):
 
     #figure out newPID from the studentchoice
     #lookup template from TID, search through TemplateResponseRel for optionNum, return nextPageInstanceID as nextPID?
-    return render_to_response('Student_Text_Response.html', {'form':form 'newPID': nextPID}, 
-                              context_instance = RequestContext(request))
+    return render_to_response('Student_Text_Response.html')
 
 def StudentLogin(request):
     try:
