@@ -17,13 +17,8 @@ from models import Researcher
 from models import Template
 from models import PageInstance
 from models import TemplateFlowRel
-<<<<<<< HEAD
 from models import SharedResponses
 from models import Conversation
-=======
-from models import Conversation
-from models import Response
->>>>>>> refs/heads/griff
 from django.views.generic import View
 from django.template import loader, Context
 from models import PageInstance
@@ -199,15 +194,6 @@ def StudentLogin(request):
         return t.render(c)
     else:
         print "Conversation link has expired"
-
-def StudentResponseDecisionInstance(request):
-    # TID = template ID, PIID = page instance ID, OptNum = Option Number
-    try:
-        nextPage = TemplateResponseRel.objects.get(templateID = TID, pageInstanceID = PIID, optionNumber = OptNum)
-    except StudentAccess.Invalid:
-        print "next page doesn't exist"
-    
-    return nextPage.nextPageInstanceID
 
 @permission_required('simcon.authLevel1')
 def TemplateWizard(request):

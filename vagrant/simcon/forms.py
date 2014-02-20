@@ -1,10 +1,14 @@
 from django import forms
 from models import StudentAccess
 from models import Template
+<<<<<<< HEAD
 from models import Researcher
 from models import Response
 from models import Conversation
 
+=======
+import datetime
+>>>>>>> jasons_branch
 
 class LoginForm(forms.Form):
     username = forms.CharField()
