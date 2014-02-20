@@ -1,0 +1,35 @@
+<!--  This this template allows the researcher to view all the generated links they have created-->
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+{% load generatelink_extras %}
+{% block title %}Generated Links{% endblock %}
+{% block content %}
+            <!-- Bootstrap core CSS -->
+    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
+        <h3>Generated Links</h3>
+
+        <input type=button onClick="location.href='{% url "GenerateLink" %}'"  value='Generate Link'><br><br>
+
+        <table border="1">
+            <tr>
+                <th align="center">Link ID</th>
+                <th align="center">Template</th>
+                <th align="center">Validation Key</th>
+                <th align="center">Expiration Date</th>
+                <th align="center">URL</th>
+            </tr>
+            <!--Gets the information for each generated link from the StudentAccess table -->
+        {% for researcher_link in researcher_links %}
+            <tr>
+                <td align="center">{{researcher_link.studentAccessID}}</td>
+                <td align="center">{{researcher_link.templateID}}</td>
+                <td align="center">{{researcher_link.validationKey}}</td>
+                <td align="center">{{researcher_link.expirationDate}}</td>
+                <!-- Gets and makes a hyperlink to the generated link url -->
+                {% with id=researcher_link.validationKey %}
+                    <td align="center"><a href="{{researcher_link|get_link_filter:id}}">{{researcher_link|get_link_filter:id}}</a> </td>
+                {% endwith %}
+            </tr>
+        {% endfor %}
+        </table>
+{% endblock %}

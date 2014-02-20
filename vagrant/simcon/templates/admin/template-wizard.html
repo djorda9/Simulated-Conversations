@@ -1,0 +1,113 @@
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
+    <meta name="author" content="Nathanial Myers, ">
+
+    <title>Simulated Conversations</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <div class="starter-template">
+        <h2>Conversation Template Wizard</h2>
+        <div class="alert alert-success">Here's how to use this page.... blah blah blah.</div>
+        <form role="form" method="post" action="."> {% csrf_token %}
+          <div class="form-group">
+          <label for="exampleInputEmail1">Conversation Title</label>
+          <input type="text" name = "conversationTitle" class="form-control" placeholder="Enter a title">
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <h4><u>Videos</u></h4>
+              <ol id="videolist">
+              {% for vid in request.session.videos %}
+                  <li><input type="image" name="submit" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded" width="40" height="30"><input type="submit" name="removeVideoFromPool" class="glyphicon glyphicon-trash" value="{{vid}}"> </li>
+              {% endfor %}
+              </ol>
+
+              <!--form id="video_form" name="video_list" class="form-inline" role="form" method="post" action="."-->
+                <div class="form-group">
+                  <input id="video_name" name="new_video" type="text" class="form-control" placeholder="Enter web address of YouTube video">
+                </div>
+                <!--div id="addvideo" class="btn btn-default" role="button">Add Video&raquo;</div-->
+                <input name="addVideoToPool" type="submit" value="Add Video"><!--Add Video&raquo;</button-->
+              <!--/form-->
+            </div>
+            <div class="col-md-8">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Video Page Editor</h3>
+                </div>
+                <div class="panel-body">
+                {%  if request.session.selectedVideo %}
+                  <img src="http://img.youtube.com/vi/{{ request.session.selectedVideo }}/0.jpg" class="img-rounded" width="160" height="120">
+                  <p> TODO print out title of video </p> {# TODO rich text replacement? http://django-tinymce.readthedocs.org/en/latest/index.html http://simonsstuffandthings.blogspot.com/2011/05/django-tinymce-profit.html#}
+                  
+                  <input type="submit" name="removeVideoResponse" value="Remove Video">
+                  
+                  {# replace with rich text editor #}<p>
+                  <label for="videoText">Video Text:</label>
+                  <input type="textarea" name="videoText" label="Video text">
+                  <label for="enablePlayback">Enable playback of video?</label><input type="checkbox" name="enablePlayback">
+                  <h3>Responses:</h3>
+                  {% if request.session.responseOptions %}
+                  {% for opt in request.session.responseOptions %}
+                  <p><label for="response{{ forloop.counter}}">Option {{ forloop.counter }}</label><input type="text" name="response{{ forloop.counter }}" placeholder="Enter your response" value="{{opt}}"><input type="submit" name="removeResponse" value="Remove Response {{forloop.counter}}"><input type="submit" name="addVideoToResponse" value="Add video to response {{forloop.counter}}"></p>
+                  {% endfor %}
+                  {% endif %}
+                  <input type="submit" name="addoption" value="Add Option">
+                  
+                {% else %}
+                  No video selected.
+                {% endif %}
+                
+                
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <button type="submit" class="btn btn-default">Save Template &raquo; </button>
+        <!--/form-->
+
+      </div>
+
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js">
+    </script>
+    <script>
+    /*$(document).ready(function(){
+      $("#addvideo").click(function(){
+        $("#videolist").append("<li>Appended video</li>");
+      });
+    });*/
+    </script>
+    <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
+  </body>
+</html>
+
+{% endblock %}
