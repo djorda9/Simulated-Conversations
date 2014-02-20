@@ -12,6 +12,7 @@ urlpatterns = patterns('simcon.views',
     url(r'^generatelink/$', 'GenerateLink', name="GenerateLink"),
     url(r'^links/$', 'Links', name="Links"),
 
+    url(r'^studenttextchoice/$', 'StudentTextChoice', name = 'StudentTextChoice'),
 	url(r'^studentinfo/$', 'StudentInfo', name = 'StudentInfo'),
     url(r'^student/(?P<VKey>\d{10})/$', 'StudentLogin', name = "StudentLogin"),  #, student.views.StudentLogin),
     url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentVideoInstance', name = "StudentVideoInstance"),  #, student.views.StudentVideoInstance),

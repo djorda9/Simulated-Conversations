@@ -24,3 +24,5 @@ class StudentNameForm(forms.Form):
     SName = forms.CharField()
     SEmail = forms.CharField()
 
+class StudentTextChoiceForm(forms.Form):
+    StudentChoice = forms.IntegerField()

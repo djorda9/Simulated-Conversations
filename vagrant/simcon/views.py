@@ -132,12 +132,25 @@ def StudentInfo(request):
 
             T = Conversation(template=TID, researcherID = TID.researcherID, studentName = studentname, studentEmail = studentemail, dateTime = datetime.datetime.strptime(datetime.datetime.now(), "%Y-%m-%d %H:%M"))
             T.save()
-
-            form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
+#what is this line for?
+            form = StudentInfoForm()
 
     return render_to_response('Student_Login.html', {'form':form},
                               context_instance = RequestContext(request))
 
+#when the student chooses the text answer to their response, this updates the database with their choice
+def StudentTextChoice(request):
+    if request.method == 'POST':
+        form = StudentTextChoiceForm(request.POST)
+        if form.is_valid():
+            studentchoice = form.cleaned_data['StudentChoice']
+#what is this line for?
+            form = StudentTextChoiceForm()
+
+    #figure out newPID from the studentchoice
+    #lookup template from TID, search through TemplateResponseRel for optionNum, return nextPageInstanceID as nextPID?
+    return render_to_response('Student_Text_Response.html', {'form':form 'newPID': nextPID}, 
+                              context_instance = RequestContext(request))
 
 def StudentLogin(request):
     try:
