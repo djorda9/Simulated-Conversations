@@ -1,13 +1,12 @@
 from django.conf.urls import patterns, include, url
 #from django.conf import settings
-
 from django.contrib import admin
+
 admin.autodiscover()
    # Examples:
    # url(r'^$', 'simcon.views.home', name='home'),
    # url(r'^blog/', include('blog.urls')),
 urlpatterns = patterns('simcon.views',
-    url(r'login/$', 'login_page', name="login"),
     url(r'^admin/template-wizard/$', 'TemplateWizard'),
     url(r'^generatelink/$', 'GenerateLink', name="GenerateLink"),
     url(r'^sharetemplate/$', 'ShareTemplate', name="ShareTemplate"),
@@ -20,9 +19,10 @@ urlpatterns = patterns('simcon.views',
     url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentVideoInstance', name = "StudentVideoInstance"),  #, student.views.StudentVideoInstance),
     url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentResponseInstance', name = "StudentResponseInstance"),  #, student.views.StudentResponseInstance),
     url(r'^student/submission/$', 'Submission', name = "Submission"),  #, student.views.Submission),
-    url(r'^/student/responsedecision/(?P<TID>\d{10})&(?P<PIID>\d{10})&(?P<OptNum>\d{1}/$', 'StudentResponseDecisionInstance', name = "StudentResponseDecisionInstance"),
 
+    url(r'^accounts/', include('django.contrib.auth.urls')),
     )
+
 
 urlpatterns+=patterns('',
         url(r'^admin/', include(admin.site.urls))
