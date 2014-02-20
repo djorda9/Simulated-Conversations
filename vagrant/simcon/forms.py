@@ -1,10 +1,14 @@
 from django import forms
 from models import StudentAccess
 from models import Template
+<<<<<<< HEAD
 from models import Researcher
 from models import Response
 from models import Conversation
 
+=======
+import datetime
+>>>>>>> origin/jasons_branch
 
 class LoginForm(forms.Form):
     username = forms.CharField()
@@ -21,6 +25,7 @@ class StudentAccessForm(forms.Form):
         super(StudentAccessForm, self).__init__(*args, **kwargs)
         if self.researcher > 0:
             self.fields['templateID'] = forms.ModelChoiceField(queryset=Template.objects.filter
+<<<<<<< HEAD
                                         (researcherID=self.researcher).filter(deleted=0),
                                             empty_label='Select a template')
 
@@ -47,3 +52,13 @@ class ShareTemplateForm(forms.Form):
             self.fields['templateID'] = forms.ModelChoiceField(queryset=Template.objects.filter
                                         (researcherID=self.researcher).filter(deleted=0),
                                             empty_label='Select a conversation template')
+=======
+                                        (researcherID=self.researcher), empty_label='Select a template')
+
+class StudentNameForm(forms.Form):
+    SName = forms.CharField()
+    SEmail = forms.CharField()
+
+class StudentTextChoiceForm(forms.Form):
+    StudentChoice = forms.IntegerField()
+>>>>>>> origin/jasons_branch

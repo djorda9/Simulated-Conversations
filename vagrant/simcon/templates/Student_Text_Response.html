@@ -5,18 +5,29 @@ StudentResponseInstance view.-->
 {% block title %}Student Text Response{% endblock %}
 {% block content %}
     <div class="container">
-      <h2><u>Let's Go To The Park</u></h2>
-      <h3>Video title</h3>
-      <p>Choose the response that best matches the audio you just recorded.</p>
-      { % for i in range(1:10) % }
-        { % if {{responses[i]}} != 0 % }
-		  {# need insert a form here to capture what the student's choice was #}
-          <p><button type="button" class="btn btn-default">{{responses[i]}}</button></p>
-        { % endif % }
-      { % endfor % }
+	
+      <h2><u>Response Page</u></h2>
+      <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
+
+        <form name="StudentTextChoiceForm" action="/studenttextchoice/" method="POST">
+		  <div><br>
+          { % for i in range(1:10) % }
+            { % if {{responses[i-1]}} != "NA" % }
+              <input type="radio" name="choices" value="{{responses[i-1]}}"> {{responses[i-1]}}<br>
+            { % endif % }
+          { % endfor % }
+          </div>
+        </form>
+
+		
+	  {% if {{newPID}} != "endpoint" %}
+        <button type="submit" class="btn btn-default" action="/student/response/{{ValKey}}&{{TID}}&{{newPID}}/">Next Video</button>
+	  {% else %}
+	    <button type="submit" class="btn btn-default" action="/student/submission/">Submission</button>
+      {% endif %}
 
     </div> <!-- /container -->
-	{# use form submission here  to figure out what newPID we need #}
-    <button type="submit" class="btn btn-default"><a href="/student/video/{{ValKey}}&{{TID}}&{{newPID}}/">Next Video</a></button>
+
+
 
 { % endblock % }

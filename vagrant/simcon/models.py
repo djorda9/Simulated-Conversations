@@ -132,7 +132,7 @@ class PageInstance(models.Model):
 class Response(models.Model):
         pageInstanceID  = models.ForeignKey(PageInstance) 
         conversationID  = models.ForeignKey(Conversation)
-        order           = models.SmallIntegerField()
+        convoOrder      = models.SmallIntegerField()
         choice          = models.CharField(max_length=1000)
         audioFile       = models.FileField(upload_to='test')
 #       audioFile is tied to MEDIA_ROOT set in settings, to save in a

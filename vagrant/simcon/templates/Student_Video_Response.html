@@ -1,25 +1,32 @@
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
 {% block title %}Student Video Response{% endblock %}
-{% block conten
+{% block content %}
+
     <div class="container">
-      <h2><u>Let's Go To The Park</u></h2>
-      <h3>Video title</h3>
-	  { % if {{playback}} == True % }
-      <p><iframe title="YouTube video player" class="youtube-player" type="text/html" 
-width="640" height="390" src="http://www.youtube.com/embed/{vidLink}}"
-frameborder="0" allowFullScreen></iframe></p>
-      { % else % }
-      <p><iframe title="YouTube video player" class="youtube-player" type="text/html" 
-width="640" height="390" src="http://www.youtube.com/embed/{{vidLink}}" showsearch=0 rel = 0
-frameborder="0" allowFullScreen></iframe></p>
-      { % endif % }
-      <div class="well well-sm">{{text}}</div>
-      <div class="well well-sm">Here's the audio recorder app. When done recording, load next page.</div>
-{# after the audio is recorded, find the next text response page, go to it. if not, go to the Student_Submission page #}
-    { % if {{newPID}} != 0 % }
-    <a href="/student/response/{{ValKey}}&{{TID}}&{{newPID}}/">Text Response</a>
-    { % else %}
-    <a href="/student/submission/">Submission</a>
-    { % endif % }
+
+      <div class="starter-template">
+        <div class="alert alert-success">Here's how to use this page.... blah blah blah.</div>
+        <h3>Video Page</h3>
+	    { % if {{playback}} == True % }
+          <p><iframe title="YouTube video player" class="youtube-player" type="text/html" 
+              width="640" height="390" src="http://www.youtube.com/embed/{{vidLink}}"
+              frameborder="0" allowFullScreen></iframe></p>
+        { % else % }
+          <p><iframe title="YouTube video player" class="youtube-player" type="text/html" 
+              width="640" height="390" src="http://www.youtube.com/embed/{{vidLink}}" showsearch=0 rel = 0
+              frameborder="0" allowFullScreen></iframe></p>
+        { % endif % }
+        <div class="well well-sm">{{text}}</div>
+
+        { % if {{newPID}} != "endpoint" % }
+		<form name="input" action="/student/response/{{ValKey}}&{{TID}}&{{newPID}}/">
+        { % else if {{newPID}} == "endpoint"v %}
+		<form name="input" action="/student/submission/">
+        { % endif % }		
+		  {# need to include recorder #}
+		  <input type="submit" class="btn btn-default" value="Record Audio">
+		</form> 
+ 	  
+	</div>  
 {% endblock %}
