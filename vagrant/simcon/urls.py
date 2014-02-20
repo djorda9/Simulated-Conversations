@@ -13,19 +13,21 @@ urlpatterns = patterns('simcon.views',
     url(r'^sharetemplate/$', 'ShareTemplate', name="ShareTemplate"),
     url(r'^shareresponse/$', 'ShareResponse', name="ShareResponse"),
     url(r'^links/$', 'Links', name="Links"),
-<<<<<<< HEAD
 
-    url(r'^student/(?P<VKey>\d{10})/$', student.views.StudentLogin),
-    url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentVideoInstance),
-    url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentResponseInstance),
-    url(r'^student/submission/$', student.views.Submission),
-=======
     url(r'^responses/(\d+)$','Responses'),
->>>>>>> refs/heads/griff
+	
+    url(r'^studenttextchoice/$', 'StudentTextChoice', name = 'StudentTextChoice'),
+	url(r'^studentinfo/$', 'StudentInfo', name = 'StudentInfo'),
+    url(r'^student/(?P<VKey>\d{10})/$', 'StudentLogin', name = "StudentLogin"),  #, student.views.StudentLogin),
+    url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentVideoInstance', name = "StudentVideoInstance"),  #, student.views.StudentVideoInstance),
+    url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentResponseInstance', name = "StudentResponseInstance"),  #, student.views.StudentResponseInstance),
+    url(r'^student/submission/$', 'Submission', name = "Submission"),  #, student.views.Submission),
+    url(r'^/student/responsedecision/(?P<TID>\d{10})&(?P<PIID>\d{10})&(?P<OptNum>\d{1}/$', 'StudentResponseDecisionInstance', name = "StudentResponseDecisionInstance"),
     )
 
-urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls)))
+urlpatterns+=patterns('',
+        url(r'^admin/', include(admin.site.urls))
+                       )
 
 #if settings.DEBUG:
 #    import debug_toolbar
