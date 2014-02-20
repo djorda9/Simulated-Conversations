@@ -1,6 +1,7 @@
 from django import forms
 from models import StudentAccess
 from models import Template
+import datetime
 
 class LoginForm(forms.Form):
     username = forms.CharField()
@@ -18,3 +19,8 @@ class StudentAccessForm(forms.Form):
         if self.researcher > 0:
             self.fields['templateID'] = forms.ModelChoiceField(queryset=Template.objects.filter
                                         (researcherID=self.researcher), empty_label='Select a template')
+
+class StudentNameForm(forms.Form):
+    SName = forms.CharField()
+    SEmail = forms.CharField()
+
