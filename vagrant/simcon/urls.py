@@ -1,17 +1,18 @@
 from django.conf.urls import patterns, include, url
 #from django.conf import settings
 from django.contrib import admin
+
 admin.autodiscover()
    # Examples:
    # url(r'^$', 'simcon.views.home', name='home'),
    # url(r'^blog/', include('blog.urls')),
 urlpatterns = patterns('simcon.views',
-    url(r'login/$', 'login_page', name="login"),
     url(r'^admin/template-wizard/$', 'TemplateWizard'),
     url(r'^generatelink/$', 'GenerateLink', name="GenerateLink"),
     url(r'^sharetemplate/$', 'ShareTemplate', name="ShareTemplate"),
     url(r'^shareresponse/$', 'ShareResponse', name="ShareResponse"),
     url(r'^links/$', 'Links', name="Links"),
+<<<<<<< HEAD
     url(r'^responses/(\d+)$','Responses'),
     url(r'^studenttextchoice/$', 'StudentTextChoice', name = 'StudentTextChoice'),
     url(r'^studentinfo/$', 'StudentInfo', name = 'StudentInfo'),
@@ -29,6 +30,13 @@ urlpatterns = patterns('simcon.views',
 
 urlpatterns+=patterns('',
         url(r'^tinymce/', include('tinymce.urls')), # this is for rich text embeds
+=======
+    url(r'^accounts/', include('django.contrib.auth.urls')),
+    )
+
+urlpatterns += patterns('',
+    url(r'^admin/', include(admin.site.urls))        )
+>>>>>>> origin/alex
 
         url(r'^admin/', include(admin.site.urls))
                        )
