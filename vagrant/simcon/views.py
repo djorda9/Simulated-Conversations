@@ -80,7 +80,7 @@ def TemplateWizard(request):
                     enabPlayback = True
                 
                 #add the page instance for this video
-                pageInstances.append(PageInstance(templateID = temp,
+                pageInstances.append(PageInstance(templateID = temp.templateID,
                                                    videoOrResponse = "video",
                                                    videoLink = vid,
                                                    richText = request.session['richText/%s' % vid],
@@ -103,17 +103,17 @@ def TemplateWizard(request):
                         #..and if this is the first one so far,
                         if numberOfResponses == 1:
                             #create a page instance for this group of responses.
-                            pageInstances.append(PageInstance(templateID = temp,
+                            pageInstances.append(PageInstance(templateID = temp.templateID,
                                                       videoOrResponse = "response",
                                                       videoLink = "",
                                                       richText = "",
                                                       enablePlayback = False
-                                                      ))                                 
+                                                      ))
                             responsesPageInstanceID = pageInstances[-1].pageInstanceID
                             pageInstances[-1].save()
                             #link the parents pageInstance entry to the one we just created
                             pageInstanceMatchesVideo = pageInstances[i].pageInstanceID
-                            templateFlowRels.append(TemplateFlowRel(templateID = temp,
+                            templateFlowRels.append(TemplateFlowRel(templateID = temp.templateID,
                                                          pageInstanceID = pageInstanceMatchesVideo,
                                                          nextPageInstanceID = responsesPageInstanceID
                                                          ))
@@ -129,9 +129,9 @@ def TemplateWizard(request):
                                 if vid2 == res[2]:
                                     insertNextPageInstanceID = pageInstances[k].pageInstanceID
                         #begin adding the responses into the templateResponseRels 
-                        templateResponseRels.append(TemplateResponseRel(templateID = temp,
+                        templateResponseRels.append(TemplateResponseRel(templateID = temp.templateID,
                                                          pageInstanceID = responsesPageInstanceID,
-                                                         responseText = res,
+                                                         responseText = res[0],
                                                          optionNumber = numberOfResponses,
                                                          nextPageInstanceID = insertNextPageInstanceID         
                                                          ))
