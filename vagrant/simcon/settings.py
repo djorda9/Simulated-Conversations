@@ -102,10 +102,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
 )
 
-<<<<<<< HEAD
 from django.core.urlresolvers import reverse_lazy
 LOGIN_URL=reverse_lazy('login')
-=======
+
 #Logging functionality
 LOGGING = {
     'version': 1,
@@ -153,4 +152,3 @@ LOGGING = {
     }
 }
 
->>>>>>> nate
