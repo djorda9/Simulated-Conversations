@@ -7,25 +7,30 @@ admin.autodiscover()
    # url(r'^$', 'simcon.views.home', name='home'),
    # url(r'^blog/', include('blog.urls')),
 urlpatterns = patterns('simcon.views',
-<<<<<<< HEAD
     url(r'login/$', 'login_page', name="login"),
     url(r'^admin/template-wizard/$', 'TemplateWizard'),
     url(r'^generatelink/$', 'GenerateLink', name="GenerateLink"),
     url(r'^sharetemplate/$', 'ShareTemplate', name="ShareTemplate"),
     url(r'^shareresponse/$', 'ShareResponse', name="ShareResponse"),
     url(r'^links/$', 'Links', name="Links"),
-
     url(r'^student/(?P<VKey>\d{10})/$', student.views.StudentLogin),
     url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentVideoInstance),
     url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', student.views.StudentResponseInstance),
     url(r'^student/submission/$', student.views.Submission),
-=======
     url(r'^admin/template-wizard$', 'TemplateWizard'),
     url(r'^admin/template-wizard-update', 'TemplateWizardUpdate'),#used to do the behind-the-scenes stuff, update session variables
     url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane'), #used to do the behind-the-scenes stuff, reload the left pane
     url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane'),#used to do the behind-the-scenes stuff, reload the right pane
     url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
->>>>>>> nate
+    url(r'^responses/(\d+)$','Responses'),
+	
+    url(r'^studenttextchoice/$', 'StudentTextChoice', name = 'StudentTextChoice'),
+	url(r'^studentinfo/$', 'StudentInfo', name = 'StudentInfo'),
+    url(r'^student/(?P<VKey>\d{10})/$', 'StudentLogin', name = "StudentLogin"),  #, student.views.StudentLogin),
+    url(r'^student/video/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentVideoInstance', name = "StudentVideoInstance"),  #, student.views.StudentVideoInstance),
+    url(r'^student/response/(?P<ValKey>\d{10})&(?P<TID>\d{10})&(?P<PIID>\d{10})/$', 'StudentResponseInstance', name = "StudentResponseInstance"),  #, student.views.StudentResponseInstance),
+    url(r'^student/submission/$', 'Submission', name = "Submission"),  #, student.views.Submission),
+>>>>>>> 8ef64fcf895096a000385689e37732c56815e144
     )
     
 urlpatterns += patterns('',
@@ -40,6 +45,9 @@ urlpatterns += patterns('',
         url(r'^', include())
     )
 '''
+urlpatterns+=patterns('',
+        url(r'^admin/', include(admin.site.urls))
+                       )
 
 #if settings.DEBUG:
 #    import debug_toolbar

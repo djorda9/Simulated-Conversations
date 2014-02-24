@@ -65,11 +65,10 @@ def StudentVideoInstance(request):
     # if student name/email exist, then update the Conversation model
     try:
         # if we can get the conversation, then don't save a new instance of this conversation
-        conv = Conversation.objects.get(templateID = TID, StudentName)
-    except PageInstance,Invalid:
-        # if we couldn't get the conversation, then it doesn't exist, so create it.
-        T = Conversation(template=TID, researcherID = TID.researcherID, studentName = SName, studentEmail = SEmail, dateTime = datetime.datetime.strptime(datetime.datetime.now(), "%Y-%m-%d %H:%M"))
-        T.save()
+        conv = Conversation.objects.get(templateID = TID, StudentName = SName)
+    except Conversation.Invalid:
+        print "conversation doesn't exist"
+        #conv = Conversation.objects.get(templateID = TID, StudentName = SName)
 
     #create context variables for video web page
     vidLink = page.videoLink
@@ -78,12 +77,10 @@ def StudentVideoInstance(request):
     #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
     #otherwise, set PIID to 0. this will make this page end up at the Student Submission page.
     try:
-        nextpage = TemplateResponseRel,objects.get(pageInstanceID = PIID)
-        newPID = nextPageInstanceID
-    except TemplateResponseRel.Invalid:
-        newPID = 0
-    if(!new_PID)
-        new_PID = 0
+        nextpage = TemplateFlowRel.objects.get(pageInstanceID = PIID)
+        newPID = nextpage.nextPageInstanceID
+    except TemplateFlowRel.Invalid:
+        print "could not find next page"
 
     # there are ways to compact this code, but this is the most explicit way to render a template
     t = loader.get_template('Student_Video_Response.html')
@@ -92,9 +89,9 @@ def StudentVideoInstance(request):
     'text': text,
     'playback': playback,
     'newPID': newPID,
-    'message': 'I am the Student Video Response View.',
     'ValKey': VKey,
-    'TID': TID
+    'TID': TID,
+    'message': 'I am the Student Video Response View.'
     })
     return t.render(c)
 
@@ -108,7 +105,7 @@ def StudentResponseInstance(request):
 
     try:
         pi = PageInstance.objects.get(pageInstanceID = PIID, templateID = TID)
-    except PageInstance,Invalid:
+    except PageInstance.Invalid:
         print "Page Instance ID is invalid"
 
     try:
@@ -116,46 +113,68 @@ def StudentResponseInstance(request):
     except StudentAccess.Invalid:
         print "Validation Key is invalid"
 
-    try:
-        theResponses = TemplateResponseRel.objects.get(pageInstanceID = PIID)
-    except TemplateResponseRel.Invalid:
-        print "no responses to this page is invalid"
-
     #create a list for all of the possible response options
     responses = []
 
-    for(i in 1:theResponses.optionNumber) {
-        responses.append(theResponses.responseText[i])
-    }
+#we need to figure out what te responses are so that the student can choose one of them, prompting the rendering of the appropriate video page
+    for i in range(1,10):
+        try:
+            tempObject = TemplateResponseRel.objects.get(templateID = TID, pageInstanceID = PIID, optionNumber = (i-1))
+            responses.append(tempObject.responseText)
+        except TemplateResponseRel.Invalid:
+            responses.append("NA")
+
 	#upload to Responses table which PageInstanceID we're at with the current datetime. If all values already exist but the timedate is different,
     # then the page was refreshed, display an error, and after a few seconds go to beginning of conversation
-#class Response(models.Model):
-#       pageInstanceID  = models.ForeignKey(PageInstance) 
-#        conversationID  = models.ForeignKey(Conversation)
-#        order           = models.SmallIntegerField()
-#        choice          = models.CharField(max_length=1000)
-#        audioFile       = models.FileField(upload_to='test')
     try:
         conv = Conversation.objects.get(templateID = TID, studentName = SName)
     except TemplateResponseRel.Invalid:
         print "no conversation for this response"
     #something like this needs to be submitted in a form
-	#T = Response(pageInstanceID=PIID, conversationID = conv.PK, order = , choice = , audioFile = )
+	#T = Response(pageInstanceID=PIID, conversationID = conv.PK, order = ?, choice = ?, audioFile = ?)
     #T.save()
 
     t = loader.get_template('Student_Text_Response.html')
     c = Context({
     'responses': responses,
-    'newPID': theResponses.nextPageInstanceID,
-    'message': 'I am the Student Text Response View.',
     'ValKey': VKey,
     'TID': TID,
-    'conv': conv
+    'conv': conv,
+    'message': 'I am the Student Text Response View.'
     })
     return t.render(c)
 
 def Submission(request):
     return render(request, 'Student_Submission.html')
+
+#when the student submits their name and optional email, this updates the database
+def StudentInfo(request):
+    if request.method == 'POST':
+        form = StudentNameForm(request.POST)
+        if form.is_valid():
+            studentname = form.cleaned_data['SName']
+            studentemail = form.cleaned_data['SEmail']
+
+            T = Conversation(template=TID, researcherID = TID.researcherID, studentName = studentname, studentEmail = studentemail, dateTime = datetime.datetime.strptime(datetime.datetime.now(), "%Y-%m-%d %H:%M"))
+            T.save()
+#what is this line for?
+            form = StudentInfoForm()
+
+    return render_to_response('Student_Login.html', {'form':form},
+                              context_instance = RequestContext(request))
+
+#when the student chooses the text answer to their response, this updates the database with their choice
+def StudentTextChoice(request):
+    if request.method == 'POST':
+        form = StudentTextChoiceForm(request.POST)
+        if form.is_valid():
+            studentchoice = form.cleaned_data['StudentChoice']
+#what is this line for?
+            form = StudentTextChoiceForm()
+
+    #figure out newPID from the studentchoice
+    #lookup template from TID, search through TemplateResponseRel for optionNum, return nextPageInstanceID as nextPID?
+    return render_to_response('Student_Text_Response.html')
 
 def StudentLogin(request):
     try:
@@ -163,22 +182,32 @@ def StudentLogin(request):
     except StudentAccess.Invalid:
         print "Validation Key is invalid"
 
-    expiration = access.expirationDate
+    convo_Expiration = access.expirationDate
     currentdate = datetime.datetime.now()
-    if(currentdate < expiration)
-        template = access.templateID
-        pageinstance = template.firstInstanceID
+    #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
+    if(currentdate < convo_Expiration):
+        try:
+            template = Template.objects.get(TemplateID = access.templateID)
+        except StudentAccess.Invalid:
+            print "template doesn't exist"
+
+        pageInstance = template.firstInstanceID
+
+        try:
+            nextPage = PageInstance.objects.get(pageInstanceID = pageInstance)
+        except StudentAccess.Invalid:
+            print "first page instance doesn't exist"
 
         t = loader.get_template('Student_Login.html')
         c = Context({
         'TID': template,
-        'PIID': pageinstance,
+        'PIID': pageInstance,
         'ValKey': VKey,
+        'VoR': nextPage.videoOrResponse,
         'message': 'I am the Student Login View.'
         })
         return t.render(c)
-    }
-    else
+    else:
         print "Conversation link has expired"
    
 
@@ -691,4 +720,27 @@ def TemplateWizardRightPane(request):
             
     widge = RichTextForm()        
     return render(request, 'admin/template-wizard-right-pane.html', {'widge': widge})
+
+urlpatterns = patterns('',
+    url(r'^mine/$', MyView.as_view(), name='my-view'),
+) # in urls
+ 
+'''
+#@permission_required('simcon.authLevel1')
+#def UpdateVideos(request):
+'''
+
+@permission_required('simcon.authLevel1')
+def Responses(request, RID):
+	current_user = get_researcher(request.user)
+	try:
+		ConversationToGet=Conversation.objects.get(id=RID)
+		if (ConversationToGet.ReasercherID != curren_user):
+			ConversationToGet = None
+		responsesToView=Responses.objects.filter(conversationID=ConversationToGet.id)
+		
+	except:
+		responsesToView=None
+	
+	return render_to_response('Response_view.html', {'responses':responsesToView, 'currentUser':current_user}, context_instance=RequestContext(request))
 

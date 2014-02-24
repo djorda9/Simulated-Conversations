@@ -1,6 +1,5 @@
 from django.template import loader, Context
 from django.shortcuts import render
-<<<<<<< .merge_file_14AMdM
 from simcom.models import Template
 import datetime
 
@@ -38,7 +37,7 @@ def StudentVideoInstance(request):
 #    S = Response(pageInstanceID=PIID, conversationID = T, studentEmail = SEmail, dateTime = datetime.datetime.strptime(testDate, "%Y-%m-%d %H:%M"))te
 #    T.save()
 
-=======
+from django.shortcuts import render
 #from simcom.templates import Templates
 import datetime
 
@@ -47,7 +46,6 @@ def StudentVideoInstance(request):
     #check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
     #upload to Responses table which PageInstanceID we're at with the current datetime. If all values already exist but the timedate is different,
     # then the page was refreshed, display an error, and after a few seconds go to beginning of conversation
->>>>>>> .merge_file_1exHgI
     #check for existence of student response instance input. If so, upload to Responses table the response, the dateTime, and the studentName.
     return render(request, 'Student_Video_Response.html')
 
@@ -72,8 +70,6 @@ def StudentLogin(request):
     if(currentdate < expiration)
         template = access.templateID
         pageinstance = template.firstInstanceID
-<<<<<<< .merge_file_14AMdM
-
         t = loader.get_template('Student_Login.html')
         c = Context({
         'TID': template,
@@ -83,9 +79,8 @@ def StudentLogin(request):
         })
         return t.render(c)
     }
-=======
         return render(request, 'Student_Login.html', {'TID': template}, {'PIID':pageinstance}, {'ValKey':VKey})
->>>>>>> .merge_file_1exHgI
+        return render(request, 'Student_Login.html', {'TID': template}, {'PIID':pageinstance}, {'ValKey':VKey})
     else
         print "Conversation link has expired"
 
