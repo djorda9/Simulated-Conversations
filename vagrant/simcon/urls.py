@@ -12,7 +12,6 @@ urlpatterns = patterns('simcon.views',
     url(r'^sharetemplate/$', 'ShareTemplate', name="ShareTemplate"),
     url(r'^shareresponse/$', 'ShareResponse', name="ShareResponse"),
     url(r'^links/$', 'Links', name="Links"),
-<<<<<<< HEAD
     url(r'^responses/(\d+)$','Responses'),
     url(r'^studenttextchoice/$', 'StudentTextChoice', name = 'StudentTextChoice'),
     url(r'^studentinfo/$', 'StudentInfo', name = 'StudentInfo'),
@@ -25,19 +24,14 @@ urlpatterns = patterns('simcon.views',
     url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane'), #used to do the behind-the-scenes stuff, reload the left pane
     url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane'),#used to do the behind-the-scenes stuff, reload the right pane
     url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
-
+    url(r'^accounts/', include('django.contrib.auth.urls'))
     )
 
 urlpatterns+=patterns('',
-        url(r'^tinymce/', include('tinymce.urls')), # this is for rich text embeds
-=======
-    url(r'^accounts/', include('django.contrib.auth.urls')),
+        url(r'^tinymce/', include('tinymce.urls')), # this is for rich text embeds,
     )
 
 urlpatterns += patterns('',
-    url(r'^admin/', include(admin.site.urls))        )
->>>>>>> origin/alex
-
         url(r'^admin/', include(admin.site.urls))
                        )
 #if settings.DEBUG:
