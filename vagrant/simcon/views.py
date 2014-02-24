@@ -689,14 +689,14 @@ def login_page(request):
         form = LoginForm()
     return render_to_response('login.html',{'message':message, 'form':form},context_instance=RequestContext(request))
 
-
+'''
 class TemplateView(View):
     def get(self, request, *args, **kwargs):
         return HttpResponse('This is GET request')
         logger.error("No post data")
         return HttpResponse("no POST data")
     return HttpResponse("null")
-
+'''
 
 #Reload the template wizards left pane if requested
 @permission_required('simcon.authLevel1')
@@ -720,11 +720,12 @@ def TemplateWizardRightPane(request):
             
     widge = RichTextForm()        
     return render(request, 'admin/template-wizard-right-pane.html', {'widge': widge})
-
+'''
 urlpatterns = patterns('',
     url(r'^mine/$', MyView.as_view(), name='my-view'),
 ) # in urls
- 
+ '''
+
 '''
 #@permission_required('simcon.authLevel1')
 #def UpdateVideos(request):
