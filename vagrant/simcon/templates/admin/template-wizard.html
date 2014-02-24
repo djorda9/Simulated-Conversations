@@ -1,92 +1,247 @@
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
+
+{% block title %}
+Admin | Template Wizard
+{% endblock %}
+{% block branding %}
+<h1 id="site-name">Simcon administration | Template Wizard</h1>
+{% endblock %}
+
+{% block extrahead %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
-    <meta name="author" content="Nathanial Myers, ">
-
-    <title>Simulated Conversations</title>
+    <meta name="author" content="Nathanial Myers, Nick Horner">
 
     <!-- Bootstrap core CSS -->
     <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
+
+    <!-- prevent line breaks when using form fields -->
+    <style type="text/css">
+    form {display:inline; margin:0px; padding:0px;}
+    </style>
+
+    <!-- jQuery addition -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
+
+
+    <script>
+
+    $(document).ready(function(){      
+    <!-- the snippet below ensures the AJAX POST has a CSRF token for django -->
+      $(document).ajaxSend(function(event, xhr, settings) {
+	  function getCookie(name) {
+	      var cookieValue = null;
+	      if (document.cookie && document.cookie != '') {
+		  var cookies = document.cookie.split(';');
+		  for (var i = 0; i < cookies.length; i++) {
+		      var cookie = jQuery.trim(cookies[i]);
+		      // Does this cookie string begin with the name we want?
+		      if (cookie.substring(0, name.length + 1) == (name + '=')) {
+			  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			  break;
+		      }
+		  }
+	      }
+	      return cookieValue;
+	  }
+	  function sameOrigin(url) {
+	      // url could be relative or scheme relative or absolute
+	      var host = document.location.host; // host + port
+	      var protocol = document.location.protocol;
+	      var sr_origin = '//' + host;
+	      var origin = protocol + sr_origin;
+	      // Allow absolute or scheme relative URLs to same origin
+	      return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+		  (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+		  // or any other URL that isn't scheme relative or absolute i.e relative.
+		  !(/^(\/\/|http:|https:).*/.test(url));
+	  }
+	  function safeMethod(method) {
+	      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	  }
+
+	  if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+	      xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+	  }
+      });
+      <!-- end snippet -->
+      
+      <!-- here's the ajax/jquery code to remove a video from pool-->
+      $("#leftPane").on("click", "button.removeVideoButton", function(){
+           var removeVideoFromPool = $(this).val();
+           var data = { removeVideoFromPool:removeVideoFromPool };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           $("#leftPane").load("/admin/template-wizard-left-pane")
+                           <!-- check if its the video to be deleted, and load the empty right pane if so -->
+                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                       } };
+           $.ajax(args);
+      });
+      <!-- here's the code to add a video to the pool -->
+      $("#leftPane").on("click", "button.addVideoButton", function(){
+           var new_video = $("#video_name").val();
+           var data = { new_video:new_video };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                            $("#leftPane").load("/admin/template-wizard-left-pane")
+                       } };
+           $.ajax(args);
+      });
+      <!-- select a video to edit the video/response page (by clicking button)-->
+      $("#leftPane").on("click", "button.editVideoButton", function(){
+          var editVideo = $(this).val();
+          var data = { editVideo:editVideo };
+          var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                            <!-- TODO before loading right pane, check if there is data there, and save it if so -->
+                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                     }};
+          $.ajax(args);
+      });
+      <!-- show instructions near top of page-->
+      $("#instrucLink").on("click", "#showInstruc", function(){
+          $("#instrucLink").html('<br><br><button type=button class="btn btn-default btn-xs" id=hideInstruc> Hide Instructions </button>')
+          $("#instructions").html(
+            '<div class="alert alert-success">'+
+              'Heres how to use this page.... blah blah blah.'+
+            '</div>')
+      });
+      <!-- hide instructions near top of page-->
+      $("#instrucLink").on("click", "#hideInstruc", function(){
+          $("#instrucLink").html('<br><br><button type=button class="btn btn-default btn-xs" id=showInstruc> Show Instructions </button>')
+          $("#instructions").html(' ')
+      });
+      <!-- this function is called to save the video editor page -->
+      var saveVideoPage = function(){
+         var data = new Array();
+         data['enablePlayback'] = $("#enablePlayback").val();
+         for (res in $("$responses .response")){
+            data['response'][res] = $(this)[res].val();
+         }
+         var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                            <!-- this isnt finished... -->
+                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                     }};
+          $.ajax(args);
+
+      }
+      <!-- add a response option on the video editor page -->
+      $("#rightPane").on("click", "#addResponseButton", function(){
+        if($("#addResponseChildVideo").val() != "none" && $("#addResponseText").val() != ""){
+           var addResponseText = $("#addResponseText").val();
+           var addResponseParentVideo = $("#addResponseParentVideo").val();
+           var addResponseChildVideo = $("#addResponseChildVideo").val();
+           var addResponse = "submit"; <!-- a placehold to signify in the view what action to take -->
+           var data = { addResponse:addResponse, addResponseText:addResponseText, addResponseParentVideo:addResponseParentVideo, addResponseChildVideo:addResponseChildVideo };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                       } };
+           $.ajax(args);
+        }
+      });
+      <!-- remove response button -->
+      $("#rightPane").on("click", "#removeResponseButton", function(){
+          var removeResponseId = $(this).val();
+          alert("removing button: " + removeResponseId);
+          var removeResponse = "removeResponse";
+          var data = { removeResponse:removeResponse, removeResponseId:removeResponseId };
+          var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                            <!-- TODO before loading right pane, check if there is data there, and save it if so -->
+                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                     }};
+          $.ajax(args);
+      });
+      <!-- save video page -->
+      $("#rightPane").on("click", "#saveVideoPage", function(){
+           tinyMCE.triggerSave();
+           alert("save video page clicked");
+           var saveVideoPage = $("#saveVideoPage").val();
+           var textOfEditor = tinymce.get('id_richText').getContent();
+           var data = { saveVideoPage:saveVideoPage, mce:textOfEditor };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           //$("#rightPane").load("/admin/template-wizard-right-pane")
+                           //tinymce.get('id_richText').setContent(textOfEditor)
+                       } };
+           $.ajax(args);
+      });
+      <!-- enable/disable playback -->
+      $("#rightPane").on("click", "#enablePlayback", function(){
+           var enablePlayback = "off";
+           if ($("#enablePlayback").is(":checked"))
+                enablePlayback = "on";
+           var vid = $("#selectedVideo").val();
+           var data = { enablePlayback:enablePlayback, vid:vid };
+           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                       } };
+           $.ajax(args);
+      });
+      <!-- save the whole template -->
+      $("#templateSaver").on("click", "#saveTemplateButton", function(){
+           var convoTitle = $("#conversationTitle").val();
+           var data = { saveTemplateButton:"saveTemplateButton", conversationTitle: convoTitle };
+           var args = { type:"POST", url:"/admin/template-wizard", data:data, cache:false, complete:function(){
+                           <!--load submit page-->
+                           // TODO populate this based on success/failure
+                           alert("probably successfully saved template!");
+                           $("#mainBody").load("/admin/template-submit")
+                       } };
+           $.ajax(args);
+      });
+    });
+    </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
-  </head>
+    <!-- tinymce -->
+    
+    {% endblock %}
 
-  <body>
+  {% block content %}
 
-    <div class="container">
-
+    <div id="mainBody" class="container">
       <div class="starter-template">
-        <h2>Conversation Template Wizard</h2>
-        <div class="alert alert-success">Here's how to use this page.... blah blah blah.</div>
-        <form role="form" method="post" action="."> {% csrf_token %}
+        <div class="row">
+          <div class="col-md-7">
+            <h2>Conversation Template Wizard</h2>
+          </div>
+          <div class="col-md-2" id="instrucLink">
+            <br><br><button type="button" class="btn btn-default btn-xs" id="showInstruc"> Show Instructions </button>
+          </div>
+          <div class="col-md-3" id="templateSaver">
+            <br><button type="button" id="saveTemplateButton" class="btn btn-default btn-lg">Save Template &raquo; </button>
+          </div>
+        </div>
+          <div id="instructions"></div>
           <div class="form-group">
-          <label for="exampleInputEmail1">Conversation Title</label>
-          <input type="text" name = "conversationTitle" class="form-control" placeholder="Enter a title">
+          <label for="conversationTitle">Conversation Title</label>
+          <input type="text" id="conversationTitle" class="form-control" placeholder="Enter a title">
           </div>
           <div class="row">
             <div class="col-md-4">
               <h4><u>Videos</u></h4>
-              <ol id="videolist">
-              {% for vid in request.session.videos %}
-                  <li><input type="image" name="submit" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded" width="40" height="30"><input type="submit" name="removeVideoFromPool" class="glyphicon glyphicon-trash" value="{{vid}}"> </li>
-              {% endfor %}
-              </ol>
-
-              <!--form id="video_form" name="video_list" class="form-inline" role="form" method="post" action="."-->
-                <div class="form-group">
-                  <input id="video_name" name="new_video" type="text" class="form-control" placeholder="Enter web address of YouTube video">
-                </div>
-                <!--div id="addvideo" class="btn btn-default" role="button">Add Video&raquo;</div-->
-                <input name="addVideoToPool" type="submit" value="Add Video"><!--Add Video&raquo;</button-->
-              <!--/form-->
+              <div id="leftPane">
+                {% include "admin/template-wizard-left-pane.html" %}
+              </div>
             </div>
             <div class="col-md-8">
               <div class="panel panel-default">
-                <div class="panel-heading">
+                <div class="panel-heading videoEditorTitle" id="videoEditorTitle">
                   <h3 class="panel-title">Video Page Editor</h3>
                 </div>
                 <div class="panel-body">
-                {%  if request.session.selectedVideo %}
-                  <img src="http://img.youtube.com/vi/{{ request.session.selectedVideo }}/0.jpg" class="img-rounded" width="160" height="120">
-                  <p> TODO print out title of video </p> {# TODO rich text replacement? http://django-tinymce.readthedocs.org/en/latest/index.html http://simonsstuffandthings.blogspot.com/2011/05/django-tinymce-profit.html#}
-                  
-                  <input type="submit" name="removeVideoResponse" value="Remove Video">
-                  
-                  {# replace with rich text editor #}<p>
-                  <label for="videoText">Video Text:</label>
-                  <input type="textarea" name="videoText" label="Video text">
-                  <label for="enablePlayback">Enable playback of video?</label><input type="checkbox" name="enablePlayback">
-                  <h3>Responses:</h3>
-                  {% if request.session.responseOptions %}
-                  {% for opt in request.session.responseOptions %}
-                  <p><label for="response{{ forloop.counter}}">Option {{ forloop.counter }}</label><input type="text" name="response{{ forloop.counter }}" placeholder="Enter your response" value="{{opt}}"><input type="submit" name="removeResponse" value="Remove Response {{forloop.counter}}"><input type="submit" name="addVideoToResponse" value="Add video to response {{forloop.counter}}"></p>
-                  {% endfor %}
-                  {% endif %}
-                  <input type="submit" name="addoption" value="Add Option">
-                  
-                {% else %}
-                  No video selected.
-                {% endif %}
-                
-                
-                  
+                  <div id="rightPane">
+		    {%  include "admin/template-wizard-right-pane.html" %}
+                  </div>                  
                 </div>
               </div>
             </div>
           </div>
           <hr>
-          <button type="submit" class="btn btn-default">Save Template &raquo; </button>
         <!--/form-->
 
       </div>
@@ -97,17 +252,5 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js">
-    </script>
-    <script>
-    /*$(document).ready(function(){
-      $("#addvideo").click(function(){
-        $("#videolist").append("<li>Appended video</li>");
-      });
-    });*/
-    </script>
     <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
-  </body>
-</html>
-
 {% endblock %}

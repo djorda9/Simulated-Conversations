@@ -1,37 +1,49 @@
-# researcher admin
+# admin
 import models
 from django.contrib import admin
 from django.contrib.auth.decorators import permission_required
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
+
+from django.shortcuts import redirect, render_to_response, render
+        
+import logging
+logger = logging.getLogger("simcon")
 
 # Custom model admins
 # Note: flat admin may handle our mockups better
 # TODO:  filter templates, responses, etc by user ownership, so they can only see things they own
-#        make the things not needing a query a button on the template?
 class TemplateAdmin(admin.ModelAdmin):
     actions = ['edit_template', 'share_template', 'generate_link']
     
-    #@permission_required('simcon.authLevel1') #TODO fix this, also need to rewire for an empty queryset, or move this to a button in template?
-    #def new_template(self, request, queryset):
-    #    "Navigate to new template interface"
-    #    pass
-    #new_template.short_description = "New Template >>"
-    
-    #@permission_required('simcon.authLevel1') #TODO fix this
     def edit_template(self, request, queryset):
-        "Edit the selected template(s)"
-        self.message_user(request, "Edit template %s" % request.user.username)
+        "Edit the selected template"
+       
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise PermissionDenied  
+            
+        if not queryset or queryset.count() != 1: #We can edit only 1 template
+            return HttpResponse("Can only edit 1 template")
+            
+        #self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.count()))
+        #self.message_user(request, "Editing template!")
+
+        #TODO pump queryset into session, tag to add a version incrementation, maybe have a template id variable?
+        return render(request, 'admin/template-wizard.html', {"queryset": queryset})
     edit_template.short_description = "Edit template"
     
-    @permission_required('simcon.authLevel1') #TODO fix this
     def share_template(self, request, queryset):
         "Share the selected template(s)"
-        pass
+        
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise PermissionDenied
     share_template.short_description = "Share these templates"
     
-    @permission_required('simcon.authLevel1') #TODO fix this
     def generate_link(self, request, queryset):
         "Generate a link for the selected template(s)"
-        pass
+        
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise PermissionDenied
     generate_link.short_description = "Generate a link"
        
     
@@ -41,7 +53,9 @@ class ResearcherAdmin(admin.ModelAdmin):
     @permission_required('simcon.authLevel3') #TODO fix this
     def promote_users(self, request, queryset):
         "Promote the selected researcher(s)"
-        pass
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise PermissionDenied
+        
     promote_users.short_description = "Promote selected user(s)"
     
 class ResponseAdmin(admin.ModelAdmin):
@@ -50,10 +64,20 @@ class ResponseAdmin(admin.ModelAdmin):
     
     def view_response(self, request, queryset):
         "View the selected response(s)"
-        pass
+        
+        if not request.user.has_perm("simcon.authLevel1"):
+            raise PermissionDenied
     view_response.short_description = "View selected response"
 
 # register models and modeladmins
 admin.site.register(models.Researcher, ResearcherAdmin)
 admin.site.register(models.Template, TemplateAdmin)
 admin.site.register(models.Response, ResponseAdmin)
+
+#temporarily adding all
+admin.site.register(models.Conversation)
+admin.site.register(models.SharedResponses)
+admin.site.register(models.StudentAccess)
+admin.site.register(models.PageInstance)
+admin.site.register(models.TemplateResponseRel)
+admin.site.register(models.TemplateFlowRel)

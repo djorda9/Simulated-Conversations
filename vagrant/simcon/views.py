@@ -24,8 +24,24 @@ from django.template import loader, Context
 from models import PageInstance
 import datetime
 #import logging
+from django.core.context_processors import csrf #csrf
+#from django.shortcuts import render_to_response #csrf
 
-#logger = logging.getLogger(__name__)
+#used in video link processessing: regular expressions
+import re
+
+import logging
+logger = logging.getLogger("simcon")
+
+from django import forms # for forms
+from django.core.urlresolvers import reverse
+from tinymce.widgets import TinyMCE
+from tinymce.models import HTMLField  # tinymce for rich text embeds
+
+#for template insertions
+from simcon.models import Template, PageInstance, TemplateResponseRel, TemplateFlowRel, Researcher
+from django.contrib.auth.models import User
+
 
 def StudentVideoInstance(request):
     # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
@@ -165,85 +181,262 @@ def StudentLogin(request):
     else
         print "Conversation link has expired"
    
+
+# class for rich text field in a form
+class RichTextForm(forms.Form):
+    richText = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+
+#For researchers: edit conversation templates 
+# or create a new one.
+
 @permission_required('simcon.authLevel1')
 def TemplateWizard(request):
+    c = {}
+    c.update(csrf(request))
     if request.POST:
-        if request.POST.get('addVideoToPool'): # and request.POST['sbutton'] == "Add Video":  
+        if request.POST.get('saveTemplateButton'):
+            #variables to translate into db:
+              #request.session['videos']               <-- array of videos in the pools
+              #request.session['responseText']                 <-- these 3 are all associated by id
+              #request.session['responseChildVideo']           <--
+              #request.session['responseParentVideo']          <--
+              #request.POST.get('conversationTitle')
+              #request.session['enablePlayback']       <-- True or False
+
+            #logger.info("Inserting conversation into database")
+
+            #TODO check if values are valid   --- note, the values should all be valid already, due to how we implemented the jQuery add functions. -nm
+               #if not, send back to edit page and display errors
+
+            #TODO check if conversation already existed  --- we should maybe have a "edittingTemplate" variable that is set when you open the edit page -nm
+               #if yes, check if associated with responses/shared responses
+               #if yes, save as new version
+            '''
+            Storing session variables into the database template mappings
+            '''
+            temp = Template(researcherID = Researcher.objects.get(user=request.user), 
+                             shortDesc   = request.POST.get('conversationTitle')) # NOTE: need firstInstanceID (TemplateFlowRel), added retroactively
+            
+            temp.save() # need this to create id
+            pageInstances = []
+            templateResponseRels = []
+            templateFlowRels = []
+            errorMessages = []
+           
+            #this is how we will know which video comes first in the relationships
+            possibleVideoHeads = []
+            for vid in request.session['videos']:
+               possibleVideoHeads.append(vid)
+            
+            # build up structure in models
+            # first create page instance entries for all videos in pool
+            for i, vid in enumerate(request.session['videos']):
+                enabPlayback = False
+                if vid in request.session['enablePlayback']:
+                    enabPlayback = True
+                
+                #add the page instance for this video
+                pageInstances.append(PageInstance(templateID = temp.templateID,
+                                                   videoOrResponse = "video",
+                                                   videoLink = vid,
+                                                   richText = request.session['richText/%s' % vid],
+                                                   enablePlayback = enabPlayback
+                                                   ))
+                pageInstances[-1].save()
+            #now all the videos have pageInstanceIDs
+
+            #next, for each video, 
+            for i, vid in enumerate(request.session['videos']):     
+                #the pageInstances should correspond to the session videos by id at this point.
+                #so only keep track of the responses that match this parent video (vid)
+                numberOfResponses = 0
+                #loop through each of the responses....                         
+                # note that the following three values can be accessed by res[0], res[1], res[2]
+                for j, res in enumerate(zip(request.session['responseText'],request.session['responseParentVideo'],request.session['responseChildVideo'])):
+                    # ...that match the video 
+                    if res[1] == vid:
+                        numberOfResponses += 1
+                        #..and if this is the first one so far,
+                        if numberOfResponses == 1:
+                            #create a page instance for this group of responses.
+                            pageInstances.append(PageInstance(templateID = temp.templateID,
+                                                      videoOrResponse = "response",
+                                                      videoLink = "",
+                                                      richText = "",
+                                                      enablePlayback = False
+                                                      ))
+                            responsesPageInstanceID = pageInstances[-1].pageInstanceID
+                            pageInstances[-1].save()
+                            #link the parents pageInstance entry to the one we just created
+                            pageInstanceMatchesVideo = pageInstances[i].pageInstanceID
+                            templateFlowRels.append(TemplateFlowRel(templateID = temp.templateID,
+                                                         pageInstanceID = pageInstanceMatchesVideo,
+                                                         nextPageInstanceID = responsesPageInstanceID
+                                                         ))
+                            templateFlowRels[-1].save()
+                        #since a parent video references this child video, remove it from possible video heads
+                        possibleVideoHeads.remove(res[2])
+                        # find the ID of the pageInstance that matches responseChildVideo[j]
+                        # unless its "endpoint", then just insert "endpoint"
+                        if res[2] == "endpoint":
+                            insertNextPageInstanceID = "endpoint"
+                        else:
+                            for k,vid2 in enumerate(request.session['videos']):
+                                if vid2 == res[2]:
+                                    insertNextPageInstanceID = pageInstances[k].pageInstanceID
+                        #begin adding the responses into the templateResponseRels 
+                        templateResponseRels.append(TemplateResponseRel(templateID = temp.templateID,
+                                                         pageInstanceID = responsesPageInstanceID,
+                                                         responseText = res[0],
+                                                         optionNumber = numberOfResponses,
+                                                         nextPageInstanceID = insertNextPageInstanceID         
+                                                         ))
+                        templateResponseRels[-1].save()
+                
+            #by now, there should be only one video head if the flow was built correctly.
+            if len(possibleVideoHeads) > 1:
+                #if not, produce an error message and go back to template editor.
+                errorMessages.append("There was no video in the conversation flow that appeared to go first. Make sure the videos in the pool all link to something.")
+            #if you want to insert more errors, do it here.
+            else:
+                #get the pageInstance that references this first video
+                firstPageID = pageInstances[pageInstances.index(possibleVideoHeads[0])]
+                #insert this video as the templates firstInstanceID
+                temp.firstInstanceID = firstPageID
+                temp.save()
+                #TODO map these arrays to the actual db -- should already be done by save() -nm
+                #TODO print success message
+                #TODO provide link back to main page
+                return HttpResponse("Success")#render(request, 'admin/template-wizard-submission.html')
+        elif request.POST.get('editExistingTemplate'):
+            #logger.info("loading existing template")
+            #prepopulate session variables and then reload page
+#            '''
+#            User has selected a video from the pool to use for a conversation
+#            '''
+#            # TODO should we catalog the first video selected?
+#            # TODO need to save existing options, video chains somehow
+#            selectedVideo = request.POST.get('submit')
+#            request.session['selectedVideo'] = selectedVideo # add to selected video TODO may need to confirm?
+#            # init options releated to this video, not sure if videos will be singular for sure in a conversation?
+#            request.session['responseOptions'] = ['Enter your option'] 
+#            request.session.modified = True
+            return render(request, 'admin/template-wizard.html')
+
+        else:
+            return HttpResponse("ill formed request")
+    else:
+        # set up the session variables:
+         # if session variables exist, dont do anything
+         # THIS IS ACTUALLY DONE ABOVE: if they are editing the template, pre-poopulate the session vars
+           # save the old id in a var
+         # if its new, do the following....
+        
+        # DATA MODEL:
+        request.session["selectedVideo"] = "" # the currently selected video to edit
+        request.session['videos'] = [] # creating an empty list to hold our videos in the pool
+        # django doesn't appear to support multidimensional arrays in session variables.
+        # so, the best way I could think to add correlating responses under each video,
+        # is to add a responseText, and at the same time add the responseParentVideo that it 
+        # corresponds to. The id's should match up, so to find all responses that link to a video,
+        # loop though responseParentVideo until you find it, and reference that id in responseText. 
+        # Same goes for all the responseChildVideo's it links to. -nate
+        request.session['responseText'] = [] #create an empty list to hold responses text
+        request.session['responseParentVideo'] = [] #create an empty list to hold responses video (like a foreign key)
+        request.session['responseChildVideo'] = []
+        request.session['enablePlayback'] = [] #if the video exists in this list, enable playback.
+        request.session['videos'].append('zJ8Vfx4721M')  # sample video
+        request.session['videos'].append('DewJHJlYOIU') #sample 
+        request.session.modified = True
+
+        return render(request, 'admin/template-wizard.html')
+
+#This is the "behind the scenes" stuff for the template wizard above
+@permission_required('simcon.authLevel1')
+def TemplateWizardUpdate(request):
+    c = {}
+    c.update(csrf(request))
+    if request.POST:
+        if request.POST.get('new_video'):
             '''
             User has demanded to add a video to the pool in the left pane
             '''
-            request.session['videos'].append(request.POST['new_video']) #TODO grab code from long youtube url
-            request.session.modified = True
+            videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['new_video'], 0)
+            videoCode = videoCode.group(1) # just pertinent code
+            if videoCode and videoCode not in request.session['videos']:
+                request.session['videos'].append(videoCode)
+                request.session['enablePlayback'].append(videoCode)
+                request.session.modified = True
+            else:
+              print "Invalid video link." #TODO make this echo properly back to user
         elif request.POST.get('removeVideoFromPool'):
             '''
             User has demanded to delete a video from the pool in the left pane
             '''
-            request.session['videos'].remove(request.POST['removeVideoFromPool'])
-            request.session.modified = True
-        elif request.POST.get('submit'):
+            removeVideo = request.POST.get('removeVideoFromPool')
+            if removeVideo:
+                del request.session['richText/%s' % removeVideo] #TODO remove any rich text saved in session
+                if removeVideo == request.session['selectedVideo']:
+                    request.session['selectedVideo'] = ""
+                request.session['videos'].remove(removeVideo)
+                #TODO delete all associated responses
+                request.session.modified = True
+        elif request.POST.get('editVideo'):
             '''
-            User has selected a video from the pool to use for a conversation
+            User selected a video to edit. Populate the right pane.
             '''
-            # TODO should we catalog the first video selected?
-            # TODO need to save existing options, video chains somehow
-            selectedVideo = request.POST.get('submit')
-            request.session['selectedVideo'] = selectedVideo # add to selected video TODO may need to confirm?
-            # init options releated to this video, not sure if videos will be singular for sure in a conversation?
-            request.session['responseOptions'] = ['Enter your option'] 
-            request.session.modified = True
-        elif request.POST.get('removeVideoResponse'):
+            #TODO check if we have unsaved right pane data
+            editVideo = request.POST.get('editVideo')
+            request.session['selectedVideo'] = editVideo
+            richText = request.session.get('richText/%s' % editVideo)
+            #if richText: # some data for the rich text exists
+                #tinyMCE.activeEditor.setContent(richText) 
+            request.session.modified = True;
+        #elif request.POST.get('saveVideo'):
+            #'''
+            #Save the video page that is being edited
+            #'''
+            #TODO save some video attributes.....
+            #logger.info("video saving")
+            #request.session.selectedVideo = ""
+            #request.session.modified = True;
+        elif request.POST.get('addResponse'):
             '''
-            User has requested that the active video be removed
+            Add a response to the right pane
             '''
-            #TODO clean up session of all things related to this video
-            del request.session['selectedVideo']
-            del request.session['responseOptions']
-            request.session.modified = True
-        elif request.POST.get('addoption'):
-            '''
-            User has requested to add a new option to the conversation
-            '''
-            #load responseOptions
-            i = 1
-            while request.POST.get('response%d' % i):  # cycle through existing options and load them into responseOptions
-                request.session['responseOptions'][i-1] = request.POST.get('response%d' % i)
-                i += 1
-            request.session.modified = True
-            request.session['responseOptions'].append('Enter your option') #add an option
+            request.session["responseText"].append(request.POST["addResponseText"])
+            request.session["responseParentVideo"].append(request.POST["addResponseParentVideo"])
+            request.session["responseChildVideo"].append(request.POST["addResponseChildVideo"])
             request.session.modified = True
         elif request.POST.get('removeResponse'):
             '''
-            User has requested a response option be removed
+            Remove a response from the right pane
             '''
-            #load responseOptions
-            i = 1
-            while request.POST.get('response%d' % i):  # cycle through existing options and load them into responseOptions
-                request.session['responseOptions'][i-1] = request.POST.get('response%d' % i)
-                i += 1
+            index = int(request.POST["removeResponseId"])
+            request.session["responseText"].pop(index)
+            request.session["responseParentVideo"].pop(index)
+            request.session["responseChildVideo"].pop(index)
             request.session.modified = True
-            #TODO if response size < 2, don't do this
-            res = request.POST.get('removeResponse')
-            res = res.split(' ')
-            res = int(res[-1])-1 # should be number of response to remove
-            request.session['responseOptions'].pop(res) # remove this instance
-            request.session.modified = True
-        elif request.POST.get('addVideoToResponse'):
+        elif request.POST.get('saveVideoPage'):
             '''
-            User has requested that a video be added to this response option, involves redirecting the either video click
+            User requested to save a video page's richtext
             '''
-            #load responseOptions
-            i = 1
-            while request.POST.get('response%d' % i):  # cycle through existing options and load them into responseOptions
-                request.session['responseOptions'][i-1] = request.POST.get('response%d' % i)
-                i += 1
+            # TODO get this working
+            #logger.info("content from richtext was %s" % request.POST.get('mce'))
+            request.session['richText/%s' % request.session['selectedVideo']] = request.POST.get('mce') # push current tinymce into session
             request.session.modified = True
-            res = request.POST.get('addVideoToResponse')
-            res = res.split(' ')
-            res = int(res[-1])-1 # should be number of response to remove
-            return HttpResponse('add %d' % res)
-        else:
-            return HttpResponse("ill formed request")
+        elif request.POST.get('enablePlayback'):
+            '''
+            User selected to Enable/disable playback on youtube video
+            '''
+            #I think this now works -Nick
+            if request.session['selectedVideo'] not in request.session['enablePlayback']:
+              request.session["enablePlayback"].append(request.session['selectedVideo'])
+            else:
+              request.session["enablePlayback"].remove(request.session['selectedVideo'])
+            request.session.modified = True               
     else:
+
         request.session['videos'] = [] # creating an empty list to hold our videos
         request.session['videos'].append('zJ8Vfx4721M')  # sample video
         request.session['videos'].append('IAISUDbjXj0')  #sample video
@@ -467,23 +660,35 @@ def login_page(request):
         form = LoginForm()
     return render_to_response('login.html',{'message':message, 'form':form},context_instance=RequestContext(request))
 
-'''    
+
 class TemplateView(View):
     def get(self, request, *args, **kwargs):
         return HttpResponse('This is GET request')
+        logger.error("No post data")
+        return HttpResponse("no POST data")
+    return HttpResponse("null")
 
-    def post(self, request, *args, **kwargs):
-        return HttpResponse('This is POST request')
-        
 
- from django.conf.urls import patterns, url
+#Reload the template wizards left pane if requested
+@permission_required('simcon.authLevel1')
+def TemplateWizardLeftPane(request):
+    c = {}
+    c.update(csrf(request))
+    return render(request, 'admin/template-wizard-left-pane.html')
 
-from myapp.views import MyView
+#Reload the template wizards right pane if requested
+@permission_required('simcon.authLevel1')
+def TemplateWizardRightPane(request):
+    c = {}
+    c.update(csrf(request))
+    
+    selVideo = request.session.get('selectedVideo')
+    if selVideo:
+        key = 'richText/%s' % selVideo
+        if request.session.get(key): # we have richText to populate
+            widge = RichTextForm({'richText': request.session[key]}) # preload with the value
+            return render(request, 'admin/template-wizard-right-pane.html', {'widge':widge, 'videoRichText': request.session[key]})
+            
+    widge = RichTextForm()        
+    return render(request, 'admin/template-wizard-right-pane.html', {'widge': widge})
 
-urlpatterns = patterns('',
-    url(r'^mine/$', MyView.as_view(), name='my-view'),
-) # in urls
- 
-'''
-#@permission_required('simcon.authLevel1')
-#def UpdateVideos(request):
