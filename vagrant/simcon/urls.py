@@ -1,12 +1,12 @@
 from django.conf.urls import patterns, include, url
 #from django.conf import settings
 from django.contrib import admin
-
 admin.autodiscover()
    # Examples:
    # url(r'^$', 'simcon.views.home', name='home'),
    # url(r'^blog/', include('blog.urls')),
 urlpatterns = patterns('simcon.views',
+    url(r'login/$', 'login_page', name="login"),
     url(r'^admin/template-wizard/$', 'TemplateWizard'),
     url(r'^generatelink/$', 'GenerateLink', name="GenerateLink"),
     url(r'^sharetemplate/$', 'ShareTemplate', name="ShareTemplate"),
@@ -19,30 +19,19 @@ urlpatterns = patterns('simcon.views',
     url(r'^student/video/$', 'StudentVideoInstance', name = "StudentVideoInstance"),  #, student.views.StudentVideoInstance),
     url(r'^student/response/$', 'StudentResponseInstance', name = "StudentResponseInstance"),  #, student.views.StudentResponseInstance),
     url(r'^student/submission/$', 'Submission', name = "Submission"),  #, student.views.Submission),
+    url(r'^admin/template-delete/(\d+)$', 'TemplateDelete'),
+    url(r'^admin/template-wizard/(\d+)$', 'TemplateWizardEdit'),
     url(r'^admin/template-wizard$', 'TemplateWizard'),
+    url(r'^admin/template-wizard-save/$', 'TemplateWizardSave'),#saves the whole template
     url(r'^admin/template-wizard-update', 'TemplateWizardUpdate'),#used to do the behind-the-scenes stuff, update session variables
     url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane'), #used to do the behind-the-scenes stuff, reload the left pane
     url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane'),#used to do the behind-the-scenes stuff, reload the right pane
-<<<<<<< 1641aed947971f721d0b9beaba021016b1b4f306
     url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
-    url(r'^accounts/', include('django.contrib.auth.urls'))
-=======
-	url(r'^admin/simcon/response/(\d+)/audio/', 'RetrieveAudio')
-
-
-#    url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
-# overriding template wizard
-
->>>>>>> aac8601f3a5ad4e07e05e5a85088570a65d15b1e
+    url(r'^tinymce/', include('tinymce.urls')), # this is for rich text embeds
+    url(r'^admin/superuser', include(admin.site.urls)),
+    url(r'^admin/$', 'ResearcherView')
     )
 
-urlpatterns+=patterns('',
-        url(r'^tinymce/', include('tinymce.urls')), # this is for rich text embeds,
-    )
-
-urlpatterns += patterns('',
-        url(r'^admin/', include(admin.site.urls))
-                       )
 #if settings.DEBUG:
 #    import debug_toolbar
 #    urlpatterns += patterns('',

@@ -1,0 +1,118 @@
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+
+{% block title %}
+Admin | Template Wizard
+{% endblock %}
+{% block branding %}
+<h1 id="site-name">Simcon administration | Template Wizard Submit</h1>
+{% endblock %}
+
+{% block extrahead %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
+    <meta name="author" content="Nathanial Myers, ">
+
+    <title>Simulated Conversations</title>
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
+
+    <!-- prevent line breaks when using form fields -->
+    <style type="text/css">
+    form {display:inline; margin:0px; padding:0px;}
+    </style>
+
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  {% endblock %}
+  {% block content %}
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-5">
+          <h2>Conversation Templates</h2>
+          <p>
+            {% if templateList %}
+              <table class="table">
+              <h5>
+              {% for temp in templateList %}
+                <tr>
+                  <td>{{temp.shortDesc}}</td>
+                  <td><small><a href="/admin/template-wizard/{{temp.templateID}}">Edit</a></small></td>
+                  <td><small><a href="/admin/template-delete/{{temp.templateID}}">Delete</a></small></td>
+                  <td><small><a href="/sharetemplate/{#temp.templateID#}">Share</a></small></td>
+                  <td><small><a href="/generatelink/{#temp.templateID#}">Generate link</a></small></td>
+                </tr>
+              {% endfor %}
+              </h5>
+              </table>
+            {% else %}
+               There are no templates yet.
+            {% endif %}
+          </p>
+          <p><a class="btn btn-default" href="/admin/template-wizard" role="button">New Template &raquo;</a></p>
+       </div>
+        <div class="col-md-5">
+          <h2>Recent Responses</h2>
+          <p>
+          {% if responseList %}
+            <table class="table">
+            <h5>
+            {% for res in responseList %}
+              <tr>
+                <td><a href="/responses/{{res.ID}}">Response from {{res.studentName}}</a></td>
+                <td><small>{{res.templateID.shortDesc}}</small></td>
+                <td><small>{{res.dateTime}}</small></td>
+              </tr>
+            {% endfor %}
+            </h5>
+            </table>
+          {% else %}
+            No recent responses.
+          {% endif %}
+            <h4><u>Responses shared with you</u></h4>
+          {% if sharedResponseList %}
+              <table class="table">
+              <h5>
+                {% for sh in sharedResponseList %}
+                <tr>
+                  <td><a href="responses/{{sh.ID}}">Response from {{sh.studentName}}</a></td>
+                  <td><small>{{sh.templateID.shortDesc}}</small></td>
+                  <td><small>{{res.dateTime}}</small></td>
+                </tr>
+                {% endfor %}
+              </h5>
+              </table>
+          {% else %}
+            No shared responses yet.
+          {% endif %}
+          </p>
+          <p><a class="btn btn-default" href="/responses/1" role="button">View all &raquo;</a></p>
+        </div>
+      </div>
+
+      <h3>Researcher Account Management</h3>
+      <form method="post" action="/admin/superuser">
+      {% csrf_token %}
+      <button type="button" class="btn btn-default" onClick="submit()">Create/Delete Researchers &raquo;</button></form>
+
+
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+ 
+{% endblock %}

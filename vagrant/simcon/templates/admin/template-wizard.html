@@ -155,7 +155,6 @@ Admin | Template Wizard
       <!-- save video page -->
       $("#rightPane").on("click", "#saveVideoPage", function(){
            tinyMCE.triggerSave();
-           alert("save video page clicked");
            var saveVideoPage = $("#saveVideoPage").val();
            var textOfEditor = tinymce.get('id_richText').getContent();
            var data = { saveVideoPage:saveVideoPage, mce:textOfEditor };
@@ -213,13 +212,17 @@ Admin | Template Wizard
             <br><br><button type="button" class="btn btn-default btn-xs" id="showInstruc"> Show Instructions </button>
           </div>
           <div class="col-md-3" id="templateSaver">
-            <br><button type="button" id="saveTemplateButton" class="btn btn-default btn-lg">Save Template &raquo; </button>
+            <br><form method="post" action="/admin/template-wizard-save/">{% csrf_token %}
+                <input type="hidden" name="saveTemplate" value="saveTemplate">
+                <button type="button" id="saveTemplateButton" class="btn btn-default btn-lg" onclick="submit();">Save Template &raquo; 
+                </button>
           </div>
         </div>
           <div id="instructions"></div>
           <div class="form-group">
           <label for="conversationTitle">Conversation Title</label>
-          <input type="text" id="conversationTitle" class="form-control" placeholder="Enter a title">
+          <input type="text" name="conversationTitle" id="conversationTitle" class="form-control" placeholder="Enter a title">
+          </form>
           </div>
           <div class="row">
             <div class="col-md-4">

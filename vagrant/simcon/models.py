@@ -41,7 +41,9 @@ class Conversation(models.Model):
                 return u" %s: %s" % (str(self.dateTime), self.studentName)
 
 class Response(models.Model):
-        pageInstanceID  = models.ForeignKey('PageInstance') 
+#        pageInstanceID  = models.ForeignKey('PageInstance') 
+# taking out the page-instance foreign key until templates are sorted out
+
         conversationID  = models.ForeignKey(Conversation)
         order           = models.SmallIntegerField()
         choice          = models.CharField(max_length=1000)
@@ -56,10 +58,10 @@ class Response(models.Model):
 #The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
 class StudentAccess(models.Model):
     studentAccessID = models.AutoField(primary_key=True)
-    templateID 		= models.ForeignKey('Template')
-    researcherID 	= models.ForeignKey('Researcher')
-    validationKey 	= models.CharField(max_length = 50)
-    expirationDate 	= models.DateField(auto_now_add=True)
+    templateID = models.ForeignKey('Template')
+    researcherID = models.ForeignKey('Researcher')
+    validationKey = models.CharField(max_length = 50)
+    expirationDate = models.DateField(auto_now_add=True)
     
     def __unicode__(self):
         return u'%s %s %s %s %s' % \
@@ -164,4 +166,4 @@ class TemplateFlowRel(models.Model):
         return self.pageInstanceID
 
     def nex_page(self):
-        return self.nextPageInstanceID
+        return self.nextPageInstanceIDtemplateID 

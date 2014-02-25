@@ -8,9 +8,6 @@
 {% load simcon_extras %}
                 {% if request.session.selectedVideo != "" %}
                   <input type="hidden" id="selectedVideo" value="{{ request.session.selectedVideo }}">
-                  <button type="button" class="btn btn-default btn-sm saveVideoPageButton pull-right" id="saveVideoPage" value="{{request.session.selectedVideo}}">
-                      <span class="glyphicon glyphicon-save"></span> Save Video Page
-                  </button><br>
                   <div style="text-align:center;">
 		    <object width="400" height="243">
 		      <param name="movie"
@@ -21,10 +18,14 @@
 			     allowscriptaccess="always"
 			     width="400" height="243"></embed>
 		    </object><br>
-                  </div>
+                  </div><br>
+                  
                   
                   {# Rich Text box http://django-tinymce.readthedocs.org/en/latest/index.html #}
                   {{widge.as_p }}
+                  <button type="button" class="btn btn-default btn-sm saveVideoPageButton" id="saveVideoPage" value="{{request.session.selectedVideo}}">
+                      <span class="glyphicon glyphicon-save"></span> Click here to save this text
+                    </button><br>
                   <div style="text-align:center;">
                     <label for="enablePlayback">Enable playback of video?</label> <input type="checkbox" id="enablePlayback"
                     {% for chk in request.session.enablePlayback %}
