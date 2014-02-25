@@ -509,7 +509,6 @@ def TemplateWizardUpdate(request):
               request.session["enablePlayback"].remove(request.session['selectedVideo'])
             request.session.modified = True               
     return HttpResponse("Success")
-nse('Response_view.html', {'responses':responsesToView, 'currentUser':current_user}, context_instance=RequestContext(request))
 
 @permission_required('simcon.authLevel1')
 def ResearcherView(request):
