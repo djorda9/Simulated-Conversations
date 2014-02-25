@@ -745,3 +745,13 @@ def Responses(request, RID):
 	
 	return render_to_response('Response_view.html', {'responses':responsesToView, 'currentUser':current_user}, context_instance=RequestContext(request))
 
+@permission_required('simcon.authLevel1')
+def RetrieveAudio(request, UserAudio):
+	temp=Response.objects.get(id=UserAudio)
+	answer=temp.audioFile
+	answer.open()
+	response = HttpResponse()
+	response.write(answer.read())
+	response['Content-Type'] = 'audio/mp3'
+	return response
+	

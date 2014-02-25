@@ -55,7 +55,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 
-#MEDIA_ROOT = ''      
+MEDIA_ROOT = 'media'      
 #absolute file system path to directory containing audio files
 #part of response app model.  Must be different than STATIC_ROOT	-Griff
 

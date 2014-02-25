@@ -27,22 +27,7 @@ class Researcher (models.Model):
         # @permission_required('researcher.authLevel2')
         # def my_view_requiring_authLevel2(request):
 
-#Templates: a list of templates and who they belong to. The firstInstanceID points to a 
-#templateFlowRelID which is the first video in the template. Deleted refers to if a template was deleted.
-#Version refers to template version
-class Template(models.Model):
-    templateID      = models.AutoField(primary_key = True)
-    researcherID    = models.ForeignKey(Researcher)
-    firstInstanceID = models.ForeignKey("TemplateFlowRel")
-    shortDesc       = models.TextField()
-    deleted         = models.BooleanField(default = False)   # whether or not this template has been deleted
-    version         = models.IntegerField(default = 1)    # particular version of this template, base 1
-    
-    def __unicode__(self):
-        if self.version > 1:
-            return u"%s Version: %d" % (self.shortDesc, self.version)
-        else:
-            return u"%s" % self.shortDesc
+
 
 ####remember to uncomment foreign key entries as models are added####
 class Conversation(models.Model):
@@ -56,35 +41,19 @@ class Conversation(models.Model):
                 return u" %s: %s" % (str(self.dateTime), self.studentName)
 
 class Response(models.Model):
-        pageInstanceID  = models.ForeignKey('PageInstance') 
-        conversationID  = models.ForeignKey('Conversation')
+#        pageInstanceID  = models.ForeignKey('PageInstance') 
+# taking out the page-instance foreign key until templates are sorted out
+
+        conversationID  = models.ForeignKey(Conversation)
         order           = models.SmallIntegerField()
         choice          = models.CharField(max_length=1000)
-        audioFile       = models.FileField(upload_to='test')
+        audioFile       = models.FileField(upload_to='audio')
 #       audioFile is tied to MEDIA_ROOT set in settings, to save in a
 #       subdirectory within MEDIA_ROOT, set upload_to=$PATH.  
 #       To do the madia management manually change this to assume ( FilePathField );
         def __unicode__(self):
                 return u"%d: %s" % (self.order, self.choice)
 
-
-# Note(Daniel): Implemented the SharedResponse class per the design spec.
-class SharedResponses(models.Model):
-    sharedResponseID = models.AutoField(primary_key=True)
-    responseID = models.ForeignKey('Conversation')
-    researcherID = models.ForeignKey('Researcher')
-    dateTimeShared = models.DateTimeField(auto_now=True)
-
-    # Note(Daniel): To insure that a response is only shared once
-    # with a researcher, I used the unique_together to force this 
-    # requirement on the responseID and researcherID
-    # Note - This requirement was not specified in the design spec.
-    class Meta:
-        unique_together = ("responseID", "researcherID")
-
-
-    def __unicode__(self):
-        return '%s' % self.sharedResponseID
 
 #The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
 class StudentAccess(models.Model):
@@ -149,42 +118,7 @@ class PageInstance(models.Model):
 
     def get_pageInstanceID(self):
         return self.pageInstanceID
-####NOTE#####   -Griff
-#This does not align exactly with the database example in the spec (as of v.2)
-#response metadata is no longer in pageInstance but split into a separate
-# db called "conversation"
-#
-#correct db outline is as follows:
-#response:
-#       responseID
-#       pageInstanceID  -foreign key to page instance 1:1
-#               (still refers to pageinstance, not conversation)
-#       conversationID  -foreign key to conversation many:1
-#       order                   -position within the conversation response
-#               (I am the nth answer)
-#       choice                  -sentence the student chose to describe answer
-#       audioFile               -path to audio file
-#
-#
-#conversation:
-#       conversationID
-#       templateID- the related template
-#       researcherID- researcher that owns the template (redundant)
-#       studentName- whatever the student provides
-#       studentEmail- "                         "
-#       dateTime- start time for the conversation (sets automatically)
-        
-class Response(models.Model):
-        pageInstanceID  = models.ForeignKey(PageInstance) 
-        conversationID  = models.ForeignKey(Conversation)
-        convoOrder      = models.SmallIntegerField()
-        choice          = models.CharField(max_length=1000)
-        audioFile       = models.FileField(upload_to='test')
-#       audioFile is tied to MEDIA_ROOT set in settings, to save in a
-#       subdirectory within MEDIA_ROOT, set upload_to=$PATH.  
-#       To do the madia management manually change this to assume ( FilePathField );
-        def __unicode__(self):
-                return u"%d: %s" % (self.order, self.choice)
+
 
 
 # Note(Daniel): Implemented the SharedResponse class per the design spec.

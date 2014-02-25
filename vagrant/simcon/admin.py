@@ -60,7 +60,9 @@ class ResearcherAdmin(admin.ModelAdmin):
     
 class ResponseAdmin(admin.ModelAdmin):
     actions = ['view_response']  #TODO does adding a response make any sense?  probably should be disabled
-    fields = ('order', 'choice')
+ # for now we need it for testing at least -Griff
+ #   fields = ('order', 'choice')
+  
     
     def view_response(self, request, queryset):
         "View the selected response(s)"
@@ -81,3 +83,4 @@ admin.site.register(models.StudentAccess)
 admin.site.register(models.PageInstance)
 admin.site.register(models.TemplateResponseRel)
 admin.site.register(models.TemplateFlowRel)
+

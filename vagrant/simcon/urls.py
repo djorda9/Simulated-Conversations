@@ -23,8 +23,17 @@ urlpatterns = patterns('simcon.views',
     url(r'^admin/template-wizard-update', 'TemplateWizardUpdate'),#used to do the behind-the-scenes stuff, update session variables
     url(r'^admin/template-wizard-left-pane', 'TemplateWizardLeftPane'), #used to do the behind-the-scenes stuff, reload the left pane
     url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane'),#used to do the behind-the-scenes stuff, reload the right pane
+<<<<<<< 1641aed947971f721d0b9beaba021016b1b4f306
     url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
     url(r'^accounts/', include('django.contrib.auth.urls'))
+=======
+	url(r'^admin/simcon/response/(\d+)/audio/', 'RetrieveAudio')
+
+
+#    url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
+# overriding template wizard
+
+>>>>>>> aac8601f3a5ad4e07e05e5a85088570a65d15b1e
     )
 
 urlpatterns+=patterns('',
