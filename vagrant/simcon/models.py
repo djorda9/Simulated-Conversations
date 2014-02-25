@@ -41,9 +41,7 @@ class Conversation(models.Model):
                 return u" %s: %s" % (str(self.dateTime), self.studentName)
 
 class Response(models.Model):
-#        pageInstanceID  = models.ForeignKey('PageInstance') 
-# taking out the page-instance foreign key until templates are sorted out
-
+        pageInstanceID  = models.ForeignKey('PageInstance') 
         conversationID  = models.ForeignKey(Conversation)
         order           = models.SmallIntegerField()
         choice          = models.CharField(max_length=1000)
@@ -85,7 +83,7 @@ class StudentAccess(models.Model):
 class Template(models.Model):
     templateID      = models.AutoField(primary_key = True)
     researcherID    = models.ForeignKey(Researcher)
-    firstInstanceID = models.ForeignKey("TemplateFlowRel", blank=True, null=True)
+    firstInstanceID = models.ForeignKey("PageInstance", blank=True, null=True)
     shortDesc       = models.TextField()
     deleted         = models.BooleanField(default = False)   # whether or not this template has been deleted
     version         = models.IntegerField(default = 1)    # particular version of this template, base 1
