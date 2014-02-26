@@ -42,3 +42,21 @@ vagrant/.idea/.name
 Vagrantfile
 
 bootstrap.sh
+
+vagrant/.idea/runConfigurations/Fill_Database.xml
+
+vagrant/.idea/runConfigurations/runserver.xml
+
+vagrant/.idea/runConfigurations/syncdb.xml
+
+vagrant/db.sqlite3_old
+
+simcon_pageinstance.csv
+
+simcon_researcher.csv
+
+simcon_response.csv
+
+simcon_template.csv
+
+*.csv
