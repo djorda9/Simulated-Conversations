@@ -29,7 +29,8 @@ urlpatterns = patterns('simcon.views',
     url(r'^admin/simcon/template/add/$', 'TemplateWizard'), # override url for navigation to template wizard from the admin template CRUD
     url(r'^tinymce/', include('tinymce.urls')), # this is for rich text embeds
     url(r'^admin/superuser', include(admin.site.urls)),
-    url(r'^admin/$', 'ResearcherView')
+    url(r'^admin/$', 'ResearcherView'),
+    url(r'^admin/simcon/conversation/(\d+)', 'Responses'),
     )
 
 #if settings.DEBUG:

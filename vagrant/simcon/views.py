@@ -142,11 +142,11 @@ def StudentInfo(request):
             request.session['SName'] = studentname
             
             T = Conversation(template=templateid, researcherID = researcherid, studentName = studentname, studentEmail = studentemail, dateTime = datetime.datetime.strptime(datetime.datetime.now(), "%Y-%m-%d %H:%M"))
-			T.save()
+            T.save()
 
             request.session['convo'] = T
 
-    if request.session.VoR == "video"
+    if request.session.VoR == "video":
         # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
         # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
         try:
@@ -886,20 +886,6 @@ urlpatterns = patterns('',
 '''
 
 @permission_required('simcon.authLevel1')
-def Responses(request, RID):
-	current_user = get_researcher(request.user)
-	try:
-		ConversationToGet=Conversation.objects.get(id=RID)
-		if (ConversationToGet.ReasercherID != curren_user):
-			ConversationToGet = None
-		responsesToView=Responses.objects.filter(conversationID=ConversationToGet.id)
-		
-	except:
-		responsesToView=None
-	
-	return render_to_response('Response_view.html', {'responses':responsesToView, 'currentUser':current_user}, context_instance=RequestContext(request))
-
-@permission_required('simcon.authLevel1')
 def RetrieveAudio(request, UserAudio):
 	temp=Response.objects.get(id=UserAudio)
 	answer=temp.audioFile
@@ -909,3 +895,14 @@ def RetrieveAudio(request, UserAudio):
 	response['Content-Type'] = 'audio/mp3'
 	return response
 	
+@permission_requires('simcon.authLevel1')
+def Responses(request, convIDstr):
+	convID=int(convIDstr)
+	responses=Response.objects.filter(conversationID=convID).order_by('order')
+	try:
+		conversation=Conversation.objects.get(id=convID)
+	except:
+		conversation=Conversation.objects.none()
+
+	page=render(request, 'Response_view.html',{'conversation':conversation, 'responses':responses})
+	return page
