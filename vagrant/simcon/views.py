@@ -161,7 +161,7 @@ def StudentInfo(request):
 
         try:
             #possible case: someone changes validation key to a different validation key, would still succeed
-            valid = StudentAccess.objects.get(validationKey = request.session.ValKey)
+            valid = StudentAccess.objects.get(validationKey=request.session.ValKey)
         except StudentAccess.Invalid:
             print "Validation Key is invalid"
 
@@ -233,10 +233,9 @@ def StudentTextChoice(request):
     if request.method == 'POST':
         if form.is_valid():
             studentchoice = TemplateResponseRel.objects.filter(pageInstanceID = request.session.PIID, optionNumber = request.POST.get("choice"))
-            T = Response(pageInstanceID = request.session.PIID, conversationID = request.session.convo.conversationID, order = request.session.ConvoOrder, choice = request.POST.get("choice"), audioFile = "?")
+            T = Response(pageInstanceID = request.session.PIID, conversationID = request.session.convo.conversationID, order = request.session.ConvoOrder, choice = request.POST.get("choice"), audioFile = the_fox_say.mp3)
             T.save()
             request.session['ConvoOrder'] += 1
-
     # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
     # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
     try:
