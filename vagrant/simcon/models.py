@@ -131,7 +131,7 @@ class PageInstance(models.Model):
 # Note(Daniel): Implemented the SharedResponse class per the design spec.
 class SharedResponses(models.Model):
     sharedResponseID = models.AutoField(primary_key=True)
-    responseID = models.ForeignKey('Response')
+    responseID = models.ForeignKey('Conversation')
     researcherID = models.ForeignKey('Researcher')
     dateTimeShared = models.DateTimeField(auto_now=True)
 
