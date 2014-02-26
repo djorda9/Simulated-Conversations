@@ -28,6 +28,8 @@ urlpatterns = patterns('simcon.views',
     
 	url(r'^admin/simcon/response/(\d+)/audio/', 'RetrieveAudio'),
 	
+	url(r'^admin/simcon/conversation/(\d+)', 'Responses'),
+	
 
 # overriding to build templates from admin page
 #    url(r'^admin/simcon/template/add/$', 'TemplateWizard'),

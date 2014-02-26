@@ -13,7 +13,10 @@
     <![endif]-->
   </head>
 
+{% block content %}
   <body>
+
+	{{conversation.studentName}}
   
 
 {% for r in responses %}
@@ -21,11 +24,15 @@
 	<p>response # {{index}} {{r}}</p>
 
 
+
+
 {% empty %}
 
-	<p>Nothing there/access denied</p>
+		Nothing there/access denied
 
 {% endfor %}
+
+{% endblock %}
     <!-- Bootstrap core JavaScript
     ================================================== -->
 

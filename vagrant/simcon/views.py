@@ -729,7 +729,7 @@ urlpatterns = patterns('',
 '''
 #@permission_required('simcon.authLevel1')
 #def UpdateVideos(request):
-'''
+
 
 @permission_required('simcon.authLevel1')
 def Responses(request, RID):
@@ -744,6 +744,7 @@ def Responses(request, RID):
 		responsesToView=None
 	
 	return render_to_response('Response_view.html', {'responses':responsesToView, 'currentUser':current_user}, context_instance=RequestContext(request))
+'''
 
 @permission_required('simcon.authLevel1')
 def RetrieveAudio(request, UserAudio):
@@ -754,4 +755,15 @@ def RetrieveAudio(request, UserAudio):
 	response.write(answer.read())
 	response['Content-Type'] = 'audio/mp3'
 	return response
+	
+def Responses(request, convIDstr):
+	convID=int(convIDstr)
+	responses=Response.objects.filter(conversationID=convID).order_by('order')
+	try:
+		conversation=Conversation.objects.get(id=convID)
+	except:
+		conversation=Conversation.objects.none()
+
+	page=render(request, 'Response_view.html',{'conversation':conversation, 'responses':responses})
+	return page
 	
