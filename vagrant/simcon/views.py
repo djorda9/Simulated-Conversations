@@ -1,5 +1,5 @@
 from django.shortcuts import render, render_to_response, redirect
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 from django.http import HttpResponse
@@ -13,7 +13,6 @@ from forms import ShareTemplateForm
 from forms import LoginForm
 from forms import ShareResponseForm
 from models import Response
-from models import Researcher
 from models import Template
 from models import PageInstance
 from models import TemplateFlowRel
@@ -39,8 +38,7 @@ from tinymce.widgets import TinyMCE
 from tinymce.models import HTMLField  # tinymce for rich text embeds
 
 #for template insertions
-from simcon.models import Template, PageInstance, TemplateResponseRel, TemplateFlowRel, Researcher
-from django.contrib.auth.models import User
+from simcon.models import TemplateResponseRel
 
 
 def StudentVideoInstance(request):
@@ -323,7 +321,7 @@ class RichTextForm(forms.Form):
 #For researchers: edit conversation templates 
 # or create a new one.
 
-@permission_required('simcon.authLevel1')
+@login_required()
 def TemplateWizardSave(request):
     #c = {}
     #c.update(csrf(request))
@@ -350,7 +348,7 @@ def TemplateWizardSave(request):
             '''
             Storing session variables into the database template mappings
             '''
-            temp = Template(researcherID = Researcher.objects.get(user=request.user), 
+            temp = Template(researcherID = User.objects.get(user=request.user), 
                              shortDesc   = request.POST.get('conversationTitle')) # NOTE: need firstInstanceID (TemplateFlowRel), added retroactively
 
             temp.save() # need this to create id
@@ -468,15 +466,15 @@ def TemplateWizardSave(request):
     else:
         return HttpResponse("Failure: no post data")
 
-@permission_required('simcon.authLevel1')
+@login_required()
 def TemplateWizardEdit(request, tempID):
     return HttpResponse("this doesnt do anything yet")
 
-@permission_required('simcon.authLevel1')
+@login_required()
 def TemplateDelete(request, tempID):
     return HttpResponse("this doesnt do anything yet")
 
-@permission_required('simcon.authLevel1')
+@login_required()
 def TemplateWizard(request):
     c = {}
     c.update(csrf(request))
@@ -526,7 +524,7 @@ def TemplateWizard(request):
         return render(request, 'admin/template-wizard.html')
 
 #This is the "behind the scenes" stuff for the template wizard above
-@permission_required('simcon.authLevel1')
+@login_required()
 def TemplateWizardUpdate(request):
     c = {}
     c.update(csrf(request))
@@ -615,7 +613,7 @@ def TemplateWizardUpdate(request):
             request.session.modified = True               
     return HttpResponse("Success")
 
-@permission_required('simcon.authLevel1')
+@login_required()
 def ResearcherView(request):
     templateList = Template.objects.filter(researcherID=get_researcher(request.user)).order_by("-templateID")
     responseList = Conversation.objects.filter(researcherID=get_researcher(request.user)).order_by("-dateTime")[:10]
@@ -635,7 +633,7 @@ def ResearcherView(request):
 # add ?user_templateID=(insert templateID) to the end of the url for this view.
 #The researcher has to select a template and set an expiration date for the link before the system will generate
 # the link and store the templateID, researcherID, validationKey,and expirationDate for the link.
-@permission_required('simcon.authLevel1')
+@login_required()
 def GenerateLink(request):
     link_url = None
     validation_key = None
@@ -643,7 +641,7 @@ def GenerateLink(request):
     template = None
     current_user = get_researcher(request.user)
     if request.method == 'POST':
-        form = StudentAccessForm(request.POST, researcher=current_user)
+        form = StudentAccessForm(request.POST, user=current_user)
         if form.is_valid():
             template =form.cleaned_data['templateID']
             validation_key = User.objects.make_random_password(length=10)
@@ -651,25 +649,25 @@ def GenerateLink(request):
                                 validationKey = validation_key, expirationDate=form.cleaned_data['expirationDate'])
             link.save()
             link_url = link.get_link(validation_key)
-            form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
+            form = StudentAccessForm(initial = {'templateID':template}, user=current_user)
 
     else:
         if(user_templateID > -1):
             template = Template.objects.get(pk=user_templateID)
-            form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
+            form = StudentAccessForm(initial = {'templateID':template}, user=current_user)
         else:
-            form = StudentAccessForm(researcher=current_user)
+            form = StudentAccessForm(user=current_user)
     return render_to_response('generate_link.html', {'link':link_url, 'key':validation_key, 'form':form},
                               context_instance = RequestContext(request))
 
 # Returns the user object for the passed user
 def get_researcher(current_user):
-    researcher = Researcher.objects.get(user=current_user)
+    researcher = User.objects.get(user=current_user)
     return researcher
 
 
 #  This view is used to display all the links generated by a researcher.
-@permission_required('simcon.authLevel1')
+@login_required()
 def Links(request):
     researcher_links = StudentAccess.objects.filter(researcherID=get_researcher(request.user)).\
                         order_by('-studentAccessID')
@@ -677,7 +675,7 @@ def Links(request):
                               context_instance=RequestContext(request))
 
 # This view is used to share a template with another researcher.
-@permission_required('simcon.authLevel1')
+@login_required()
 def ShareTemplate(request):
     user_templateID = request.GET.get('user_templateID', -1)
     current_user = get_researcher(request.user)
@@ -687,7 +685,7 @@ def ShareTemplate(request):
     #TemplateFlowRel
     old_new_pages = []
     if request.method == 'POST':
-        form = ShareTemplateForm(request.POST, researcher=current_user)
+        form = ShareTemplateForm(request.POST, user=current_user)
         if form.is_valid():
             researcher = form.cleaned_data['researcherID']
             template = form.cleaned_data['templateID']
@@ -732,7 +730,8 @@ def ShareTemplate(request):
                             copied_template.firstInstanceID = temp
                             copied_template.save()
 
-                    form = ShareTemplateForm(researcher=current_user)
+                    form = ShareTemplateForm(user=current_user)
+		    # TODO check if need to remove .user since reseacher should be user item
                     researcher_userId = researcher.user.get_full_name()
 
             except ValueError as e:
@@ -742,15 +741,15 @@ def ShareTemplate(request):
     else:
         if(user_templateID > -1):
             template = Template.objects.get(pk=user_templateID)
-            form = ShareTemplateForm(initial = {'templateID':template}, researcher=current_user)
+            form = ShareTemplateForm(initial = {'templateID':template}, user=current_user)
         else:
-            form = ShareTemplateForm(researcher=current_user)
+            form = ShareTemplateForm(user=current_user)
     return render_to_response('share_template.html', {'success':researcher_userId,
                                                       'form':form}, context_instance = RequestContext(request))
 
 # This view is used to share a response with another researcher.  To pass the responseID, add ?responseID=[responseID]
 # to end of the url.
-@permission_required('simcon.authLevel1')
+@login_required()
 def ShareResponse(request):
     user_responseID = request.GET.get('responseID', -1)
     current_user = get_researcher(request.user)
@@ -770,7 +769,7 @@ def ShareResponse(request):
             conversation_researcher = get_researcher(conversation.researcherID)
             if current_user.user==conversation_researcher.user:
                 if request.method == 'POST':
-                    form = ShareResponseForm(request.POST, researcher=current_user)
+                    form = ShareResponseForm(request.POST, user=current_user)
                     if form.is_valid():
                         researcher = form.cleaned_data['researcherID']
                         if user_response == None:
@@ -792,7 +791,7 @@ def ShareResponse(request):
                             success = researcher.user.get_full_name()
                 else:
                     sharedWith = SharedResponses.objects.filter(responseID=user_responseID).order_by('researcherID')
-                    form = ShareResponseForm(researcher=current_user)
+                    form = ShareResponseForm(user=current_user)
             else:
                 failed = "You do not have permission to share this response"
 
@@ -853,14 +852,14 @@ class TemplateView(View):
 '''
 
 #Reload the template wizards left pane if requested
-@permission_required('simcon.authLevel1')
+@login_required()
 def TemplateWizardLeftPane(request):
     c = {}
     c.update(csrf(request))
     return render(request, 'admin/template-wizard-left-pane.html')
 
 #Reload the template wizards right pane if requested
-@permission_required('simcon.authLevel1')
+@login_required()
 def TemplateWizardRightPane(request):
     c = {}
     c.update(csrf(request))
@@ -881,11 +880,11 @@ urlpatterns = patterns('',
  '''
 
 '''
-#@permission_required('simcon.authLevel1')
+#@login_required()
 #def UpdateVideos(request):
 '''
 
-@permission_required('simcon.authLevel1')
+@login_required()
 def Responses(request, RID):
 	current_user = get_researcher(request.user)
 	try:
@@ -899,7 +898,7 @@ def Responses(request, RID):
 	
 	return render_to_response('Response_view.html', {'responses':responsesToView, 'currentUser':current_user}, context_instance=RequestContext(request))
 
-@permission_required('simcon.authLevel1')
+@login_required()
 def RetrieveAudio(request, UserAudio):
 	temp=Response.objects.get(id=UserAudio)
 	answer=temp.audioFile

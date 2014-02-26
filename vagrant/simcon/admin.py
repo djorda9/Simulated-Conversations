@@ -19,7 +19,7 @@ class TemplateAdmin(admin.ModelAdmin):
     def edit_template(self, request, queryset):
         "Edit the selected template"
        
-        if not request.user.has_perm("simcon.authLevel1"):
+        if not request.user.is_staff:
             raise PermissionDenied  
             
         if not queryset or queryset.count() != 1: #We can edit only 1 template
@@ -35,7 +35,7 @@ class TemplateAdmin(admin.ModelAdmin):
     def share_template(self, request, queryset):
         "Share the selected template(s)"
         
-        if not request.user.has_perm("simcon.authLevel1"):
+        if not request.user.is_staff:
             raise PermissionDenied
     share_template.short_description = "Share these templates"
     
@@ -50,10 +50,10 @@ class TemplateAdmin(admin.ModelAdmin):
 class ResearcherAdmin(admin.ModelAdmin):
     actions = ['promote_users']
     
-    @permission_required('simcon.authLevel3') #TODO fix this
+    @permission_required('is_superuser') #TODO fix this
     def promote_users(self, request, queryset):
         "Promote the selected researcher(s)"
-        if not request.user.has_perm("simcon.authLevel1"):
+        if not request.user.is_staff:
             raise PermissionDenied
         
     promote_users.short_description = "Promote selected user(s)"
@@ -67,7 +67,7 @@ class ResponseAdmin(admin.ModelAdmin):
     def view_response(self, request, queryset):
         "View the selected response(s)"
         
-        if not request.user.has_perm("simcon.authLevel1"):
+        if not request.user.is_staff:
             raise PermissionDenied
     view_response.short_description = "View selected response"
 
