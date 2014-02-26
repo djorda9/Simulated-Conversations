@@ -1,0 +1,67 @@
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+
+{% block title %}
+Admin | Template Wizard
+{% endblock %}
+{% block branding %}
+<h1 id="site-name">Simcon administration | Template Wizard</h1>
+{% endblock %}
+
+{% block extrahead %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
+    <meta name="author" content="Nathanial Myers, Nick Horner">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
+
+    <!-- prevent line breaks when using form fields -->
+    <style type="text/css">
+    form {display:inline; margin:0px; padding:0px;}
+    </style>
+
+    <!-- jQuery addition -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
+
+
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+    <!-- tinymce -->
+    
+    {% endblock %}
+
+  {% block content %}
+
+    <div id="mainBody" class="container">
+      <div class="starter-template">
+        <div class="row">
+          <div class="col-md-7">
+            <h2>Conversation Template Wizard</h2>
+          </div>
+          
+        </div>
+        <div class="row">
+          <div class="col-md-2"></div>
+          <div class="col-md-10">
+            Your conversation template was successfully saved. <a href="/admin">Click here to return to the main page</a>.
+          </div>
+          <hr>
+        <!--/form-->
+
+      </div>
+
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
+{% endblock %}
