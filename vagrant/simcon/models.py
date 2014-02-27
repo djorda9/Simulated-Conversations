@@ -58,13 +58,10 @@ class Response(models.Model):
 #The validationKey must be unique to allow the Student Login page to look up the templateID by validation key
 class StudentAccess(models.Model):
     studentAccessID = models.AutoField(primary_key=True)
-
     templateID = models.ForeignKey('Template')
     researcherID = models.ForeignKey('Researcher')
     validationKey = models.CharField(max_length = 50, unique=True)
     expirationDate = models.DateField(auto_now_add=True)
-
-    
     def __unicode__(self):
         return u'%s %s %s %s %s' % \
             (self.studentAccessID, self.templateID, 
