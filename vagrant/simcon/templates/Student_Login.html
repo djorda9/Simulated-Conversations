@@ -1,11 +1,12 @@
-{% extends "admin/base_site.html" %}
 {% load staticfiles %}
 {% block title %}Student Login{% endblock %}
 {% block content %}
 
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
+
     <div class="container">
 	
-      <form action = "/studentinfo/" method = "post">
+      <form action = "/studentinfo/" method = "post">{%csrf_token%}
         <div class="form-group">
           <input type="text" class="form-control" id="SName" placeholder="Enter your name">
         </div>
@@ -18,18 +19,12 @@
           <div class="panel-heading">Use Policy Acceptance</div>
           <div class="panel-body">
             <p>I agree to have my audio recordings collected and used for research.</p>
-		  
-{# code borrowed from forum user gillweb: http://www.htmlforums.com/client-side-scripting/t-disable-submit-button-until-checkbox-is-checked-83884.html #}
-{# on 2/17/2014. purpose of code is to prevent user from beginning conversation without checking checkbox first #}
             <div class="checkbox">
               <label>
-                <input type="checkbox" onClick="document.apply['progress'].disabled =(document.apply['progress'].disabled)? false : true"> I accept
+                <input type="checkbox" onClick='$("progress").removeAttr("disabled", false)'> I accept
               </label>
             </div>
-			<input type="hidden" id = "tempID" value = "{{TID.templateID}}">
-			<input type="hidden" id = "reseID" value = "{{TID.researcherID}}">
-
-			<input type="submit" value="Begin Conversation" class="btn btn-default" style="float: right;" disabled></button>
+			<input type="submit" name="progress" id="progress" value="Begin Conversation" class="btn btn-default" style="float: right;"></button>
           </div>
         </div>
       </form>
@@ -37,4 +32,4 @@
 	</div>
 <hr>
 
-{ % endblock % }
+{% endblock %}
