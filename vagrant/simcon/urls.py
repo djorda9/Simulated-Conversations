@@ -31,6 +31,7 @@ urlpatterns = patterns('simcon.views',
     url(r'^admin/superuser', include(admin.site.urls)),
     url(r'^admin/$', 'ResearcherView'),
     url(r'^admin/simcon/conversation/(\d+)', 'Responses'),
+    url(r'^audio/save$', 'saveAudio'),  # for audio saves
     )
 
 #if settings.DEBUG:

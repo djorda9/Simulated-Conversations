@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.db import transaction, IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from datetime import datetime
 from models import StudentAccess
 from forms import StudentAccessForm
@@ -90,8 +90,8 @@ def StudentResponseInstance(request):
     # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
     # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
     try:
-        templ = Template.objects.get(templateID = request.session.TID.templateID)
-    except Template.Invalid:
+        templ = Template.objects.get(templateID = request.session.tID.templateID)
+    except ValidationError:
         print "Template ID is invalid"
 
     try:
@@ -161,7 +161,7 @@ def StudentInfo(request):
 
         try:
             #possible case: someone changes validation key to a different validation key, would still succeed
-        valid = StudentAccess.objects.get(validationKey = request.session.ValKey)
+            valid = StudentAccess.objects.get(validationKey = request.session.ValKey)
         except StudentAccess.Invalid:
             print "Validation Key is invalid"
 
@@ -188,7 +188,7 @@ def StudentInfo(request):
         'message': 'I am the Student Video Response View.'
         })
         return t.render(c)
-    else if request.session.VoR == "response"
+    elif request.session['VoR'] == "response":
         # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
         # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
         try:
@@ -225,7 +225,7 @@ def StudentInfo(request):
         'message': 'I am the Student Text Response View.'
         })
         return t.render(c)
-    else
+    else:
         return render('Student_Submission.html')
 
 #when the student chooses the text answer to their response, this updates the database with their choice
@@ -233,11 +233,14 @@ def StudentTextChoice(request):
     if request.method == 'POST':
         if form.is_valid():
             studentchoice = TemplateResponseRel.objects.filter(pageInstanceID = request.session.PIID, optionNumber = request.POST.get("choice"))
-
-	        T = Response(pageInstanceID = request.session.PIID, conversationID = request.session.convo.conversationID, order = request.session.ConvoOrder, choice = request.POST.get("choice"), audioFile = ?)
+	        
+            T = Response(pageInstanceID = request.session.PIID, 
+                         conversationID = request.session.convo.conversationID, 
+                         order = request.session.ConvoOrder, 
+                         choice = request.POST.get("choice"), 
+                         audioFile = '')# TODO audiofile
             T.save()
-
-			request.session['ConvoOrder'] += 1
+            request.session['ConvoOrder'] += 1
     # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
     # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
     try:
@@ -895,7 +898,7 @@ def RetrieveAudio(request, UserAudio):
 	response['Content-Type'] = 'audio/mp3'
 	return response
 	
-@permission_requires('simcon.authLevel1')
+@permission_required('simcon.authLevel1')
 def Responses(request, convIDstr):
 	convID=int(convIDstr)
 	responses=Response.objects.filter(conversationID=convID).order_by('order')
@@ -906,3 +909,16 @@ def Responses(request, convIDstr):
 
 	page=render(request, 'Response_view.html',{'conversation':conversation, 'responses':responses})
 	return page
+
+def getFileHandle(): # helper function to make a unique file handle
+    dn = datetime.datetime.now() #TODO check for collision?
+    return str(User.objects.make_random_password(length=5)) + str(dn.minute) + str(dn.second) + str(dn.year) # random file str
+    
+def saveAudio(request):
+    c = {}
+    c.update(csrf(request))
+    data = request.FILES.get('data')
+    
+    path = default_storage.save('%s/%s.wav' % (settings.MEDIA_ROOT, getFileHandle()), data)
+    return HttpResponse("null")
+    

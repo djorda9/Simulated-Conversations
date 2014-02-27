@@ -9,3 +9,4 @@ ssl.patch
 ssl_py.patch
 #and so we don't clobber each others dbs at this early stage
 simcon/db.sqlite3
+*.wav
