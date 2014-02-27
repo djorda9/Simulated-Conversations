@@ -61,7 +61,7 @@ class StudentAccess(models.Model):
 
     templateID = models.ForeignKey('Template')
     researcherID = models.ForeignKey('Researcher')
-    validationKey = models.CharField(max_length = 50)
+    validationKey = models.CharField(max_length = 50, unique=True)
     expirationDate = models.DateField(auto_now_add=True)
 
     
