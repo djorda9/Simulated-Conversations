@@ -1,5 +1,5 @@
-<!-- This template is used to generate a link to a simulated conversation that the researcher select.  It uses the
-GenerateLink view.-->
+<!-- This template is used to share a selected template with a selected researcher.  It uses the
+ShareTemplate view.-->
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
 {% block title %}Share Template{% endblock %}
@@ -24,7 +24,7 @@ GenerateLink view.-->
             {% for field in form %}
             <div class = "field_error_wrapper">
                 {{field.errors}}
-                {{field.label_tag}}</br>
+                {{field.label_tag}}<br/>
                 {{field}}
             </div>
         {% endfor %}

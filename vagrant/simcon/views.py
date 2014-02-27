@@ -39,7 +39,7 @@ from tinymce.widgets import TinyMCE
 from tinymce.models import HTMLField  # tinymce for rich text embeds
 
 #for template insertions
-from simcon.models import Template, PageInstance, TemplateResponseRel, TemplateFlowRel, Researcher
+from models import Template, PageInstance, TemplateResponseRel, TemplateFlowRel, Researcher
 from django.contrib.auth.models import User
 
 
@@ -233,7 +233,7 @@ def StudentTextChoice(request):
     if request.method == 'POST':
         if form.is_valid():
             studentchoice = TemplateResponseRel.objects.filter(pageInstanceID = request.session.PIID, optionNumber = request.POST.get("choice"))
-	        
+     
             T = Response(pageInstanceID = request.session.PIID, 
                          conversationID = request.session.convo.conversationID, 
                          order = request.session.ConvoOrder, 
@@ -241,6 +241,7 @@ def StudentTextChoice(request):
                          audioFile = '')# TODO audiofile
             T.save()
             request.session['ConvoOrder'] += 1
+
     # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
     # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
     try:
@@ -635,13 +636,14 @@ def ResearcherView(request):
 # generate the url there is a function in StudentAccess model that you pass the validation key and it returns
 # the url with the validation key as part of the url.  You can pass the templateID to the view in the url and it.
 # will auto select the passed templateID as the templateID.  To pass the templateID,
-# add ?user_templateID=(insert templateID) to the end of the url for this view.
+# add ?user_templateID=[templateID] to the end of the url for this view.
 #The researcher has to select a template and set an expiration date for the link before the system will generate
 # the link and store the templateID, researcherID, validationKey,and expirationDate for the link.
 @permission_required('simcon.authLevel1')
 def GenerateLink(request):
     link_url = None
     validation_key = None
+    saved = False
     user_templateID = request.GET.get('user_templateID', -1)
     template = None
     current_user = get_researcher(request.user)
@@ -649,17 +651,25 @@ def GenerateLink(request):
         form = StudentAccessForm(request.POST, researcher=current_user)
         if form.is_valid():
             template =form.cleaned_data['templateID']
-            validation_key = User.objects.make_random_password(length=10)
-            link = StudentAccess(templateID=template, researcherID = current_user,
-                                validationKey = validation_key, expirationDate=form.cleaned_data['expirationDate'])
-            link.save()
+            while not saved:
+                try:
+                    validation_key = User.objects.make_random_password(length=10)
+                    link = StudentAccess(templateID=template, researcherID = current_user,
+                                        validationKey = validation_key, expirationDate=form.cleaned_data['expirationDate'])
+                    link.save()
+                    saved = True
+                except IntegrityError as e:
+                    saved = False
             link_url = link.get_link(validation_key)
             form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
 
     else:
         if(user_templateID > -1):
-            template = Template.objects.get(pk=user_templateID)
-            form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
+            try:
+                template = Template.objects.get(pk=user_templateID)
+                form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
+            except ObjectDoesNotExist as e:
+                form = StudentAccessForm(researcher=current_user)
         else:
             form = StudentAccessForm(researcher=current_user)
     return render_to_response('generate_link.html', {'link':link_url, 'key':validation_key, 'form':form},
@@ -679,7 +689,14 @@ def Links(request):
     return render_to_response('links.html', {'researcher_links':researcher_links},
                               context_instance=RequestContext(request))
 
-# This view is used to share a template with another researcher.
+# This view is used to share a template with another researcher.  It has a drop down box to allow the user to select the
+# researcher they wish to share the template with and and a drop down box to select the template they wish to share.
+# The template drop down box can be auto-selected by adding ?templateID=[templatedID] to the end of the URL.  Once the
+# user has selected a researcher and template, it makes a copy the selected template for the selected researcher.  It
+# copies the data in the Template, PageInstance, TemplateFlowRel, & TemplateResponseRel for the specified template
+# (replacing the researcherID with the selected researcher's researcherID).
+# Note - The specification requires that we make a copy of the shared template for the researcher that it is being
+# shared with.
 @permission_required('simcon.authLevel1')
 def ShareTemplate(request):
     user_templateID = request.GET.get('user_templateID', -1)
@@ -712,6 +729,11 @@ def ShareTemplate(request):
                         new_old = pageInstanceStruct(old=page, new=temp)
                         old_new_pages.append(new_old)
 
+                        #Updates the copied template's firstInstance with the copied firstInstance
+                        if page.pageInstanceID==copied_template.firstInstanceID.pageInstanceID:
+                            copied_template.firstInstanceID = temp
+                            copied_template.save()
+
                     #Copies each TemplateFlowRel associated with the selected template.
                     flow = TemplateFlowRel.objects.filter(templateID=template)
                     for old in flow:
@@ -730,10 +752,26 @@ def ShareTemplate(request):
                                                nextPageInstanceID=next_page)
                         temp.save()
 
-                        #Updates the copied template's firstInstance with the copied firstInstance
-                        if old.templateFlowRelID==copied_template.firstInstanceID.templateFlowRelID:
-                            copied_template.firstInstanceID = temp
-                            copied_template.save()
+                    #Copies each TemplateResponseRel associated with the selected template.
+                    response = TemplateResponseRel.objects.filter(templateID=template)
+                    for old in response:
+                        current_page = old.pageInstanceID
+                        next_page = old.nextPageInstanceID
+                        response_text = old.responseText
+                        option_number = old.optionNumber
+
+                        for i in old_new_pages:
+                            oldId =  i.get_old()
+                            if oldId.pageInstanceID==current_page.get_pageInstanceID():
+                                current_page = i.newPageInstance
+                            if next_page <> None:
+                                if oldId.pageInstanceID==next_page.get_pageInstanceID():
+                                    next_page = i.newPageInstance
+
+                        temp = TemplateResponseRel(templateID=copied_template, pageInstanceID=current_page,
+                                               responseText=response_text, optionNumber=option_number,
+                                               nextPageInstanceID=next_page)
+                        temp.save()
 
                     form = ShareTemplateForm(researcher=current_user)
                     researcher_userId = researcher.user.get_full_name()
@@ -744,57 +782,65 @@ def ShareTemplate(request):
                                           {'failed':failed, 'form':form}, context_instance = RequestContext(request))
     else:
         if(user_templateID > -1):
-            template = Template.objects.get(pk=user_templateID)
-            form = ShareTemplateForm(initial = {'templateID':template}, researcher=current_user)
+            try:
+                template = Template.objects.get(pk=user_templateID)
+                form = ShareTemplateForm(initial = {'templateID':template}, researcher=current_user)
+            except ObjectDoesNotExist as e:
+                form = ShareTemplateForm(researcher=current_user)
         else:
             form = ShareTemplateForm(researcher=current_user)
     return render_to_response('share_template.html', {'success':researcher_userId,
                                                       'form':form}, context_instance = RequestContext(request))
 
-# This view is used to share a response with another researcher.  To pass the responseID, add ?responseID=[responseID]
-# to end of the url.
+# This view is used to share a response with another researcher.  It is required to pass the conversationID to the view
+# by adding ?responseID=[responseID] to the end of the URL.  If no conversationID is passed, it will display an error
+# to the user.  If the conversation can not be located, it will display an error to the user.  If the researcher that is
+# logged in is not the owner of the conversation, it will display an error to the user.  The user can select a
+# researcher from the drop down box that they wish to share a conversation with.  Once the user submits the request to
+# share the conversation, it will then store conversationID, researcherID, dateTimeShared in the SharedResponse model.
+# If the user has already shared the conversation with the researcher, it will display a message that the user had
+# already shared the conversation with the researcher.
 @permission_required('simcon.authLevel1')
 def ShareResponse(request):
-    user_responseID = request.GET.get('responseID', -1)
+    user_conversationID = request.GET.get('responseID', -1)
     current_user = get_researcher(request.user)
     form = None
     success = None
     failed = None
     sharedWith = None
-    if(user_responseID < 0):
+    if(user_conversationID < 0):
         failed = "The ResponseID was not provided."
     else:
         try:
-            user_response = Response.objects.get(pk=user_responseID)
+            user_conversation = Conversation.objects.get(pk=user_conversationID)
         except ObjectDoesNotExist as e:
             failed = "The ResponsedID was not found!"
         if failed is None:
-            conversation = Conversation.objects.get(pk=user_response.conversationID.id)
-            conversation_researcher = get_researcher(conversation.researcherID)
+            conversation_researcher = get_researcher(user_conversation.researcherID)
             if current_user.user==conversation_researcher.user:
                 if request.method == 'POST':
                     form = ShareResponseForm(request.POST, researcher=current_user)
                     if form.is_valid():
                         researcher = form.cleaned_data['researcherID']
-                        if user_response == None:
+                        if user_conversation == None:
                             failed = "The ResponseID that was supplied is invalid."
                         else:
-                            shared = SharedResponses(responseID=user_response, researcherID=researcher,
+                            shared = SharedResponses(responseID=user_conversation, researcherID=researcher,
                                                      dateTimeShared=datetime.now())
                             try:
                                 shared.save()
                             except IntegrityError as e:
-                                sharedWith = SharedResponses.objects.filter(responseID=user_responseID).\
+                                sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).\
                                     order_by('researcherID')
                                 failed = "The response has already been shared with " + researcher.user.get_full_name()
                                 return render_to_response('share_response.html', {'success':success, 'failed':failed,
                                         'shared':sharedWith, 'form':form}, context_instance = RequestContext(request))
 
-                            sharedWith = SharedResponses.objects.filter(responseID=user_responseID).\
+                            sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).\
                                 order_by('researcherID')
                             success = researcher.user.get_full_name()
                 else:
-                    sharedWith = SharedResponses.objects.filter(responseID=user_responseID).order_by('researcherID')
+                    sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).order_by('researcherID')
                     form = ShareResponseForm(researcher=current_user)
             else:
                 failed = "You do not have permission to share this response"
