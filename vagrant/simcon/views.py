@@ -6,8 +6,10 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.storage import default_storage
 from datetime import datetime
 from models import StudentAccess
+from django.conf import settings
 from forms import StudentAccessForm
 from forms import ShareTemplateForm
 from forms import LoginForm

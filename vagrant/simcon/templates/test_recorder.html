@@ -1,0 +1,12 @@
+<html>
+<head>
+<title>test recorder</title>
+{% load recorder_tags %}
+{% getRecorderHead %}
+
+</head>
+<body>
+{% load_getUserMedia "recordingMade" %}
+{% defaultHandler "recordingMade" %}
+</body>
+</html>

@@ -12,6 +12,7 @@ def getRecorderHead():
     return '''
 <script type="text/javascript" src="''' + settings.STATIC_URL + '''jquery-2.1.0.min.js"> </script>
 <script type="text/javascript" src="''' + settings.STATIC_URL + '''recorder.js"> </script>
+<link rel="stylesheet" type="text/css" href="''' + settings.STATIC_URL + '''dist/css/bootstrap.css" />
 <script>
 $(document).ready(function(){      
     <!-- the snippet below ensures the AJAX POST has a CSRF token for django -->
@@ -63,8 +64,8 @@ def load_getUserMedia(callBackFunction):
     callBackFunction:  the function to be called with the created blob of the recording
     '''
     return '''
-  <button onclick="startRecording(this);">record</button>
-  <button onclick="stopRecording(this);" disabled>stop</button>
+  <button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>
+  <button class="btn btn-default btn-lg" onclick="stopRecording(this);" disabled><span class="glyphicon glyphicon-stop"\>Stop</button>
   
   <script>
   function __log(e, data) {
