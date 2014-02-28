@@ -929,14 +929,15 @@ def Responses(request, convIDstr):
 	return page
 
 def getFileHandle(): # helper function to make a unique file handle
-    dn = datetime.datetime.now() #TODO check for collision?
-    return str(User.objects.make_random_password(length=5)) + str(dn.minute) + str(dn.second) + str(dn.year) # random file str
+    return User.objects.make_random_password(length=5) # TODO check for collision?
     
 def saveAudio(request):
     c = {}
     c.update(csrf(request))
     data = request.FILES.get('data')
+    saveTo = datetime.datetime.now().strftime("%Y/%m/%d")
+    saveTo = "audio/%s/%s.wav" % (saveTo, getFileHandle()) 
     
-    path = default_storage.save('%s/%s.wav' % (settings.MEDIA_ROOT, getFileHandle()), data)
+    path = default_storage.save(saveTo, data)
     return HttpResponse("null")
     
