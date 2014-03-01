@@ -917,16 +917,32 @@ def RetrieveAudio(request, UserAudio):
 	return response
 	
 @permission_required('simcon.authLevel1')
-def Responses(request, convIDstr):
-	convID=int(convIDstr)
-	responses=Response.objects.filter(conversationID=convID).order_by('order')
-	try:
-		conversation=Conversation.objects.get(id=convID)
-	except:
-		conversation=Conversation.objects.none()
+def Responses(request, userIDstr):
+    userID=int(userIDstr)
+    convoNames=[]
+    try:
+        conversations=Conversation.objects.filter(researcherID=userID)
+        for c in conversations:
+            temp=c.templateID
+            convoNames.append(temp.shortDesc)
+    except:
+       conversations=Conversation.objects.none()
 
-	page=render(request, 'Response_view.html',{'conversation':conversation, 'responses':responses})
-	return page
+    shared=[]
+    try:
+        sharedIDs=SharedResponses.objects.filter(researcherID=userID)
+        for c in sharedIDs:
+            shared.append(c.responseID)
+
+    except:
+        pass
+
+    convoList=zip(convoNames,conversations)
+
+    page=render(request, 'Response_view.html',{'conversations':convoList, 'sharedConversations':shared})
+#    assert False, locals()
+
+    return page
 
 def getFileHandle(): # helper function to make a unique file handle
     return User.objects.make_random_password(length=5) # TODO check for collision?
