@@ -25,10 +25,10 @@ urlpatterns = patterns('simcon.views',
     url(r'^admin/template-wizard-right-pane', 'TemplateWizardRightPane'),#used to do the behind-the-scenes stuff, reload the right pane
 
     url(r'^accounts/', include('django.contrib.auth.urls')),
-    
+   
 	url(r'^admin/simcon/response/(\d+)/audio/', 'RetrieveAudio'),
 	
-	url(r'^admin/simcon/conversation/(\d+)', 'Responses'),
+    url(r'^admin/simcon/conversation/(\d+)', 'Responses'),
 	
 
 # overriding to build templates from admin page
