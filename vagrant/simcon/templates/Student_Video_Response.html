@@ -10,9 +10,6 @@
 {% block extrahead %}{% getRecorderHead %}{% endblock %}
 
 {% block content %}
-
-    <div class="container">
-
       <div class="starter-template">
         <div class="alert alert-success">Here's how to use this page.... blah blah blah.</div>
         <h3>Video Page</h3>
@@ -27,9 +24,7 @@
         {% endif %}
         <div class="well well-sm">{{text|safe}}</div>
 
-		<form name="input" action="/studenttextchoice/">
+		<form name="input" action="/studentconvostep/" method="post">{%csrf_token%}
 		  <input type="submit" class="btn btn-default" value="Record Audio">
 		</form>
- 	  
-	</div>  
-{% endblock %}
+ {% endblock %}

@@ -2,12 +2,10 @@
 {% load staticfiles %}
 {% block title %}Student Text Response{% endblock %}
 {% block content %}
-    <div class="container">
-	
       <h2><u>Response Page</u></h2>
       <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
 
-        <form name="StudentTextChoiceForm" action="/studenttextchoice/" method="POST">
+        <form name="input" action="/studentconvostep/" method="POST">
 		  <div><br>
           { % for i in {{responses.objects.all()}} % }
             <input type="radio" id="choice" value=responses.object.order_by('optionNumber')[i-1].optionNumber>{{responses.objects.order_by('optionNumber')[i-1].responseText}}<br>
@@ -16,9 +14,5 @@
 
           <button type="submit" class="btn btn-default">Next</button>
         </form>
-
-    </div> <!-- /container -->
-
-
 
 { % endblock % }
