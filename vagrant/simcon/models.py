@@ -41,9 +41,7 @@ class Conversation(models.Model):
                 return u" %s: %s" % (str(self.dateTime), self.studentName)
 
 class Response(models.Model):
-#        pageInstanceID  = models.ForeignKey('PageInstance') 
-# taking out the page-instance foreign key until templates are sorted out
-
+        pageInstanceID  = models.ForeignKey('PageInstance') 
         conversationID  = models.ForeignKey(Conversation)
         order           = models.SmallIntegerField()
         choice          = models.CharField(max_length=1000)

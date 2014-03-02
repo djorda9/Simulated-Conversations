@@ -16,19 +16,32 @@
 {% block content %}
   <body>
 
-	{{conversation.studentName}}
-  
 
-{% for r in responses %}
+<p>Responses:</p>  
 
-	<p>response # {{index}} {{r}}</p>
+{% for n in conversations %}
+
+	<p>response # {{index}} {{n}}</p>
+
+{% empty %}
+
+	<p>Nothing there/access denied</p>
+
+{% endfor %}
+
+
+<p>Shared Responses:</p>
+
+{% for n in sharedConversations %}
+
+	<p>response # {{index}} {{n}}</p>
 
 
 
 
 {% empty %}
 
-		Nothing there/access denied
+	<p>Nothing there/access denied</p>
 
 {% endfor %}
 

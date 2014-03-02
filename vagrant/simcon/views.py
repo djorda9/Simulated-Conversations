@@ -1,47 +1,25 @@
 from django.shortcuts import render, render_to_response, redirect
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 from django.http import HttpResponse
-from django.contrib.auth.models import User
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from datetime import datetime
-from models import StudentAccess
-from forms import StudentAccessForm
-from forms import ShareTemplateForm
-from forms import LoginForm
-from forms import ShareResponseForm
-from models import Response
-from models import Researcher
-from models import Template
-from models import PageInstance
-from models import TemplateFlowRel
-from models import SharedResponses
-from models import Conversation
+from django.core.files.storage import default_storage
+from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.views.generic import View
 from django.template import loader, Context
-from models import PageInstance
-import datetime
-#import logging
-from django.core.context_processors import csrf #csrf
-#from django.shortcuts import render_to_response #csrf
-
-#used in video link processessing: regular expressions
-import re
-
-import logging
-logger = logging.getLogger("simcon")
-
+from django.core.context_processors import csrf
 from django import forms # for forms
-from django.core.urlresolvers import reverse
+from forms import StudentAccessForm, ShareTemplateForm, LoginForm, ShareResponseForm
+from models import StudentAccess, Response, Researcher, Template, PageInstance, TemplateFlowRel, TemplateResponseRel, SharedResponses, Conversation
 from tinymce.widgets import TinyMCE
 from tinymce.models import HTMLField  # tinymce for rich text embeds
+import re, logging, datetime
 
-#for template insertions
-from models import Template, PageInstance, TemplateResponseRel, TemplateFlowRel, Researcher
-from django.contrib.auth.models import User
-
+logger = logging.getLogger("simcon") #global logger handler
 
 def StudentVideoInstance(request):
     # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
@@ -998,26 +976,43 @@ def RetrieveAudio(request, UserAudio):
 	return response
 	
 @permission_required('simcon.authLevel1')
-def Responses(request, convIDstr):
-	convID=int(convIDstr)
-	responses=Response.objects.filter(conversationID=convID).order_by('order')
-	try:
-		conversation=Conversation.objects.get(id=convID)
-	except:
-		conversation=Conversation.objects.none()
+def Responses(request, userIDstr):
+    userID=int(userIDstr)
+    convoNames=[]
+    try:
+        conversations=Conversation.objects.filter(researcherID=userID)
+        for c in conversations:
+            temp=c.templateID
+            convoNames.append(temp.shortDesc)
+    except:
+       conversations=Conversation.objects.none()
 
-	page=render(request, 'Response_view.html',{'conversation':conversation, 'responses':responses})
-	return page
+    shared=[]
+    try:
+        sharedIDs=SharedResponses.objects.filter(researcherID=userID)
+        for c in sharedIDs:
+            shared.append(c.responseID)
+
+    except:
+        pass
+
+    convoList=zip(convoNames,conversations)
+
+    page=render(request, 'Response_view.html',{'conversations':convoList, 'sharedConversations':shared})
+#    assert False, locals()
+
+    return page
 
 def getFileHandle(): # helper function to make a unique file handle
-    dn = datetime.datetime.now() #TODO check for collision?
-    return str(User.objects.make_random_password(length=5)) + str(dn.minute) + str(dn.second) + str(dn.year) # random file str
+    return User.objects.make_random_password(length=5) # TODO check for collision?
     
 def saveAudio(request):
     c = {}
     c.update(csrf(request))
     data = request.FILES.get('data')
+    saveTo = datetime.datetime.now().strftime("%Y/%m/%d")
+    saveTo = "audio/%s/%s.wav" % (saveTo, getFileHandle()) 
     
-    path = default_storage.save('%s/%s.wav' % (settings.MEDIA_ROOT, getFileHandle()), data)
+    path = default_storage.save(saveTo, data)
     return HttpResponse("null")
     
