@@ -63,6 +63,17 @@ ROOT_URLCONF = 'simcon.urls'
 
 WSGI_APPLICATION = 'simcon.wsgi.application'
 
+if DEBUG:
+    '''Settings to run a local email client
+       Run the following before starting up the app:
+       $ python -m smtpd -n -c DebuggingServer localhost:1025
+    '''
+    EMAIL_HOST = 'localhost'
+    EMAIL_PORT = 1025
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    EMAIL_USE_TLS = False
+    DEFAULT_FROM_EMAIL = 'noreply@pdx.edu'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
