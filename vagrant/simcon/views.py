@@ -368,7 +368,7 @@ def StudentTextChoice(request):
         })
         return render(request, 'Student_Text_Response.html', c)
     else:
-        return render('Student_Submission.html')
+        return render(request, 'Student_Submission.html')
 
 def Submission(request):
     return render(request, 'Student_Submission.html')
