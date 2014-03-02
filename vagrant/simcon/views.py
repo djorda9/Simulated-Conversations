@@ -350,7 +350,9 @@ def StudentConvoStep(request):
             studentchoice = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
             #T = Response(pageInstanceID = request.session.get('PIID'), conversationID = request.session.get('convo').conversationID, order = request.session.get('ConvoOrder'), choice = request.POST.get("choice"), audioFile = the_fox_say.mp3)
             #T.save()
-            #request.session['ConvoOrder'] += 1
+            #TODO if this fails, do cleanup for browser audio file copy/file system
+
+            request.session['ConvoOrder'] += 1
             # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
             # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
             try:
