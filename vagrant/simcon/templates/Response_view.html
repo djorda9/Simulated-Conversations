@@ -19,31 +19,28 @@
 
 <p>Responses:</p>  
 
-{% for n in conversations %}
 
-	<p>response # {{index}} {{n}}</p>
+	{% block conversationList %}
 
-{% empty %}
+		<b>error message</b>
 
-	<p>Nothing there/access denied</p>
-
-{% endfor %}
-
+	{% endblock %}
 
 <p>Shared Responses:</p>
 
-{% for n in sharedConversations %}
+	{% block sharedList %}
 
-	<p>response # {{index}} {{n}}</p>
+		{% for n in sharedConversations %}
 
+			<p>response # {{index}} {{n}}</p>
 
+		{% empty %}
+	
+			<p>No responses found</p>
 
+		{% endfor %}
 
-{% empty %}
-
-	<p>Nothing there/access denied</p>
-
-{% endfor %}
+	{% endblock %}
 
 {% endblock %}
     <!-- Bootstrap core JavaScript
