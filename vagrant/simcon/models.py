@@ -6,33 +6,10 @@ from django.core.files import File
 import datetime
 from tinymce.models import HTMLField  # tinymce for rich text embeds
 
-class Researcher (models.Model):  
-    user = models.OneToOneField (User)   # tie into auth user table
-    
-    def __unicode__(self):
-        if self.user.has_perm('simcon.authLevel2'):
-            return u"Super Researcher: %s" % self.user.username
-        elif self.user.has_perm('simcon.authLevel1'):
-            return u"Researcher: %s" % self.user.username
-        else:
-            return u"Not a researcher: %s" % self.user.username
-       
-    class Meta:
-        permissions = (("authLevel1", "Normal researcher"),
-                       ("authLevel2", "Can create and delete researchers"),
-                       ("authLevel3", "Can promote other researchers to authLevel2")) # may want this to reduce runaway super user creation, can be ignored
-                       
-        # NOTE: a common pattern is to use a decorator as follows:
-        # from django.contrib.auth.decorators import permission_required
-        # @permission_required('researcher.authLevel2')
-        # def my_view_requiring_authLevel2(request):
-
-
-
 ####remember to uncomment foreign key entries as models are added####
 class Conversation(models.Model):
         templateID      = models.ForeignKey('Template')
-        researcherID    = models.ForeignKey('Researcher')
+        researcherID    = models.ForeignKey(User)
         studentName     = models.CharField(max_length=50)
         studentEmail    = models.EmailField(max_length=254)
         dateTime        = models.DateTimeField(auto_now_add=True)
@@ -57,7 +34,7 @@ class Response(models.Model):
 class StudentAccess(models.Model):
     studentAccessID = models.AutoField(primary_key=True)
     templateID = models.ForeignKey('Template')
-    researcherID = models.ForeignKey('Researcher')
+    researcherID = models.ForeignKey(User)
     validationKey = models.CharField(max_length = 50, unique=True)
     expirationDate = models.DateField(auto_now_add=True)
     def __unicode__(self):
@@ -81,7 +58,7 @@ class StudentAccess(models.Model):
 #Version refers to template version
 class Template(models.Model):
     templateID      = models.AutoField(primary_key = True)
-    researcherID    = models.ForeignKey(Researcher)
+    researcherID    = models.ForeignKey(User)
     firstInstanceID = models.ForeignKey("PageInstance", blank=True, null=True)
     shortDesc       = models.TextField()
     deleted         = models.BooleanField(default = False)   # whether or not this template has been deleted
@@ -122,7 +99,7 @@ class PageInstance(models.Model):
 class SharedResponses(models.Model):
     sharedResponseID = models.AutoField(primary_key=True)
     responseID = models.ForeignKey('Conversation')
-    researcherID = models.ForeignKey('Researcher')
+    researcherID = models.ForeignKey(User)
     dateTimeShared = models.DateTimeField(auto_now=True)
 
     # Note(Daniel): To insure that a response is only shared once
