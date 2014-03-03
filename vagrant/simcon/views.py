@@ -992,26 +992,20 @@ def RetrieveAudio(request, UserAudio):
 def Responses(request, userIDstr):
     userID=int(userIDstr)
     convoNames=[]
-    try:
-        conversations=Conversation.objects.filter(researcherID=userID)
-        for c in conversations:
-            temp=c.templateID
-            convoNames.append(temp.shortDesc)
-    except:
-       conversations=Conversation.objects.none()
+
+    conversations=Conversation.objects.filter(researcherID=userID)
+    for c in conversations:
+        temp=c.templateID
+        convoNames.append(temp.shortDesc)
 
     shared=[]
-    try:
-        sharedIDs=SharedResponses.objects.filter(researcherID=userID)
-        for c in sharedIDs:
-            shared.append(c.responseID)
+    sharedIDs=SharedResponses.objects.filter(researcherID=userID)
+    for c in sharedIDs:
+        shared.append(c.responseID)
 
-    except:
-        pass
 
-    convoList=zip(convoNames,conversations)
 
-    page=render(request, 'Response_view.html',{'conversations':convoList, 'sharedConversations':shared})
+    page=render(request, 'Response_view_table1.html',{'conversationNames':convoNames, 'conversations':conversations})
 #    assert False, locals()
 
     return page
