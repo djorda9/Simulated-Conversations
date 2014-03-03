@@ -18,6 +18,7 @@ urlpatterns = patterns('simcon.views',
     url(r'^links/$', 'Links', name="Links"),
     url(r'^studentconvostep/$', 'StudentConvoStep', name = 'StudentConvoStep'),
     url(r'^studentinfo/$', 'StudentInfo', name = 'StudentInfo'),
+    url(r'^studentinfo/text_response$', 'StudentConvoStep'), #'getTextResponse'),
     url(r'^student/(?P<VKey>\d{10})/$', 'StudentLogin', name = "StudentLogin"),
     url(r'^student/video/$', 'StudentVideoInstance', name = "StudentVideoInstance"),
     url(r'^student/response/$', 'StudentResponseInstance', name = "StudentResponseInstance"),
@@ -30,10 +31,9 @@ urlpatterns = patterns('simcon.views',
     url(r'^template-wizard-right-pane', 'TemplateWizardRightPane', name="TemplateWizardRightPane"),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    
     url(r'^admin/simcon/conversation/(\d+)', 'Responses'),
     url(r'^audio/save$', 'saveAudio'),
-    url(r'^test_recorder$', TemplateView.as_view(template_name='test_recorder.html')),
+    #url(r'^test_recorder$', TemplateView.as_view(template_name='test_recorder.html')),
 )
 
 # password recovery URLs

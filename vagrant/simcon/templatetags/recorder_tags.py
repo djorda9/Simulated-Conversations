@@ -116,6 +116,9 @@ def load_getUserMedia(callBackFunction):
   function createDownloadLink() {
     recorder && recorder.exportWAV(function(blob) {
       var url = URL.createObjectURL(blob);
+      var hf = document.createElement('a');
+      
+      
       window.savedUrl = url; // kick this into global context so we can reference on the other end
       
       ''' +  callBackFunction  + '''(blob);
