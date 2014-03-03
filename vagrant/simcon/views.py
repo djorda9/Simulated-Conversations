@@ -150,7 +150,7 @@ def StudentLogin(request,VKey = 123):
         #reference variables ex: request.session.ValKey
         request.session['ValKey'] = VKey
         request.session['TID'] = template.templateID
-        request.session['RID'] = template.UserID.id
+        request.session['RID'] = template.researcherID.id
         request.session['PIID'] = pageInstance
         request.session['ConvoOrder'] = 1
         request.session['VoR'] = nextPage.videoOrResponse
