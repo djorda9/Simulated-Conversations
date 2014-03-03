@@ -174,27 +174,22 @@ def StudentInfo(request):
         studentemail = request.POST.get("SEmail")
         request.session['SName'] = studentname
 
-        #Conversation wants a instances, not just the ids
-        try:
-            rID = request.session.get('RID')
-            researcher = Researcher.objects.get(id = rID)
-        except Exception,e:
-#fixme
-            return HttpResponse("no researcher for conversation: %s" %e)
-
-        try:
-            tID = request.session.get('TID')
-            template = Template.objects.get(templateID = tID)
-        except Exception,e:
-#fixme
-            return HttpResponse("no template for conversation: %s" %e)
-
         #datetime field in Conversation model auto populates with current datetime
-        #T = Conversation(templateID = template, researcherID = researcher, studentName = studentname, studentEmail = studentemail)
-        #T.save()
+        tID = request.session.get('TID') #this doesn't equate to 2, this equates to "first working template"
+        templ = Template.objects.get(templateID = tID)
+        rID = request.session.get('RID')
+        rese = Researcher.objects.get(user = rID)
+        dt = datetime.datetime.now()
+        T = Conversation(templateID_id=templ.templateID, researcherID_id=rese.user_id, studentName=studentname, studentEmail=studentemail, dateTime = dt)
 
-        #request.session['convo'] = T
-
+        try:
+            T.save()
+            logger.info(T)
+            convo = Conversation.objects.get(dateTime = dt)
+            request.session['convo'] = convo.pk
+        except Exception,e:
+            return HttpResponse("problems saving conversation object: %s" %e)
+            
         if request.session.get('VoR') == "video":
             # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
             # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
@@ -347,9 +342,14 @@ def StudentConvoStep(request):
             return render(request, 'Student_Video_Response.html', c)
 
         elif request.session.get('VoR') == "response":
-            studentchoice = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
-            #T = Response(pageInstanceID = request.session.get('PIID'), conversationID = request.session.get('convo').conversationID, order = request.session.get('ConvoOrder'), choice = request.POST.get("choice"), audioFile = the_fox_say.mp3)
-            #T.save()
+            piID = request.session.get('PIID')
+            cID = request.session.get('convo')
+            convoOrder = request.session.get('ConvoOrder')
+            studentsChoice = request.POST.get("choice")
+            
+            #schoice = TemplateResponseRel.objects.filter(pageInstanceID_id = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
+            T = Response(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = the_fox_say.mp3)
+            T.save()
             #TODO if this fails, do cleanup for browser audio file copy/file system
 
             request.session['ConvoOrder'] += 1

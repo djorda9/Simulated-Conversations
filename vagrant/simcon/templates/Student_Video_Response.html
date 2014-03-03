@@ -25,9 +25,9 @@
         <div class="well well-sm">{{text|safe}}</div>
 
 
-		<!--form name="input" action="/studentconvostep/" method="post">{%csrf_token%}
+		<form name="input" action="/studentconvostep/" method="post">{%csrf_token%}
 		  <input type="submit" class="btn btn-default" value="Record Audio">
-		</form-->
+		</form>
         {% load_getUserMedia "makeRecording" %}
         {% defaultHandler "makeRecording" %}  
 {% endblock %}

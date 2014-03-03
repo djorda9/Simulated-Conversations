@@ -1,14 +1,22 @@
 {% extends "Student_Base.html" %}
 
 {% load staticfiles %}
-{% block title %}Student Login{% endblock %}
+{% block title %}<title>Student Login</title>{% endblock %}
 {% block content %}
+
+
+<script>
+
+</script>
 
     <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
 
+    <script>
+      $("#formButton").on("click", "#progress", document.forms["form1"].submit())
+    </script>
     <div class="container">
 	
-      <form action = "/studentinfo/" method = "post">{%csrf_token%}
+      <form id="form1" action="/studentinfo/" method = "post">{%csrf_token%}
         <div class="form-group">
           <input type="text" class="form-control" name="SName" placeholder="Enter your name">
         </div>
@@ -19,14 +27,14 @@
 <hr>
         <div class="panel panel-info">
           <div class="panel-heading">Use Policy Acceptance</div>
-          <div class="panel-body">
+          <div class="panel-body" id="formButton">
             <p>I agree to have my audio recordings collected and used for research.</p>
             <div class="checkbox">
               <label>
-                <input type="checkbox" onClick='$("progress").removeAttr("disabled", false)'> I accept
+                <input type="checkbox" onClick='$("#progress").removeAttr("disabled", false)'> I accept
               </label>
             </div>
-			<input type="submit" name="progress" id="progress" value="Begin Conversation" class="btn btn-default" style="float: right;"></button>
+			<button type="button" name="progress" id="progress" class="btn btn-default" style="float: right;" disabled onClick=document.forms["form1"].submit()>Begin Conversation</button>
           </div>
         </div>
       </form>
