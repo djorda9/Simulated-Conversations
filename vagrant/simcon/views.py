@@ -460,7 +460,6 @@ class RichTextForm(forms.Form):
 
 #For researchers: edit conversation templates 
 # or create a new one.
-
 @login_required
 def TemplateWizardSave(request):
     #c = {}
@@ -794,15 +793,15 @@ def ResearcherView(request):
 # generate the url there is a function in StudentAccess model that you pass the validation key and it returns
 # the url with the validation key as part of the url.  You can pass the templateID to the view in the url and it.
 # will auto select the passed templateID as the templateID.  To pass the templateID,
-# add ?user_templateID=[templateID] to the end of the url for this view.
+# add the [templateID] (http://site.com/generatelink/[templateID]) to the end of the url for this view.
 #The researcher has to select a template and set an expiration date for the link before the system will generate
 # the link and store the templateID, researcherID, validationKey,and expirationDate for the link.
 @login_required
-def GenerateLink(request):
+def GenerateLink(request, templateID=None):
     link_url = None
     validation_key = None
     saved = False
-    user_templateID = request.GET.get('user_templateID', -1)
+    user_templateID = templateID
     template = None
     current_user = get_researcher(request.user)
     if request.method == 'POST':
@@ -849,15 +848,16 @@ def Links(request):
 
 # This view is used to share a template with another researcher.  It has a drop down box to allow the user to select the
 # researcher they wish to share the template with and and a drop down box to select the template they wish to share.
-# The template drop down box can be auto-selected by adding ?templateID=[templatedID] to the end of the URL.  Once the
-# user has selected a researcher and template, it makes a copy the selected template for the selected researcher.  It
-# copies the data in the Template, PageInstance, TemplateFlowRel, & TemplateResponseRel for the specified template
-# (replacing the researcherID with the selected researcher's researcherID).
+# The template drop down box can be auto-selected by adding the [templatedID]
+# (http://site.com/sharetemplate/[templateID]) to the end of the URL.  Once the user has selected a researcher and
+# template, it makes a copy the selected template for the selected researcher.  It copies the data in the Template,
+# PageInstance, TemplateFlowRel, & TemplateResponseRel for the specified template (replacing the researcherID with the
+# selected researcher's researcherID).
 # Note - The specification requires that we make a copy of the shared template for the researcher that it is being
 # shared with.
 @login_required
-def ShareTemplate(request):
-    user_templateID = request.GET.get('user_templateID', -1)
+def ShareTemplate(request, templateID=None):
+    user_templateID = templateID
     current_user = get_researcher(request.user)
     researcher_userId = None
 
@@ -951,37 +951,37 @@ def ShareTemplate(request):
                                                       'form':form}, context_instance = RequestContext(request))
 
 # This view is used to share a response with another researcher.  It is required to pass the conversationID to the view
-# by adding ?responseID=[responseID] to the end of the URL.  If no conversationID is passed, it will display an error
-# to the user.  If the conversation can not be located, it will display an error to the user.  If the researcher that is
-# logged in is not the owner of the conversation, it will display an error to the user.  The user can select a
-# researcher from the drop down box that they wish to share a conversation with.  Once the user submits the request to
-# share the conversation, it will then store conversationID, researcherID, dateTimeShared in the SharedResponse model.
-# If the user has already shared the conversation with the researcher, it will display a message that the user had
-# already shared the conversation with the researcher.
+# by adding the [responseID] (http://site.com/shareresponse/[responseID])to the end of the URL.  If no conversationID is
+# passed, it will display an error to the user.  If the conversation can not be located, it will display an error to the
+# user.  If the researcher that is logged in is not the owner of the conversation, it will display an error to the user.
+# The user can select a researcher from the drop down box that they wish to share a conversation with.  Once the user
+# submits the request to share the conversation, it will then store conversationID, researcherID, dateTimeShared in the
+# SharedResponse model.  If the user has already shared the conversation with the researcher, it will display a message
+# that the user had already shared the conversation with the researcher.
 @login_required
-def ShareResponse(request):
-    user_conversationID = request.GET.get('responseID', -1)
+def ShareResponse(request, conversationID=None):
+    user_conversationID = conversationID
     current_user = get_researcher(request.user)
     form = None
     success = None
     failed = None
     sharedWith = None
     if(user_conversationID < 0):
-        failed = "The ResponseID was not provided."
+        failed = "The ConversationID was not provided."
     else:
         try:
             user_conversation = Conversation.objects.get(pk=user_conversationID)
         except ObjectDoesNotExist as e:
-            failed = "The ResponsedID was not found!"
+            failed = "The ConversationID was not found!"
         if failed is None:
             conversation_researcher = get_researcher(user_conversation.researcherID)
-            if current_user.user==conversation_researcher.user:
+            if current_user.id==conversation_researcher.id:
                 if request.method == 'POST':
                     form = ShareResponseForm(request.POST, researcher=current_user)
                     if form.is_valid():
                         researcher = form.cleaned_data['researcherID']
                         if user_conversation == None:
-                            failed = "The ResponseID that was supplied is invalid."
+                            failed = "The ConversationID that was supplied is invalid."
                         else:
                             shared = SharedResponses(responseID=user_conversation, researcherID=researcher,
                                                      dateTimeShared=datetime.now())
@@ -990,7 +990,7 @@ def ShareResponse(request):
                             except IntegrityError as e:
                                 sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).\
                                     order_by('researcherID')
-                                failed = "The response has already been shared with " + researcher.user.get_full_name()
+                                failed = "The conversation has already been shared with " + researcher.user.get_full_name()
                                 return render_to_response('share_response.html', {'success':success, 'failed':failed,
                                         'shared':sharedWith, 'form':form}, context_instance = RequestContext(request))
 
@@ -1094,14 +1094,14 @@ urlpatterns = patterns('',
 
 @login_required
 def RetrieveAudio(request, UserAudio):
-	temp=Response.objects.get(id=UserAudio)
-	answer=temp.audioFile
-	answer.open()
-	response = HttpResponse()
-	response.write(answer.read())
-	response['Content-Type'] = 'audio/mp3'
-	return response
-	
+    temp=Response.objects.get(id=UserAudio)
+    answer=temp.audioFile
+    answer.open()
+    response = HttpResponse()
+    response.write(answer.read())
+    response['Content-Type'] = 'audio/mp3'
+    return response
+
 @login_required
 def Responses(request, userIDstr):
     userID=int(userIDstr)
@@ -1148,5 +1148,4 @@ def getTextResponse(request):
     c = {}
     c.update(csrf(request))
     return render(request, "Student_Text_Response.html")
-    
     
