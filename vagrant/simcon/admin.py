@@ -19,8 +19,8 @@ class TemplateAdmin(admin.ModelAdmin):
     def edit_template(self, request, queryset):
         "Edit the selected template"
        
-        if not request.user.has_perm("simcon.authLevel1"):
-            raise PermissionDenied  
+        # FIXME  raise PermissionDenied if we try to edit someone else's 
+        # template
             
         if not queryset or queryset.count() != 1: #We can edit only 1 template
             return HttpResponse("Can only edit 1 template")
@@ -35,46 +35,21 @@ class TemplateAdmin(admin.ModelAdmin):
     def share_template(self, request, queryset):
         "Share the selected template(s)"
         
-        if not request.user.has_perm("simcon.authLevel1"):
-            raise PermissionDenied
+        # FIXME raise PermissionDenied if we share someone else's template
     share_template.short_description = "Share these templates"
     
     def generate_link(self, request, queryset):
         "Generate a link for the selected template(s)"
         
-        if not request.user.has_perm("simcon.authLevel1"):
-            raise PermissionDenied
+         # FIXME raise PermissionDenied if we generate a link to someone
+         # else's Conversation
+
+
     generate_link.short_description = "Generate a link"
        
     
-class ResearcherAdmin(admin.ModelAdmin):
-    actions = ['promote_users']
-    
-    @permission_required('simcon.authLevel3') #TODO fix this
-    def promote_users(self, request, queryset):
-        "Promote the selected researcher(s)"
-        if not request.user.has_perm("simcon.authLevel1"):
-            raise PermissionDenied
-        
-    promote_users.short_description = "Promote selected user(s)"
-    
-class ResponseAdmin(admin.ModelAdmin):
-    actions = ['view_response']  #TODO does adding a response make any sense?  probably should be disabled
- # for now we need it for testing at least -Griff
- #   fields = ('order', 'choice')
-  
-    
-    def view_response(self, request, queryset):
-        "View the selected response(s)"
-        
-        if not request.user.has_perm("simcon.authLevel1"):
-            raise PermissionDenied
-    view_response.short_description = "View selected response"
-
 # register models and modeladmins
-admin.site.register(models.Researcher, ResearcherAdmin)
 admin.site.register(models.Template, TemplateAdmin)
-admin.site.register(models.Response, ResponseAdmin)
 
 #temporarily adding all
 admin.site.register(models.Conversation)
