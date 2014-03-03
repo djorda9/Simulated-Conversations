@@ -7,7 +7,21 @@
 
 {% block title %}<title>Student Video Response</title>{% endblock %}
 
-{% block extrahead %}{% getRecorderHead %}{% endblock %}
+{% block extrahead %}
+{% getRecorderHead %}
+<script>
+function gotoNext(){
+           var fd = new FormData();  // needed to wrap the blob
+           fd.append('data', window.savedAudio);
+           //var data = { recording:blob };
+           var args = { type:"POST", url:"/studentconvostep/", data:fd, processData: false, contentType: false, cache:false, complete:function(){
+                           window.location.replace("text_response");
+                       } };
+           $.ajax(args);
+    }
+</script>
+
+{% endblock %}
 
 {% block content %}
         <div class="alert alert-success">Here's how to use this page.... blah blah blah.</div>
@@ -29,4 +43,5 @@
 		</form-->
         {% load_getUserMedia "makeRecording" %}
         {% defaultHandler "makeRecording" %}  
+        <button onclick="gotoNext();" >next</button>
 {% endblock %}

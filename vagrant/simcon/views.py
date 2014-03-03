@@ -398,9 +398,57 @@ def StudentConvoStep(request):
             })
             return render(request, 'Student_Text_Response.html', c)
         else:
-            return render(request, 'Student_Submission.html')
-    else:
-        return HttpResponse("next step of conversation missing")
+            pass
+    studentchoice = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
+    #T = Response(pageInstanceID = request.session.get('PIID'), conversationID = request.session.get('convo').conversationID, order = request.session.get('ConvoOrder'), choice = request.POST.get("choice"), audioFile = the_fox_say.mp3)
+    #T.save()
+    #TODO if this fails, do cleanup for browser audio file copy/file system
+
+    request.session['ConvoOrder'] += 1
+    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
+    # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
+    try:
+        templ = Template.objects.get(templateID = request.session.get('TID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing template: %s" %e)
+
+    try:
+        pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing page instance: %s" %e)
+
+    try:
+        valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing student access: %s" %e)
+
+    #get the list of responses to display to the student
+    try:
+        responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing template response relation: %s" %e)
+
+    # is this needed for anything?
+    #try:
+    #    conv = Conversation.objects.get(templateID = request.session.get('TID'), studentName = request.session.get('SName'))
+    #except Exception,e:
+#fixme
+    #    return HttpResponse("missing conversation: %s" %e)
+
+    request.session['VoR'] = "video"
+    request.session.modified = True
+
+    t = loader.get_template('Student_Text_Response.html')
+    c = Context({
+    'responses': responses,
+    #'conv': conv,
+    'message': 'I am the Student Text Response View.'
+    })
+    return render(request, 'Student_Text_Response.html', c)
 
 def Submission(request):
     return render(request, 'Student_Submission.html')
@@ -1068,5 +1116,12 @@ def saveAudio(request):
     saveTo = "audio/%s/%s.wav" % (saveTo, getFileHandle()) 
     
     path = default_storage.save(saveTo, data)
-    return HttpResponse("null")
+    request.session['path'] = path
+    return HttpResponse("null") #render(request, "Student_Text_Response.html", {'data':data})
+    
+def getTextResponse(request):
+    c = {}
+    c.update(csrf(request))
+    return render(request, "Student_Text_Response.html")
+    
     
