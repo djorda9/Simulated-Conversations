@@ -46,10 +46,10 @@ Admin | Template Wizard
               {% for temp in templateList %}
                 <tr>
                   <td>{{temp.shortDesc}}</td>
-                  <td><small><a href="/admin/template-wizard/{{temp.templateID}}">Edit</a></small></td>
-                  <td><small><a href="/admin/template-delete/{{temp.templateID}}">Delete</a></small></td>
-                  <td><small><a href="/sharetemplate/{#temp.templateID#}">Share</a></small></td>
-                  <td><small><a href="/generatelink/{#temp.templateID#}">Generate link</a></small></td>
+                  <td><small><a href="{% url 'TemplateWizardEdit' temp.templateID %}">Edit</a></small></td>
+                  <td><small><a href="{% url 'TemplateDelete' temp.templateID %}">Delete</a></small></td>
+                  <td><small><a href="{% url 'ShareTemplate' %}{#temp.templateID#}">Share</a></small></td>
+                  <td><small><a href="{% url 'GenerateLink' %}{#temp.templateID#}">Generate link</a></small></td>
                 </tr>
               {% endfor %}
               </h5>
@@ -58,7 +58,7 @@ Admin | Template Wizard
                There are no templates yet.
             {% endif %}
           </p>
-          <p><a class="btn btn-default" href="/admin/template-wizard" role="button">New Template &raquo;</a></p>
+          <p><a class="btn btn-default" href="{% url 'TemplateWizard' %}" role="button">New Template &raquo;</a></p>
        </div>
         <div class="col-md-5">
           <h2>Recent Responses</h2>
@@ -68,7 +68,7 @@ Admin | Template Wizard
             <h5>
             {% for res in responseList %}
               <tr>
-                <td><a href="/responses/{{res.ID}}">Response from {{res.studentName}}</a></td>
+                <td><a href="{% url 'Responses' res.ID %}">Response from {{res.studentName}}</a></td>
                 <td><small>{{res.templateID.shortDesc}}</small></td>
                 <td><small>{{res.dateTime}}</small></td>
               </tr>
@@ -84,7 +84,7 @@ Admin | Template Wizard
               <h5>
                 {% for sh in sharedResponseList %}
                 <tr>
-                  <td><a href="responses/{{sh.ID}}">Response from {{sh.studentName}}</a></td>
+                  <td><a href="{% url 'Responses' sh.ID %}">Response from {{sh.studentName}}</a></td>
                   <td><small>{{sh.templateID.shortDesc}}</small></td>
                   <td><small>{{res.dateTime}}</small></td>
                 </tr>
@@ -95,12 +95,12 @@ Admin | Template Wizard
             No shared responses yet.
           {% endif %}
           </p>
-          <p><a class="btn btn-default" href="/responses/1" role="button">View all &raquo;</a></p>
+          <p><a class="btn btn-default" href="{# url 'Responses' #}/1" role="button">View all &raquo;</a></p>
         </div>
       </div>
 
       <h3>Researcher Account Management</h3>
-      <form method="post" action="/admin/superuser">
+      <form method="post" action="{# url 'Admin' #}">
       {% csrf_token %}
       <button type="button" class="btn btn-default" onClick="submit()">Create/Delete Researchers &raquo;</button></form>
 

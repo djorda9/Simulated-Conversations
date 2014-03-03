@@ -3,6 +3,8 @@
                 <ol id="videolist">
                 {% for vid in request.session.videos %}
                     <li>
+                      <div id="videoList{{ forloop.counter0 }}">Title</div>
+                      <br>
                       <input type="image" value="{{ vid }}" src="http://img.youtube.com/vi/{{ vid }}/0.jpg" class="img-rounded editVideoImage" width="40" height="30">
                       <button type="button" class="btn btn-default btn-xs editVideoButton" id="formEditVideoButton{{vid}}" value="{{vid}}">
                           <span class="glyphicon glyphicon-pencil"></span> Edit Video Page
@@ -10,7 +12,7 @@
                       <button type="button" class="btn btn-default btn-xs removeVideoButton" id="formRemoveVideoButton{{vid}}" value="{{vid}}">
                           <span class="glyphicon glyphicon-trash"></span> Remove
                       </button>
-                      Links to...
+                      <br>
                     </li>
                 {% endfor %}
                 </ol>
@@ -19,6 +21,13 @@
                 <button type="button" class="btn btn-default btn-sm addVideoButton" id="formAddVideoButton">
                   <span class="glyphicon glyphicon-circle-arrow-right"></span> Add Video
                 </button>
-
-
+               {% for vid in request.session.videos %}
+                       <script>
+                         $(document).ready(function(){
+                          $.getJSON('http://gdata.youtube.com/feeds/api/videos/{{ vid }}?v=2&alt=jsonc',function(data,status,xhr){
+                                $("#videoList{{ forloop.counter0 }}").html(data.data.title);
+                             });
+                          });
+                        </script>
+                {% endfor %}
 {% endblock %}
