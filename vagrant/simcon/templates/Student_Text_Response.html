@@ -7,16 +7,16 @@
 	  {# TODO insert audio playback #}
       
         <audio controls>
-        <source src="{{ BASE_DIR }}{{ MEDIA_URL }}{{request.session.path}}" type="audio/wav">
+        <source src="/media/{{request.session.path}}" type="audio/wav">
         Your browser does not support the audio element.
         </audio>
       <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
 
         <form name="input" action="/studentconvostep/" method="POST">
 		  <div><br>
-          {% for i in responses.objects.all %}
-            <input type="radio" id="choice" value=responses.object.order_by('optionNumber')[i-1].optionNumber>{%responses.objects.order_by('optionNumber')[i-1].responseText%}<br>
-          {% endfor %}
+          {# for i in responses.objects.all #}
+            <input type="radio" id="choice" value=responses.object.order_by('optionNumber')[i-1].optionNumber>{#responses.objects.order_by('optionNumber')[i-1].responseText#}<br>
+          {# endfor #}
           </div>
 
           <button type="submit" class="btn btn-default">Next</button>

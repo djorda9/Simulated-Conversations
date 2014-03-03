@@ -54,11 +54,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-
-MEDIA_ROOT = 'media'      
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(os.getcwd(), MEDIA_URL)       
 #absolute file system path to directory containing audio files
 #part of response app model.  Must be different than STATIC_ROOT	-Griff
-
 
 ROOT_URLCONF = 'simcon.urls'
 
