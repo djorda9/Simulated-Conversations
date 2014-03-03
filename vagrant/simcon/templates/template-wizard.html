@@ -105,13 +105,17 @@ Admin | Template Wizard
           $("#instrucLink").html('<br><br><button type=button class="btn btn-default btn-xs" id=hideInstruc> Hide Instructions </button>')
           $("#instructions").html(
             '<div class="alert alert-success">'+
-              'INSTRUCTIONS HERE'+
+              'Welcome to the conversation template wizard! To begin, you will need to have videos uploaded to YouTube. You can either upload videos, find existing videos, or record new videos at <a href="http://www.youtube.com" target="new">www.YouTube.com</a>. Once your videos are on YouTube, navigate to them in your browser. You will then need to copy the web address of the video. To do this, select the web address text, right click, and click Copy. The address should look something like this: http://www.youtube.com/watch?v=iQRfqGSzIQ4 . Once you have copied the text, come back to this template wizard, and paste it into the box that says "Enter web address of YouTube video". Click Add Video. Your video should now be in the "pool" of videos. You can add more videos in this same manner. From there, you can click "Edit Video Page". You will be able to write custom text that goes on this video page, and you will be able to add responses to the video. Select the next video that a response would go to, and click "Add response". If you decide to enter custom text, make sure you click on the button to save your text. Make sure you have edited every video page, and have created response options that eventually take you to an end-point. When you are finished designing your conversation, click "Save Template" at the top of the page. '+
             '</div>')
       });
       <!-- hide instructions near top of page-->
       $("#instrucLink").on("click", "#hideInstruc", function(){
           $("#instrucLink").html('<br><br><button type=button class="btn btn-default btn-xs" id=showInstruc> Show Instructions </button>')
           $("#instructions").html(' ')
+      });
+      <!-- start over-->
+      $("#startOverLink").on("click", "#startOver", function(){
+          window.location.replace("{% url 'TemplateWizard' %}")
       });
       <!-- this function is called to save the video editor page -->
       var saveVideoPage = function(){
@@ -193,9 +197,29 @@ Admin | Template Wizard
 
     <div id="mainBody" class="container">
       <div class="starter-template">
+        {% if request.session.error == "noFirstPage" %}
+        <div class="alert alert-danger">
+          Your conversation did not save. It was not clear which video comes first in the conversation flow. Check all of your video pages and make sure they all have responses, and make sure there is a clear end-point.
+        </div>
+        {% elif request.session.error == "noTitle" %}
+        <div class="alert alert-danger">
+          There was an error submitting the conversation. You did not enter a title.
+        </div>
+        {% elif request.session.error == "noResponses" %}
+        <div class="alert alert-danger">
+          There was an error submitting the conversation. One of your videos has no possible responses.
+        </div>
+        {% elif request.session.error == "general" %}
+        <div class="alert alert-danger">
+          There was an error submitting the conversation. Check all of your data and try again.
+        </div>
+        {% endif %}
         <div class="row">
-          <div class="col-md-7">
+          <div class="col-md-5">
             <h2>Conversation Template Wizard</h2>
+          </div>
+          <div class="col-md-2" id="startOverLink">
+            <br><br><button type="button" class="btn btn-default btn-xs" id="startOver"> Start Over </button>
           </div>
           <div class="col-md-2" id="instrucLink">
             <br><br><button type="button" class="btn btn-default btn-xs" id="showInstruc"> Show Instructions </button>
@@ -210,7 +234,10 @@ Admin | Template Wizard
           <div id="instructions"></div>
           <div class="form-group">
           <label for="conversationTitle">Conversation Title</label>
-          <input type="text" name="conversationTitle" id="conversationTitle" class="form-control" placeholder="Enter a title">
+          <input type="text" name="conversationTitle" id="conversationTitle" class="form-control" placeholder="Enter a title" 
+          {% if request.session.conversationTitle != "" %}
+          value="{{ request.session.conversationTitle }}"
+          {% endif %}>
           </form>
           </div>
           <div class="row">

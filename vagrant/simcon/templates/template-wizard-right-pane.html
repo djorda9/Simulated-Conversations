@@ -7,6 +7,14 @@
 {% block content %}
 {% load simcon_extras %}
                 {% if request.session.selectedVideo != "" %}
+                  <div id="rightPaneVideoTitle" class="center-block"></div>
+                  <script>
+                         $(document).ready(function(){
+                          $.getJSON('http://gdata.youtube.com/feeds/api/videos/{{ request.session.selectedVideo }}?v=2&alt=jsonc',function(data,status,xhr){
+                                $("#rightPaneVideoTitle").html('<h4>'+data.data.title+'<h4>');
+                             });
+                          });
+                        </script>
                   <input type="hidden" id="selectedVideo" value="{{ request.session.selectedVideo }}">
                   <div style="text-align:center;">
 		    <object width="400" height="243">
@@ -42,7 +50,12 @@
                         {% if parent == request.session.selectedVideo %}
                             <tr>
                             <td>{{ request.session.responseText|get_at_index:forloop.counter0 }}</td>
-	     		    <td><input type="image" src="http://img.youtube.com/vi/{{ request.session.responseChildVideo|get_at_index:forloop.counter0 }}/0.jpg" class="img-rounded editVideoImage" width="40" height="30">
+	     		    <td>
+                          {% if request.session.responseChildVideo|get_at_index:forloop.counter0 == "endpoint" %}
+                            <button type="button" class="btn btn-default btn-md" disabled><span class="glyphicon glyphicon-flag"></span></button>
+                          {% else %}
+                <input type="image" src="http://img.youtube.com/vi/{{ request.session.responseChildVideo|get_at_index:forloop.counter0 }}/0.jpg" class="img-rounded editVideoImage" width="40" height="30">
+                          {% endif %}
 			    <button type="button" id="removeResponseButton" class="btn btn-default btn-xs removeResponseButton" value="{{forloop.counter0}}">
 			      <span class="glyphicon glyphicon-trash"></span> Remove Response
 			    </button></td>
@@ -57,7 +70,7 @@
                         <option value="none">Select a destination for this response</option>
                         {% for vid in request.session.videos %}
                           {% if vid != request.session.selectedVideo %}
-                            <option value="{{ vid }}">Video {{forloop.counter}}</option>
+                            <option value="{{ vid }}">Video {{ forloop.counter }}</option>
                           {% endif %}
                         {% endfor %}
                         <option value="endpoint">[Use this response as an end-point]</option>
