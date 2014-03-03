@@ -29,24 +29,25 @@ Admin | Template Wizard
 
     <script>
 
-    $(document).ready(function(){      
-    <!-- the snippet below ensures the AJAX POST has a CSRF token for django -->
+    $(document).ready(function(){
+	
+	  <!-- the snippet below ensures the AJAX POST has a CSRF token for django -->
       $(document).ajaxSend(function(event, xhr, settings) {
-	  function getCookie(name) {
+	    function getCookie(name) {
 	      var cookieValue = null;
 	      if (document.cookie && document.cookie != '') {
-		  var cookies = document.cookie.split(';');
-		  for (var i = 0; i < cookies.length; i++) {
+		   var cookies = document.cookie.split(';');
+		   for (var i = 0; i < cookies.length; i++) {
 		      var cookie = jQuery.trim(cookies[i]);
 		      // Does this cookie string begin with the name we want?
 		      if (cookie.substring(0, name.length + 1) == (name + '=')) {
-			  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-			  break;
+			    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			    break;
 		      }
-		  }
+		   }
 	      }
 	      return cookieValue;
-	  }
+	    }
 	  function sameOrigin(url) {
 	      // url could be relative or scheme relative or absolute
 	      var host = document.location.host; // host + port
@@ -73,10 +74,10 @@ Admin | Template Wizard
       $("#leftPane").on("click", "button.removeVideoButton", function(){
            var removeVideoFromPool = $(this).val();
            var data = { removeVideoFromPool:removeVideoFromPool };
-           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                           $("#leftPane").load("/admin/template-wizard-left-pane")
+           var args = { type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
+                           $("#leftPane").load("{% url 'TemplateWizardLeftPane' %}")
                            <!-- check if its the video to be deleted, and load the empty right pane if so -->
-                           $("#rightPane").load("/admin/template-wizard-right-pane")
+                           $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                        } };
            $.ajax(args);
       });
@@ -84,8 +85,8 @@ Admin | Template Wizard
       $("#leftPane").on("click", "button.addVideoButton", function(){
            var new_video = $("#video_name").val();
            var data = { new_video:new_video };
-           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                            $("#leftPane").load("/admin/template-wizard-left-pane")
+           var args = { type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
+                            $("#leftPane").load("{% url 'TemplateWizardLeftPane' %}")
                        } };
            $.ajax(args);
       });
@@ -93,9 +94,9 @@ Admin | Template Wizard
       $("#leftPane").on("click", "button.editVideoButton", function(){
           var editVideo = $(this).val();
           var data = { editVideo:editVideo };
-          var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+          var args = {type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
                             <!-- TODO before loading right pane, check if there is data there, and save it if so -->
-                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                            $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                      }};
           $.ajax(args);
       });
@@ -104,7 +105,7 @@ Admin | Template Wizard
           $("#instrucLink").html('<br><br><button type=button class="btn btn-default btn-xs" id=hideInstruc> Hide Instructions </button>')
           $("#instructions").html(
             '<div class="alert alert-success">'+
-              'Heres how to use this page.... blah blah blah.'+
+              'INSTRUCTIONS HERE'+
             '</div>')
       });
       <!-- hide instructions near top of page-->
@@ -119,9 +120,9 @@ Admin | Template Wizard
          for (res in $("$responses .response")){
             data['response'][res] = $(this)[res].val();
          }
-         var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+         var args = {type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
                             <!-- this isnt finished... -->
-                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                            $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                      }};
           $.ajax(args);
 
@@ -134,8 +135,8 @@ Admin | Template Wizard
            var addResponseChildVideo = $("#addResponseChildVideo").val();
            var addResponse = "submit"; <!-- a placehold to signify in the view what action to take -->
            var data = { addResponse:addResponse, addResponseText:addResponseText, addResponseParentVideo:addResponseParentVideo, addResponseChildVideo:addResponseChildVideo };
-           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                           $("#rightPane").load("/admin/template-wizard-right-pane")
+           var args = { type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
+                           $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                        } };
            $.ajax(args);
         }
@@ -146,9 +147,9 @@ Admin | Template Wizard
           alert("removing button: " + removeResponseId);
           var removeResponse = "removeResponse";
           var data = { removeResponse:removeResponse, removeResponseId:removeResponseId };
-          var args = {type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
+          var args = {type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
                             <!-- TODO before loading right pane, check if there is data there, and save it if so -->
-                            $("#rightPane").load("/admin/template-wizard-right-pane")
+                            $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                      }};
           $.ajax(args);
       });
@@ -158,8 +159,8 @@ Admin | Template Wizard
            var saveVideoPage = $("#saveVideoPage").val();
            var textOfEditor = tinymce.get('id_richText').getContent();
            var data = { saveVideoPage:saveVideoPage, mce:textOfEditor };
-           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                           //$("#rightPane").load("/admin/template-wizard-right-pane")
+           var args = { type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
+                           //$("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                            //tinymce.get('id_richText').setContent(textOfEditor)
                        } };
            $.ajax(args);
@@ -171,24 +172,12 @@ Admin | Template Wizard
                 enablePlayback = "on";
            var vid = $("#selectedVideo").val();
            var data = { enablePlayback:enablePlayback, vid:vid };
-           var args = { type:"POST", url:"/admin/template-wizard-update", data:data, cache:false, complete:function(){
-                           $("#rightPane").load("/admin/template-wizard-right-pane")
+           var args = { type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
+                           $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                        } };
            $.ajax(args);
       });
-      <!-- save the whole template -->
-      $("#templateSaver").on("click", "#saveTemplateButton", function(){
-           var convoTitle = $("#conversationTitle").val();
-           var data = { saveTemplateButton:"saveTemplateButton", conversationTitle: convoTitle };
-           var args = { type:"POST", url:"/admin/template-wizard", data:data, cache:false, complete:function(){
-                           <!--load submit page-->
-                           // TODO populate this based on success/failure
-                           alert("probably successfully saved template!");
-                           $("#mainBody").load("/admin/template-submit")
-                       } };
-           $.ajax(args);
-      });
-    });
+	});
     </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -212,7 +201,7 @@ Admin | Template Wizard
             <br><br><button type="button" class="btn btn-default btn-xs" id="showInstruc"> Show Instructions </button>
           </div>
           <div class="col-md-3" id="templateSaver">
-            <br><form method="post" action="/admin/template-wizard-save/">{% csrf_token %}
+            <br><form method="post" action="{% url 'TemplateWizardSave' %}">{% csrf_token %}
                 <input type="hidden" name="saveTemplate" value="saveTemplate">
                 <button type="button" id="saveTemplateButton" class="btn btn-default btn-lg" onclick="submit();">Save Template &raquo; 
                 </button>
@@ -228,7 +217,7 @@ Admin | Template Wizard
             <div class="col-md-4">
               <h4><u>Videos</u></h4>
               <div id="leftPane">
-                {% include "admin/template-wizard-left-pane.html" %}
+                {% include 'template-wizard-left-pane.html' %} {#url 'TemplateWizardLeftPane' #}
               </div>
             </div>
             <div class="col-md-8">
@@ -238,7 +227,7 @@ Admin | Template Wizard
                 </div>
                 <div class="panel-body">
                   <div id="rightPane">
-		    {%  include "admin/template-wizard-right-pane.html" %}
+		    {%  include 'template-wizard-right-pane.html' %}{# url 'TemplateWizardRightPane' #}
                   </div>                  
                 </div>
               </div>

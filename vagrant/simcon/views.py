@@ -399,9 +399,57 @@ def StudentConvoStep(request):
             })
             return render(request, 'Student_Text_Response.html', c)
         else:
-            return render(request, 'Student_Submission.html')
-    else:
-        return HttpResponse("next step of conversation missing")
+            pass
+    studentchoice = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
+    #T = Response(pageInstanceID = request.session.get('PIID'), conversationID = request.session.get('convo').conversationID, order = request.session.get('ConvoOrder'), choice = request.POST.get("choice"), audioFile = the_fox_say.mp3)
+    #T.save()
+    #TODO if this fails, do cleanup for browser audio file copy/file system
+
+    request.session['ConvoOrder'] += 1
+    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
+    # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
+    try:
+        templ = Template.objects.get(templateID = request.session.get('TID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing template: %s" %e)
+
+    try:
+        pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing page instance: %s" %e)
+
+    try:
+        valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing student access: %s" %e)
+
+    #get the list of responses to display to the student
+    try:
+        responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing template response relation: %s" %e)
+
+    # is this needed for anything?
+    #try:
+    #    conv = Conversation.objects.get(templateID = request.session.get('TID'), studentName = request.session.get('SName'))
+    #except Exception,e:
+#fixme
+    #    return HttpResponse("missing conversation: %s" %e)
+
+    request.session['VoR'] = "video"
+    request.session.modified = True
+
+    t = loader.get_template('Student_Text_Response.html')
+    c = Context({
+    'responses': responses,
+    #'conv': conv,
+    'message': 'I am the Student Text Response View.'
+    })
+    return render(request, 'Student_Text_Response.html', c)
 
 def Submission(request):
     return render(request, 'Student_Submission.html')
@@ -554,7 +602,7 @@ def TemplateWizardSave(request):
                 request.session['responseChildVideo'] = []
                 request.session['enablePlayback'] = []
 
-                return render(request, 'admin/template-wizard-save.html')
+                return render(request, 'template-wizard-save.html')
     else:
         return HttpResponse("Failure: no post data")
 
@@ -585,7 +633,7 @@ def TemplateWizard(request):
 #            # init options releated to this video, not sure if videos will be singular for sure in a conversation?
 #            request.session['responseOptions'] = ['Enter your option'] 
 #            request.session.modified = True
-            return render(request, 'admin/template-wizard.html')
+            return render(request, 'template-wizard.html')
 
         else:
             return HttpResponse("ill formed request")
@@ -609,11 +657,11 @@ def TemplateWizard(request):
         request.session['responseParentVideo'] = [] #create an empty list to hold responses video (like a foreign key)
         request.session['responseChildVideo'] = []
         request.session['enablePlayback'] = [] #if the video exists in this list, enable playback.
-        request.session['videos'].append('zJ8Vfx4721M')  # sample video
-        request.session['videos'].append('DewJHJlYOIU') #sample 
+        #request.session['videos'].append('zJ8Vfx4721M')  # sample video
+        #request.session['videos'].append('DewJHJlYOIU') #sample 
         request.session.modified = True
 
-        return render(request, 'admin/template-wizard.html')
+        return render(request, 'template-wizard.html')
 
 #This is the "behind the scenes" stuff for the template wizard above
 @login_required
@@ -715,7 +763,7 @@ def ResearcherView(request):
         'responseList': responseList,
         'sharedResponseList': sharedResponseList
     })
-    return render(request, 'admin/researcher-view.html', context)
+    return render(request, 'researcher-view.html', context)
 
 # This view is used to generate the url for the researcher to give to a student to allow the student to take
 # the simulated conversation.  Note the Student Login page requires the validation key to be part of the url.  To
@@ -992,7 +1040,7 @@ class TemplateView(View):
 def TemplateWizardLeftPane(request):
     c = {}
     c.update(csrf(request))
-    return render(request, 'admin/template-wizard-left-pane.html')
+    return render(request, 'template-wizard-left-pane.html')
 
 #Reload the template wizards right pane if requested
 @login_required
@@ -1005,10 +1053,10 @@ def TemplateWizardRightPane(request):
         key = 'richText/%s' % selVideo
         if request.session.get(key): # we have richText to populate
             widge = RichTextForm({'richText': request.session[key]}) # preload with the value
-            return render(request, 'admin/template-wizard-right-pane.html', {'widge':widge, 'videoRichText': request.session[key]})
+            return render(request, 'template-wizard-right-pane.html', {'widge':widge, 'videoRichText': request.session[key]})
             
     widge = RichTextForm()        
-    return render(request, 'admin/template-wizard-right-pane.html', {'widge': widge})
+    return render(request, 'template-wizard-right-pane.html', {'widge': widge})
 '''
 urlpatterns = patterns('',
     url(r'^mine/$', MyView.as_view(), name='my-view'),
@@ -1069,5 +1117,12 @@ def saveAudio(request):
     saveTo = "audio/%s/%s.wav" % (saveTo, getFileHandle()) 
     
     path = default_storage.save(saveTo, data)
-    return HttpResponse("null")
+    request.session['path'] = path
+    return HttpResponse("null") #render(request, "Student_Text_Response.html", {'data':data})
+    
+def getTextResponse(request):
+    c = {}
+    c.update(csrf(request))
+    return render(request, "Student_Text_Response.html")
+    
     
