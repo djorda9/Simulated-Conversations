@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.core.files import File
 import datetime
 from tinymce.models import HTMLField  # tinymce for rich text embeds
@@ -45,8 +46,8 @@ class StudentAccess(models.Model):
 
     # Returns a url for the student login page with the passed 'key'.
     def get_link(self, key):
-        student_site = "/student/"
-        return settings.SITE_ID + student_site + key + "/"
+        student_site = reverse('StudentLogin',args=[key])
+        return student_site
 
     #Returns a url for the student login page without a key passed.
     def get_base_link(self):

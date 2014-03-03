@@ -31,7 +31,8 @@ class ShareResponseForm(forms.Form):
         self.researcher = kwargs.pop('researcher',None)
         super(ShareResponseForm, self).__init__(*args, **kwargs)
         if self.researcher > 0:
-            self.fields['researcherID'] = forms.ModelChoiceField(queryset=User.objects.exclude(id=self.researcher),empty_label='Select a researcher')
+            self.fields['researcherID'] = forms.ModelChoiceField(queryset=User.objects.exclude(id=self.researcher.id),
+                                                                 empty_label='Select a researcher')
 
 class ShareTemplateForm(forms.Form):
     researcherID = forms.ModelChoiceField(queryset=User.objects.all(), empty_label='Select a researcher')
@@ -41,7 +42,8 @@ class ShareTemplateForm(forms.Form):
         self.researcher = kwargs.pop('researcher',None)
         super(ShareTemplateForm, self).__init__(*args, **kwargs)
         if self.researcher > 0:
-            self.fields['researcherID'] = forms.ModelChoiceField(queryset=User.objects.exclude(id=self.researcher),empty_label='Select a researcher')
+            self.fields['researcherID'] = forms.ModelChoiceField(queryset=User.objects.exclude(id=self.researcher.id),
+                                                                 empty_label='Select a researcher')
             self.fields['templateID'] = forms.ModelChoiceField(queryset=Template.objects.filter
                                         (researcherID=self.researcher).filter(deleted=0),
                                             empty_label='Select a conversation template')
