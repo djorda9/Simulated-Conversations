@@ -989,9 +989,11 @@ def RetrieveAudio(request, UserAudio):
     return response
 
 @login_required
-def Responses(request, userIDstr):
-    userID=int(userIDstr)
+def Responses(request):
     convoNames=[]
+
+    userID = get_researcher(request.user)
+
 
     conversations=Conversation.objects.filter(researcherID=userID)
     for c in conversations:
@@ -999,16 +1001,29 @@ def Responses(request, userIDstr):
         convoNames.append(temp.shortDesc)
 
     shared=[]
+
     sharedIDs=SharedResponses.objects.filter(researcherID=userID)
     for c in sharedIDs:
         shared.append(c.responseID)
 
+#    convoList=zip(convoNames,conversations)
 
-
-    page=render(request, 'Response_view_table1.html',{'conversationNames':convoNames, 'conversations':conversations})
+    page=render(request, 'Response_view.html',{'conversations':conversations, 'names':convoNames, 'sharedConversations':shared})
 #    assert False, locals()
 
     return page
+
+@login_required
+def SingleResponse(request, convoID):
+
+#check to confirm user has access
+
+	currentConvo=Conversation.objects.get(id=convoID)
+
+	responses=Response.objects.filter(conversationID=convoID).order_by('order')
+
+	page=render(request, 'Single_response.html', {'responses':responses, 'conversation':currentConvo})
+	return page
 
 def getFileHandle(): # helper function to make a unique file handle
     return User.objects.make_random_password(length=5) # TODO check for collision?
