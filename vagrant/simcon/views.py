@@ -781,7 +781,7 @@ def Links(request):
 def ShareTemplate(request, templateID=None):
     user_templateID = templateID
     current_user = get_researcher(request.user)
-    researcher_userId = None
+    researcher_name = None
 
     #A list of pageInstanceStruct for storing the old and new PageInstance used when coping the
     #TemplateFlowRel
@@ -854,7 +854,7 @@ def ShareTemplate(request, templateID=None):
                         temp.save()
 
                     form = ShareTemplateForm(researcher=current_user)
-                    researcher_userId = researcher.user.get_full_name()
+                    researcher_name = researcher.get_full_name()
 
             except ValueError as e:
                 failed = "Required data is missing in database in order to copy the template."
@@ -869,7 +869,7 @@ def ShareTemplate(request, templateID=None):
                 form = ShareTemplateForm(researcher=current_user)
         else:
             form = ShareTemplateForm(researcher=current_user)
-    return render_to_response('share_template.html', {'success':researcher_userId,
+    return render_to_response('share_template.html', {'success':researcher_name,
                                                       'form':form}, context_instance = RequestContext(request))
 
 # This view is used to share a response with another researcher.  It is required to pass the conversationID to the view
