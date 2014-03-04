@@ -72,7 +72,6 @@ class ResponseAdmin(admin.ModelAdmin):
     view_response.short_description = "View selected response"
 
 # register models and modeladmins
-admin.site.register(models.Researcher, ResearcherAdmin)
 admin.site.register(models.Template, TemplateAdmin)
 admin.site.register(models.Response, ResponseAdmin)
 

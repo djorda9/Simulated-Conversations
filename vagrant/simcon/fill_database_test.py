@@ -6,7 +6,7 @@ from django.db import models
 import datetime
 from django.core.files import File
 
-from models import Researcher
+
 from models import Response
 from models import SharedResponses
 from models import Template
@@ -16,7 +16,7 @@ from models import StudentAccess
 from models import Conversation
 from models import PageInstance
 
-from simcom.models import *from researcher.models import Researcher
+from django.contrib.auth.models import User
 #from template.models import Templates
 from student.models import StudentAccess
 from response.models import Conversation
@@ -24,13 +24,13 @@ from response.models import Response
 from sharedresponses.models import SharedResponses
 
 #auth user table?
-T = Researcher(user='1')
+T = User(user='1', staff='true')
 T.save()
-T = Researcher(user='2')
+T = User(user='2', staff='true')
 T.save()
-T = Researcher(user='Researcher3', authLevel='0')
+T = User(user='Researcher3', staff='true', superuser='true')
 T.save()
-T = Researcher(user='4')
+T = User(user='4', staff='true')
 T.save()
 
 testDate = "2014-10-01 14:33"

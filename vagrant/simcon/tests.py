@@ -1,7 +1,6 @@
 # tests.py
 from django.test import TestCase
 
-from models import Researcher
 from models import Template
 from models import Conversation
 from models import StudentAccess
