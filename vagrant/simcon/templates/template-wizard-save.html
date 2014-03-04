@@ -25,7 +25,11 @@ Admin | Template Wizard
 
     <!-- jQuery addition -->
     <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
-
+    <script>
+    $(document).ready(function(){
+      window.location.replace('{% url 'ResearcherView' %}')
+    });
+    </script>
 
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->

@@ -521,13 +521,28 @@ def TemplateWizard(request):
         request.session['edit'] = False
         request.session.modified = True
         request.session["selectedVideo"] = ""
+        #if the session's template ID = -1, that just means there was an error trying to save. 
+        #the session variables are still intact, so just regenerate the template wizard.
+        #else, begin editing a template.
         if request.session['editTemplateID'] != -1:
-            #TODO... check if this needs to be a new version.
+            #ok, fuck the 'version' idea. Heres a new idea. If responses to this template exist,
+            #instead just produce an error message. The researcher cannot edit this template.
+            #they can "copy to a new template", which actually does populate all the 
+            #same session variables, but will not save over the old template.
+            #also it will change the title to include "(copy)"
             temp = Template.objects.get(templateID = request.session['editTemplateID'])
-            request.session["conversationTitle"] = temp.shortDesc
-            request.session.modified = True
-            fi = temp.firstInstanceID
-            fitfl = TemplateFlowRel.objects.get(pageInstanceID = fi)
+            responses = Conversation.objects.filter(templateID = temp.templateID)
+            if len(responses) > 0:
+                request.session['error'] = "editButResponses"
+                request.session.modified = True
+                #pre-populate all the session stuff
+                #change conversationTitle to include (copy)
+                #delete the session template id because you dont want to save over it
+            else:
+                request.session["conversationTitle"] = temp.shortDesc
+                request.session.modified = True
+                fi = temp.firstInstanceID
+                #fitfl = TemplateFlowRel.objects.get(pageInstanceID = fi)
         return render(request, 'template-wizard.html')
     else:
         # DATA MODEL:

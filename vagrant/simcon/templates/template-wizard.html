@@ -213,6 +213,10 @@ Admin | Template Wizard
         <div class="alert alert-danger">
           There was an error submitting the conversation. Check all of your data and try again.
         </div>
+        {% elif request.session.error == "editButResponses" %}
+        <div class="alert alert-danger">
+          You are trying to edit a template that has corresponding responses. You cannot edit the template. Instead, you can create a new copy. The proper values below were populated. If you'd instead like to delete the template, <a href="{% url 'TemplateDelete' request.session.editTemplateID %}">click here</a>.
+        </div>
         {% endif %}
         <div class="row">
           <div class="col-md-5">
