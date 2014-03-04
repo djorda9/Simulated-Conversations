@@ -14,23 +14,29 @@ logger = logging.getLogger("simcon")
 # Note: flat admin may handle our mockups better
 # TODO:  filter templates, responses, etc by user ownership, so they can only see things they own
 class TemplateAdmin(admin.ModelAdmin):
-    actions = ['edit_template', 'share_template', 'generate_link']
+    actions = ['edit_template', 'share_template', 'generate_link', 'delete_template']
     
     def edit_template(self, request, queryset):
         "Edit the selected template"
-       
-        # FIXME  raise PermissionDenied if we try to edit someone else's 
-        # template
             
         if not queryset or queryset.count() != 1: #We can edit only 1 template
-            return HttpResponse("Can only edit 1 template")
+            self.message_user(request, "Can't edit more than 1 template at a time")
+            return self
+        
+        temp = queryset[0]
+        if not request.user.is_superuser and temp.researcherID != request.user:
+            raise PermissionDenied
             
         #self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.count()))
         #self.message_user(request, "Editing template!")
 
         #TODO pump queryset into session, tag to add a version incrementation, maybe have a template id variable?
-        return render(request, 'admin/template-wizard.html', {"queryset": queryset})
+        return render(request, 'template-wizard.html', {"template_to_edit": temp.templateID})
     edit_template.short_description = "Edit template"
+    
+    def delete_template(self, request, queryset):
+        pass
+    delete_template.short_description = "Delete template"
     
     def share_template(self, request, queryset):
         "Share the selected template(s)"

@@ -310,7 +310,44 @@ def StudentConvoStep(request):
         else:
             return render(request, 'Student_Submission.html')
     else:
-        return HttpResponse("can't render next conversation step")
+        #return HttpResponse("can't render next conversation step")
+        # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
+        # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
+        try:
+            templ = Template.objects.get(templateID = request.session.get('TID'))
+        except Exception,e:
+#fixme
+            return HttpResponse("missing template: %s" %e)
+
+        try:
+            pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
+        except Exception,e:
+#fixme
+            return HttpResponse("missing page instance: %s" %e)
+
+        try:
+            valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
+        except Exception,e:
+#fixme
+            return HttpResponse("missing student access: %s" %e)
+
+        #get the list of responses to display to the student
+        try:
+            responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
+        except Exception,e:
+#fixme
+            return HttpResponse("missing template response relation: %s" %e)
+
+        request.session['VoR'] = "video"
+        request.session.modified = True
+
+        t = loader.get_template('Student_Text_Response.html')
+        c = Context({
+        'responses': responses,
+        #'conv': conv,
+        'message': 'I am the Student Text Response View.'
+        })
+        return render(request, 'Student_Text_Response.html', c)
 
 def Submission(request):
     return render(request, 'Student_Submission.html')
