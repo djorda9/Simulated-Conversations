@@ -68,7 +68,7 @@ Admin | Template Wizard
             <h5>
             {% for res in responseList %}
               <tr>
-                <td><a href="{% url 'Responses' res.id %}">Response from {{res.studentName}}</a></td>
+                <td><a href="{% url 'SingleResponse' res.id %}">Response from {{res.studentName}}</a></td>
                 <td><small>{{res.templateID.shortDesc}}</small></td>
                 <td><small>{{res.dateTime}}</small></td>
                 <td><small><a href="{% url 'ShareResponse_with_responseID' res.id %}">Share</a></small></td>
@@ -85,7 +85,7 @@ Admin | Template Wizard
               <h5>
                 {% for sh in sharedResponseList %}
                 <tr>
-                  <td><a href="{% url 'Responses' sh.responseID.id %}">Response from {{sh.responseID.studentName}}</a></td>
+                  <td><a href="{% url 'SingleResponse' sh.responseID.id %}">Response from {{sh.responseID.studentName}}</a></td>
                   <td><small>{{sh.responseID.templateID.shortDesc}}</small></td>
                   <td><small>{{res.responseID.dateTime}}</small></td>
                 </tr>
@@ -96,7 +96,7 @@ Admin | Template Wizard
             No shared responses yet.
           {% endif %}
           </p>
-          <p><a class="btn btn-default" href="{# url 'Responses' #}/1" role="button">View all &raquo;</a></p>
+          <p><a class="btn btn-default" href="{% url 'Responses' %}" role="button">View all &raquo;</a></p>
         </div>
       </div>
 

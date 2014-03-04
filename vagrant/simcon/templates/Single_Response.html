@@ -1,7 +1,7 @@
 <!-- This template is used to display a single conversation worth of responses-->
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
-{% block title %}Response Review{% endblock %}
+{% block title %}{{currentConvo.shortDesc}}{% endblock %}
 
     <!-- Bootstrap core CSS -->
     <link href="dist/css/bootstrap.css" rel="stylesheet">
@@ -17,33 +17,19 @@
   <body>
 
 
-<p>Responses:</p>  
+<p>{{currentConvo.shortDesc}}:</p>  
 
-{% for n in conversations %}
+{% for n in responses %}
 
-	<p>response # {{n.templateID.shortDesc}} {{n.dateTime}} {{n.studentName}} </p>
-
-{% empty %}
-
-	<p>Nothing there/access denied</p>
-
-{% endfor %}
-
-
-<p>Shared Responses:</p>
-
-{% for n in sharedConversations %}
-
-	<p>response # {{index}} {{n}}</p>
-
-
-
+	<p>{{n.order}} {{n.choice}} {{n.audioFile}} </p>
 
 {% empty %}
 
 	<p>Nothing there/access denied</p>
 
 {% endfor %}
+
+
 
 {% endblock %}
     <!-- Bootstrap core JavaScript
