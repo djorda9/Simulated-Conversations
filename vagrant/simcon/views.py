@@ -1,16 +1,12 @@
 from django.shortcuts import render, render_to_response, redirect
-from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.views.generic import View
 from django.template import loader, Context
 from django.core.context_processors import csrf
 from django import forms # for forms
@@ -18,7 +14,6 @@ from django.http import Http404
 from forms import StudentAccessForm, ShareTemplateForm, LoginForm, ShareResponseForm
 from models import StudentAccess, Response, Template, PageInstance, TemplateFlowRel, TemplateResponseRel, SharedResponses, Conversation
 from tinymce.widgets import TinyMCE
-from tinymce.models import HTMLField  # tinymce for rich text embeds
 import re, logging, datetime
 
 logger = logging.getLogger("simcon") #global logger handler
@@ -821,7 +816,7 @@ def Links(request):
 def ShareTemplate(request, templateID=None):
     user_templateID = templateID
     current_user = get_researcher(request.user)
-    researcher_userId = None
+    researcher_name = None
 
     #A list of pageInstanceStruct for storing the old and new PageInstance used when coping the
     #TemplateFlowRel
@@ -894,7 +889,7 @@ def ShareTemplate(request, templateID=None):
                         temp.save()
 
                     form = ShareTemplateForm(researcher=current_user)
-                    researcher_userId = researcher.user.get_full_name()
+                    researcher_name = researcher.get_full_name()
 
             except ValueError as e:
                 failed = "Required data is missing in database in order to copy the template."
@@ -909,7 +904,7 @@ def ShareTemplate(request, templateID=None):
                 form = ShareTemplateForm(researcher=current_user)
         else:
             form = ShareTemplateForm(researcher=current_user)
-    return render_to_response('share_template.html', {'success':researcher_userId,
+    return render_to_response('share_template.html', {'success':researcher_name,
                                                       'form':form}, context_instance = RequestContext(request))
 
 # This view is used to share a response with another researcher.  It is required to pass the conversationID to the view
