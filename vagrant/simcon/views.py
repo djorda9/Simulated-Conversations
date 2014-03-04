@@ -14,6 +14,7 @@ from django.views.generic import View
 from django.template import loader, Context
 from django.core.context_processors import csrf
 from django import forms # for forms
+from django.http import Http404
 from forms import StudentAccessForm, ShareTemplateForm, LoginForm, ShareResponseForm
 from models import StudentAccess, Response, Template, PageInstance, TemplateFlowRel, TemplateResponseRel, SharedResponses, Conversation
 from tinymce.widgets import TinyMCE
@@ -499,6 +500,9 @@ def TemplateWizardEdit(request, tempID):
 @login_required
 def TemplateDelete(request, tempID):
     templateObj = Template.objects.get(templateID=tempID)
+    #Security check:
+    if not request.user.is_superuser and templateObj.researcherID != request.user:
+        raise Http404
     context = RequestContext(request, {
         'templateObj': templateObj,
         })
