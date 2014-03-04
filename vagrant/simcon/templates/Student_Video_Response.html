@@ -11,10 +11,11 @@
 {% getRecorderHead %}
 <script>
 function gotoNext(){
-           var fd = new FormData();  // needed to wrap the blob
-           fd.append('data', window.savedAudio);
+           //var fd = new FormData();  // needed to wrap the blob
+           //fd.append('data', window.savedAudio);
            //var data = { recording:blob };
-           var args = { type:"POST", url:{% url 'StudentConvoStep' %}, data:fd, processData: false, contentType: false, cache:false, complete:function(){
+           var data = {'VoR': 'video'};
+           var args = { type:"POST", url:{% url 'StudentConvoStep' %}, data:data, processData: false, contentType: false, cache:false, complete:function(){
                            window.location.replace("{% url 'text_response' %}");
                        } };
            $.ajax(args);
