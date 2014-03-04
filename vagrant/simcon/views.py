@@ -206,6 +206,19 @@ def StudentInfo(request):
 def StudentConvoStep(request):
     if request.method == 'POST':
         if request.session.get('VoR') == "video":
+            piID = request.session.get('PIID')
+            cID = request.session.get('convo')
+            convoOrder = request.session.get('ConvoOrder')
+            studentsChoice = request.POST.get("choice")
+            
+            #schoice = TemplateResponseRel.objects.filter(pageInstanceID_id = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
+
+            T = Response(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = "/media/audio/the_fox_say.mp3")
+            T.save()
+            #TODO if this fails, do cleanup for browser audio file copy/file system
+
+            request.session['ConvoOrder'] += 1
+            
             # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
             # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
             try:
@@ -256,17 +269,6 @@ def StudentConvoStep(request):
             return render(request, 'Student_Video_Response.html', c)
 
         elif request.session.get('VoR') == "response":
-            piID = request.session.get('PIID')
-            cID = request.session.get('convo')
-            convoOrder = request.session.get('ConvoOrder')
-            studentsChoice = request.POST.get("choice")
-            
-            #schoice = TemplateResponseRel.objects.filter(pageInstanceID_id = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
-            T = Response(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = the_fox_say.mp3)
-            T.save()
-            #TODO if this fails, do cleanup for browser audio file copy/file system
-
-            request.session['ConvoOrder'] += 1
             # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
             # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
             try:
@@ -294,13 +296,6 @@ def StudentConvoStep(request):
 #fixme
                 return HttpResponse("missing template response relation: %s" %e)
 
-            # is this needed for anything?
-            #try:
-            #    conv = Conversation.objects.get(templateID = request.session.get('TID'), studentName = request.session.get('SName'))
-            #except Exception,e:
-#fixme
-            #    return HttpResponse("missing conversation: %s" %e)
-
             request.session['VoR'] = "video"
             request.session.modified = True
 
@@ -312,57 +307,9 @@ def StudentConvoStep(request):
             })
             return render(request, 'Student_Text_Response.html', c)
         else:
-            pass
-    studentchoice = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
-    #T = Response(pageInstanceID = request.session.get('PIID'), conversationID = request.session.get('convo').conversationID, order = request.session.get('ConvoOrder'), choice = request.POST.get("choice"), audioFile = the_fox_say.mp3)
-    #T.save()
-    #TODO if this fails, do cleanup for browser audio file copy/file system
-
-    request.session['ConvoOrder'] += 1
-    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
-    # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
-    try:
-        templ = Template.objects.get(templateID = request.session.get('TID'))
-    except Exception,e:
-#fixme
-        return HttpResponse("missing template: %s" %e)
-
-    try:
-        pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
-    except Exception,e:
-#fixme
-        return HttpResponse("missing page instance: %s" %e)
-
-    try:
-        valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
-    except Exception,e:
-#fixme
-        return HttpResponse("missing student access: %s" %e)
-
-    #get the list of responses to display to the student
-    try:
-        responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
-    except Exception,e:
-#fixme
-        return HttpResponse("missing template response relation: %s" %e)
-
-    # is this needed for anything?
-    #try:
-    #    conv = Conversation.objects.get(templateID = request.session.get('TID'), studentName = request.session.get('SName'))
-    #except Exception,e:
-#fixme
-    #    return HttpResponse("missing conversation: %s" %e)
-
-    request.session['VoR'] = "video"
-    request.session.modified = True
-
-    t = loader.get_template('Student_Text_Response.html')
-    c = Context({
-    'responses': responses,
-    #'conv': conv,
-    'message': 'I am the Student Text Response View.'
-    })
-    return render(request, 'Student_Text_Response.html', c)
+            return render(request, 'Student_Submission.html')
+    else:
+        return HttpResponse("can't render next conversation step")
 
 def Submission(request):
     return render(request, 'Student_Submission.html')
