@@ -498,7 +498,11 @@ def TemplateWizardEdit(request, tempID):
 
 @login_required
 def TemplateDelete(request, tempID):
-    return HttpResponse("this doesnt do anything yet")
+    templateObj = Template.objects.get(templateID=tempID)
+    context = RequestContext(request, {
+        'templateObj': templateObj,
+        })
+    return render(request, 'template-delete.html', context)
 
 @login_required
 def TemplateWizard(request):
@@ -633,7 +637,14 @@ def TemplateWizardUpdate(request):
               request.session["enablePlayback"].append(request.session['selectedVideo'])
             else:
               request.session["enablePlayback"].remove(request.session['selectedVideo'])
-            request.session.modified = True               
+            request.session.modified = True     
+        elif request.POST.get('deleteTemplate'):
+            #delete template where id=tempID
+            #this should all just work!
+            #django has default CASCADE which deletes all entries with foreign key ref. this id
+            deleteTemp = Template.objects.get(templateID = request.POST.get('tempID'))
+            deleteTemp.delete()
+
     return HttpResponse("Success")
 
 @login_required

@@ -1,0 +1,140 @@
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+
+{% block title %}
+Admin | Template Wizard
+{% endblock %}
+{% block branding %}
+<h1 id="site-name">Simcon administration | Template Wizard</h1>
+{% endblock %}
+
+{% block extrahead %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
+    <meta name="author" content="Nathanial Myers, Nick Horner">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
+
+    <!-- prevent line breaks when using form fields -->
+    <style type="text/css">
+    form {display:inline; margin:0px; padding:0px;}
+    </style>
+
+    <!-- jQuery addition -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
+
+
+    <script>
+
+    $(document).ready(function(){
+    
+      <!-- the snippet below ensures the AJAX POST has a CSRF token for django -->
+      $(document).ajaxSend(function(event, xhr, settings) {
+        function getCookie(name) {
+          var cookieValue = null;
+          if (document.cookie && document.cookie != '') {
+           var cookies = document.cookie.split(';');
+           for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+           }
+          }
+          return cookieValue;
+        }
+      function sameOrigin(url) {
+          // url could be relative or scheme relative or absolute
+          var host = document.location.host; // host + port
+          var protocol = document.location.protocol;
+          var sr_origin = '//' + host;
+          var origin = protocol + sr_origin;
+          // Allow absolute or scheme relative URLs to same origin
+          return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+          (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+          // or any other URL that isn't scheme relative or absolute i.e relative.
+          !(/^(\/\/|http:|https:).*/.test(url));
+      }
+      function safeMethod(method) {
+          return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+      }
+
+      if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+          xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+      }
+      });
+      <!-- end snippet -->
+      
+     
+      <!-- delete it-->
+      $("#delButton").on("click", "#yesDelete", function(){
+          var deleteTemplate = "submit";
+          var data = { deleteTemplate:deleteTemplate, tempID:'{{ templateObj.templateID }}' };
+          var args = {type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
+                            window.location.replace('{% url 'ResearcherView' %}')
+                     }};
+          $.ajax(args);
+      });
+    });
+    </script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+    <!-- tinymce -->
+    
+    {% endblock %}
+
+  {% block content %}
+
+    <div id="mainBody" class="container">
+      <div class="starter-template">
+
+        <div class="row">
+          <div class="col-md-5">
+            <h2>Conversation Template Delete</h2>
+          </div>
+          <div class="col-md-7">
+          </div>
+        </div>
+        <div id="contentAlert">
+          <div class="row">
+            <div class="col-md-3">
+            </div>
+            <div class="col-md-9">
+              <h3>Are you sure you want to delete the conversation, "{{ templateObj.shortDesc }}"?</h3><br>
+              Doing so will also remove all of the associated student responses, shared responses, shared templates, and generated links. <br><br>
+            </div>
+          </div>
+        
+          <div class="row">
+            <div class="col-md-6"></div>
+            <div class="col-md-3" id="delButton">
+              <button type="button" class="btn btn-default btn-md" id="yesDelete" value="deleteTemplate"> Yes, delete </button>
+            </div>
+            <div class="col-md-3">
+              <button type="button" class="btn btn-default btn-md" id="noDont" onclick="window.location.replace('{% url 'ResearcherView' %}')"> No, go back </button>
+            </div>
+          </div>
+        </div>
+        
+          <hr>
+        
+
+      </div>
+
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
+{% endblock %}
