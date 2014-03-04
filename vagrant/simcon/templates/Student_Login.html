@@ -4,7 +4,6 @@
 {% block title %}<title>Student Login</title>{% endblock %}
 {% block content %}
 
-
 <script>
 
 </script>
@@ -12,7 +11,7 @@
     <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
 
     <script>
-      $("#formButton").on("click", "#progress", document.forms["form1"].submit())
+      $("#formButton").on("click", "#progress", $("#form1").submit());
     </script>
     <div class="container">
 	
