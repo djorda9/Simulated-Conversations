@@ -48,8 +48,8 @@ Admin | Template Wizard
                   <td>{{temp.shortDesc}}</td>
                   <td><small><a href="{% url 'TemplateWizardEdit' temp.templateID %}">Edit</a></small></td>
                   <td><small><a href="{% url 'TemplateDelete' temp.templateID %}">Delete</a></small></td>
-                  <td><small><a href="{% url 'ShareTemplate' %}{#temp.templateID#}">Share</a></small></td>
-                  <td><small><a href="{% url 'GenerateLink' %}{#temp.templateID#}">Generate link</a></small></td>
+                  <td><small><a href="{% url 'ShareTemplate_with_templateID' temp.templateID %}">Share</a></small></td>
+                  <td><small><a href="{% url 'GenerateLink_with_templateID' temp.templateID %}">Generate link</a></small></td>
                 </tr>
               {% endfor %}
               </h5>
@@ -68,9 +68,10 @@ Admin | Template Wizard
             <h5>
             {% for res in responseList %}
               <tr>
-                <td><a href="{% url 'Responses' res.ID %}">Response from {{res.studentName}}</a></td>
+                <td><a href="{% url 'Responses' res.id %}">Response from {{res.studentName}}</a></td>
                 <td><small>{{res.templateID.shortDesc}}</small></td>
                 <td><small>{{res.dateTime}}</small></td>
+                <td><small><a href="{% url 'ShareResponse_with_responseID' res.id %}">Share</a></small></td>
               </tr>
             {% endfor %}
             </h5>
@@ -84,9 +85,9 @@ Admin | Template Wizard
               <h5>
                 {% for sh in sharedResponseList %}
                 <tr>
-                  <td><a href="{% url 'Responses' sh.ID %}">Response from {{sh.studentName}}</a></td>
-                  <td><small>{{sh.templateID.shortDesc}}</small></td>
-                  <td><small>{{res.dateTime}}</small></td>
+                  <td><a href="{% url 'Responses' sh.responseID.id %}">Response from {{sh.responseID.studentName}}</a></td>
+                  <td><small>{{sh.responseID.templateID.shortDesc}}</small></td>
+                  <td><small>{{res.responseID.dateTime}}</small></td>
                 </tr>
                 {% endfor %}
               </h5>

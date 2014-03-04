@@ -34,7 +34,7 @@ urlpatterns = patterns('simcon.views',
     url(r'^template-wizard-right-pane', 'TemplateWizardRightPane', name="TemplateWizardRightPane"),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^admin/simcon/conversation/(\d+)', 'Responses'),
+    url(r'^admin/simcon/conversation/(\d+)', 'Responses', name="Responses"),
     url(r'^audio/save$', 'saveAudio'),
     #url(r'^test_recorder$', TemplateView.as_view(template_name='test_recorder.html')),
 )
