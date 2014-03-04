@@ -94,13 +94,13 @@ def StudentInfo(request):
             return HttpResponse("no researcher for conversation: %s" %e)
 
             
-        dt = datetime.datetime.now()
-        T = Conversation(templateID_id=templ.templateID, researcherID_id=rese.pk, studentName=studentname, studentEmail=studentemail, dateTime = dt)
+        #dt = datetime.datetime.today()
+        T = Conversation(templateID_id=templ.templateID, researcherID_id=rese.pk, studentName=studentname, studentEmail=studentemail)#, dateTime = dt)
         
         try:
             T.save()
-            convo = Conversation.objects.get(dateTime = dt)
-            request.session['convo'] = convo.pk
+            #convo = Conversation.objects.get(dateTime = dt)
+            request.session['convo'] = T.pk
         except Exception,e:
             return HttpResponse("problems saving conversation object: %s" %e)
             
