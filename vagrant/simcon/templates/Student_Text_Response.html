@@ -11,11 +11,13 @@
       <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
 
         <form name="input" action="/studentconvostep/" method="POST">
-		  <div><>
-          {% for i in responses %} {# TODO need to pass in correct responses for context #}
+		  <div>
+          {% for response in responses %} {# TODO need to pass in correct responses for context #}
             <!--input type="radio" id="choice" value=responses.object.order_by('optionNumber')[i-1].optionNumber>{#responses.objects.order_by('optionNumber')[i-1].responseText#}<br-->
-            <input type="radio" name="radioResponses" value="{{i.responseText}}" {% if forloop.counter == 1 %} checked {% endif %}> {{i.responseText}}<br/>
+            <input type="radio" name="choice" value="{{ response.responseText }}" {% if forloop.counter == 1 %} checked {% endif %}>
+            {{response.responseText}}<br/>
           {% endfor %}
+          {# do we need to add a default response here?  Or is that done in template wizard? #}
           </div>
 
           <button type="submit" class="btn btn-default">Next</button>

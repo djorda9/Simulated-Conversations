@@ -363,14 +363,14 @@ def StudentTextResponse(request):
 
     #get the list of responses to display to the student
     try:
-        responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
+        responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
     except Exception,e:
         return HttpResponse("missing template response relation: %s" %e)
 
     request.session['VoR'] = "video"
     request.session.modified = True
-
-    t = loader.get_template('Student_Text_Response.html')
+    
+    #t = loader.get_template('Student_Text_Response.html')
     c = Context({
     'responses': responses,
     #'conv': conv,
