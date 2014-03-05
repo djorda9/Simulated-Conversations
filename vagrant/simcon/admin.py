@@ -25,7 +25,7 @@ class TemplateAdmin(admin.ModelAdmin):
         else:
             temp = queryset[0]
             if not request.user.is_superuser and temp.researcherID != request.user:
-                self.message_user(request, "Can't edit that")#raise PermissionDenied
+                self.message_user(request, "Can't edit that, you don't own it")
             else:
                 #self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.count()))
                 #self.message_user(request, "Editing template!")
@@ -43,28 +43,39 @@ class TemplateAdmin(admin.ModelAdmin):
         else:
             temp = queryset[0]
             if not request.user.is_superuser and temp.researcherID != request.user:
-                self.message_user(request, "Can't delete that")#raise PermissionDenied
+                self.message_user(request, "Can't delete that, you don't own it")
             else:
                 #self.message_user(request, "Edit template %s with %d items" % (request.user.username, queryset.count()))
                 #self.message_user(request, "Editing template!")
 
                 #TODO pump queryset into session, tag to add a version incrementation, maybe have a template id variable?
                 return render(request, 'template-delete.html', {"template_to_delete": temp.templateID})
+                
     delete_template.short_description = "Delete template"
     
     def share_template(self, request, queryset):
         "Share the selected template(s)"
-        self.message_user(request, "Not implemented")
-        
-        # FIXME raise PermissionDenied if we share someone else's template
+        if not queryset or queryset.count() != 1:
+            self.message_user(request, "Can't share more than 1 template at a time") #TODO maybe we do?
+        else:
+            temp = queryset[0]
+            if not request.user.is_superuser and temp.researcherID != request.user:
+                self.message_user(request, "Can't share that, you don't own it")
+            else:
+                self.message_user(request, "Not implemented")
+                
     share_template.short_description = "Share these templates"
     
     def generate_link(self, request, queryset):
         "Generate a link for the selected template(s)"
-        self.message_user(request, "Not implemented")
-         # FIXME raise PermissionDenied if we generate a link to someone
-         # else's Conversation
-
+        if not queryset or queryset.count() != 1:
+            self.message_user(request, "Can't generate more than 1 link at a time") #TODO maybe we do?
+        else:
+            temp = queryset[0]
+            if not request.user.is_superuser and temp.researcherID != request.user:
+                self.message_user(request, "Can't generate link for that, you don't own it")
+            else:
+                self.message_user(request, "Not implemented")
 
     generate_link.short_description = "Generate a link"
        
