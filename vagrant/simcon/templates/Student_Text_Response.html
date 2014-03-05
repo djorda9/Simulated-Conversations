@@ -1,6 +1,6 @@
 {% extends "Student_Base.html" %}
 {% load staticfiles %}
-{% block title %}<title>Student Text Response</title>{% endblock %}
+{% block title %}Student Text Response{% endblock %}
 {% block content %}
       <h2><u>Response Page</u></h2>
       {# TODO did the handle for recorded media get saved into DB? #}
@@ -10,7 +10,7 @@
         </audio>
       <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
 
-        <form name="input" action="/studentconvostep/" method="POST">
+        <form name="input" action="{% url 'StudentConvoStep' %}" method="POST">{% csrf_token %}
 		  <div>
           {% for response in responses %} {# TODO need to pass in correct responses for context #}
             <!--input type="radio" id="choice" value=responses.object.order_by('optionNumber')[i-1].optionNumber>{#responses.objects.order_by('optionNumber')[i-1].responseText#}<br-->

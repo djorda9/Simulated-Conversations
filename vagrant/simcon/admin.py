@@ -54,13 +54,14 @@ class TemplateAdmin(admin.ModelAdmin):
     
     def share_template(self, request, queryset):
         "Share the selected template(s)"
+        self.message_user(request, "Not implemented")
         
         # FIXME raise PermissionDenied if we share someone else's template
     share_template.short_description = "Share these templates"
     
     def generate_link(self, request, queryset):
         "Generate a link for the selected template(s)"
-        
+        self.message_user(request, "Not implemented")
          # FIXME raise PermissionDenied if we generate a link to someone
          # else's Conversation
 

@@ -2,20 +2,12 @@
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
 {% block title %}{{currentConvo.shortDesc}}{% endblock %}
-
-    <!-- Bootstrap core CSS -->
-    <link href="dist/css/bootstrap.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-    <![endif]-->
-  </head>
+{% block extrahead %}
+    <script src="{% static 'jquery-2.1.0.min.js' %}"></script>
+    <script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
+{% endblock %}
 
 {% block content %}
-  <body>
-
 
 <p>{{currentConvo.shortDesc}}:</p>  
 
@@ -29,15 +21,5 @@
 
 {% endfor %}
 
-
-
 {% endblock %}
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="../../dist/js/bootstrap.min.js"></script>
-  </body>
-</html>
 

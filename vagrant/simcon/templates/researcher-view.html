@@ -15,12 +15,6 @@ Admin | Template Wizard
     <meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
     <meta name="author" content="Nathanial Myers, ">
 
-    <title>Simulated Conversations</title>
-
-
-    <!-- Bootstrap core CSS -->
-    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
-
     <!-- prevent line breaks when using form fields -->
     <style type="text/css">
     form {display:inline; margin:0px; padding:0px;}
@@ -105,15 +99,6 @@ Admin | Template Wizard
       {% csrf_token %}
       <button type="button" class="btn btn-default" onClick="submit()">Create/Delete Researchers &raquo;</button></form>
 
-
     </div> <!-- /container -->
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
  
 {% endblock %}

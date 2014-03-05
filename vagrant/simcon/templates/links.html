@@ -4,8 +4,6 @@
 {% load generatelink_extras %}
 {% block title %}Generated Links{% endblock %}
 {% block content %}
-            <!-- Bootstrap core CSS -->
-    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
         <h3>Generated Links</h3>
 
         <input type=button onClick="location.href='{% url "GenerateLink" %}'"  value='Generate Link'><br><br>

@@ -4,7 +4,6 @@ GenerateLink view.-->
 {% load staticfiles %}
 {% block title %}Generate Link{% endblock %}
 {% block content %}
-    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
 
     <h3>Generate Link</h3>
     {% if link %}
@@ -18,7 +17,6 @@ GenerateLink view.-->
     {% endif %}
     <input type=button onClick="location.href='{% url "Links" %}'"  value='View Generated Links'><br><br>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
     <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
     <script>  $(function() {$( "#datepicker" ).datepicker();});
     </script>
