@@ -47,6 +47,9 @@
 {% block content %}
 <body>
 
+
+<h2>Your Responses</h2>
+
 <table id="Responses" class="tablesorter"> 
 <thead> 
 <tr> 
@@ -56,23 +59,34 @@
 
 </tr> 
 </thead> 
-
-
 <tbody>
+
 {% for n in conversations %}
 
 <tr> 
-    <td>{{n.templateID.shortDesc}}</td> 
-    <td>{{n.dateTime}}</td> 
-    <td>{{n.studentName}}</td> 
-</tr> 
+    <td>
+		<a href={% url 'SingleResponse' n.id %}>
+		{{n.templateID.shortDesc}}
+		</a>
+	</td> 
+	<td>
+		<a href={% url 'SingleResponse' n.id %}>
+		{{n.studentName}}
+		</a>
+	</td> 
+    <td>
+			<a href={% url 'SingleResponse' n.id %}>
+			{{n.dateTime}}
+			</a>
+	</td> 
+	</tr> 
 
 {% endfor %}
 
 </tbody>
 </table>
 
-
+<h2>Responses Shared With You</h2>
 <table id="SharedResponses" class="tablesorter"> 
 <thead> 
 <tr> 
@@ -88,9 +102,21 @@
 {% for n in SharedConversations %}
 <tbody> 
 <tr> 
-    <td>{{n.templateID.shortDesc}}</td> 
-    <td>{{n.dateTime}}</td> 
-    <td>{{n.studentName}}</td> 
+    <td>
+		<a href={% url 'SingleResponse' n.id %}>
+		{{n.templateID.shortDesc}}
+		</a>
+	</td> 
+    <td>
+		<a href={% url 'SingleResponse' n.id %}>
+		{{n.dateTime}}
+		</a>
+	</td> 
+    <td>
+		<a href={% url 'SingleResponse' n.id %}>
+		{{n.studentName}}
+		</a>
+	</td> 
 </tr> 
 
 {% endfor %}
