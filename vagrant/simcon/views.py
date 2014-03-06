@@ -1,23 +1,19 @@
 from django.shortcuts import render, render_to_response, redirect
-from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.views.generic import View
 from django.template import loader, Context
 from django.core.context_processors import csrf
 from django import forms # for forms
+from django.http import Http404
 from forms import StudentAccessForm, ShareTemplateForm, LoginForm, ShareResponseForm
 from models import StudentAccess, Response, Template, PageInstance, TemplateFlowRel, TemplateResponseRel, SharedResponses, Conversation
 from tinymce.widgets import TinyMCE
-from tinymce.models import HTMLField  # tinymce for rich text embeds
 import re, logging, datetime
 
 logger = logging.getLogger("simcon") #global logger handler
@@ -202,7 +198,7 @@ def StudentInfo(request):
 
 #when the student chooses the text answer to their response, this updates the database with their choice
 def StudentConvoStep(request):
-    #if request.method == 'POST':
+    if request.method == 'POST':
         logger.info("about to load a response or video page:")
         logger.info(request.session.get('VoR'))
         if request.session.get('VoR') == "video":
@@ -312,9 +308,81 @@ def StudentConvoStep(request):
             return render(request, 'Student_Text_Response.html', c)
         else:
             return render(request, 'Student_Submission.html')
-    #else:
+    else:
         #return HttpResponse("can't render next conversation step")
+        # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
+        # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
+        try:
+            templ = Template.objects.get(templateID = request.session.get('TID'))
+        except Exception,e:
+#fixme
+            return HttpResponse("missing template: %s" %e)
 
+        try:
+            pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
+        except Exception,e:
+#fixme
+            return HttpResponse("missing page instance: %s" %e)
+
+        try:
+            valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
+        except Exception,e:
+#fixme
+            return HttpResponse("missing student access: %s" %e)
+
+        #get the list of responses to display to the student
+        try:
+            responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
+        except Exception,e:
+#fixme
+            return HttpResponse("missing template response relation: %s" %e)
+
+        request.session['VoR'] = "video"
+        request.session.modified = True
+
+        t = loader.get_template('Student_Text_Response.html')
+        c = Context({
+        'responses': responses,
+        #'conv': conv,
+        'message': 'I am the Student Text Response View.'
+        })
+        return render(request, 'Student_Text_Response.html', c)
+        
+def StudentTextResponse(request):
+    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
+    # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
+    try:
+        templ = Template.objects.get(templateID = request.session.get('TID'))
+    except Exception,e:
+        return HttpResponse("missing template: %s" %e)
+
+    try:
+        pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
+    except Exception,e:
+        return HttpResponse("missing page instance: %s" %e)
+
+    try:
+        valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
+    except Exception,e:
+        return HttpResponse("missing student access: %s" %e)
+
+    #get the list of responses to display to the student
+    try:
+        responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
+    except Exception,e:
+        return HttpResponse("missing template response relation: %s" %e)
+
+    request.session['VoR'] = "video"
+    request.session.modified = True
+    
+    #t = loader.get_template('Student_Text_Response.html')
+    c = Context({
+    'responses': responses,
+    #'conv': conv,
+    'message': 'I am the Student Text Response View.'
+    })
+    return render(request, 'Student_Text_Response.html', c)
+    
 def Submission(request):
     return render(request, 'Student_Submission.html')
 
@@ -502,7 +570,14 @@ def TemplateWizardEdit(request, tempID):
 
 @login_required
 def TemplateDelete(request, tempID):
-    return HttpResponse("this doesnt do anything yet")
+    templateObj = Template.objects.get(templateID=tempID)
+    #Security check:
+    if not request.user.is_superuser and templateObj.researcherID != request.user:
+        raise Http404
+    context = RequestContext(request, {
+        'templateObj': templateObj,
+        })
+    return render(request, 'template-delete.html', context)
 
 @login_required
 def TemplateWizard(request):
@@ -521,13 +596,28 @@ def TemplateWizard(request):
         request.session['edit'] = False
         request.session.modified = True
         request.session["selectedVideo"] = ""
+        #if the session's template ID = -1, that just means there was an error trying to save. 
+        #the session variables are still intact, so just regenerate the template wizard.
+        #else, begin editing a template.
         if request.session['editTemplateID'] != -1:
-            #TODO... check if this needs to be a new version.
+            #ok, fuck the 'version' idea. Heres a new idea. If responses to this template exist,
+            #instead just produce an error message. The researcher cannot edit this template.
+            #they can "copy to a new template", which actually does populate all the 
+            #same session variables, but will not save over the old template.
+            #also it will change the title to include "(copy)"
             temp = Template.objects.get(templateID = request.session['editTemplateID'])
-            request.session["conversationTitle"] = temp.shortDesc
-            request.session.modified = True
-            fi = temp.firstInstanceID
-            fitfl = TemplateFlowRel.objects.get(pageInstanceID = fi)
+            responses = Conversation.objects.filter(templateID = temp.templateID)
+            if len(responses) > 0:
+                request.session['error'] = "editButResponses"
+                request.session.modified = True
+                #pre-populate all the session stuff
+                #change conversationTitle to include (copy)
+                #delete the session template id because you dont want to save over it
+            else:
+                request.session["conversationTitle"] = temp.shortDesc
+                request.session.modified = True
+                fi = temp.firstInstanceID
+                #fitfl = TemplateFlowRel.objects.get(pageInstanceID = fi)
         return render(request, 'template-wizard.html')
     else:
         # DATA MODEL:
@@ -637,7 +727,14 @@ def TemplateWizardUpdate(request):
               request.session["enablePlayback"].append(request.session['selectedVideo'])
             else:
               request.session["enablePlayback"].remove(request.session['selectedVideo'])
-            request.session.modified = True               
+            request.session.modified = True     
+        elif request.POST.get('deleteTemplate'):
+            #delete template where id=tempID
+            #this should all just work!
+            #django has default CASCADE which deletes all entries with foreign key ref. this id
+            deleteTemp = Template.objects.get(templateID = request.POST.get('tempID'))
+            deleteTemp.delete()
+
     return HttpResponse("Success")
 
 @login_required
@@ -723,7 +820,7 @@ def Links(request):
 def ShareTemplate(request, templateID=None):
     user_templateID = templateID
     current_user = get_researcher(request.user)
-    researcher_userId = None
+    researcher_name = None
 
     #A list of pageInstanceStruct for storing the old and new PageInstance used when coping the
     #TemplateFlowRel
@@ -796,7 +893,7 @@ def ShareTemplate(request, templateID=None):
                         temp.save()
 
                     form = ShareTemplateForm(researcher=current_user)
-                    researcher_userId = researcher.user.get_full_name()
+                    researcher_name = researcher.get_full_name()
 
             except ValueError as e:
                 failed = "Required data is missing in database in order to copy the template."
@@ -811,7 +908,7 @@ def ShareTemplate(request, templateID=None):
                 form = ShareTemplateForm(researcher=current_user)
         else:
             form = ShareTemplateForm(researcher=current_user)
-    return render_to_response('share_template.html', {'success':researcher_userId,
+    return render_to_response('share_template.html', {'success':researcher_name,
                                                       'form':form}, context_instance = RequestContext(request))
 
 # This view is used to share a response with another researcher.  It is required to pass the conversationID to the view
@@ -967,32 +1064,41 @@ def RetrieveAudio(request, UserAudio):
     return response
 
 @login_required
-def Responses(request, userIDstr):
-    userID=int(userIDstr)
+def Responses(request):
     convoNames=[]
-    try:
-        conversations=Conversation.objects.filter(researcherID=userID)
-        for c in conversations:
-            temp=c.templateID
-            convoNames.append(temp.shortDesc)
-    except:
-       conversations=Conversation.objects.none()
+
+    userID = get_researcher(request.user)
+
+
+    conversations=Conversation.objects.filter(researcherID=userID)
+    for c in conversations:
+        temp=c.templateID
+        convoNames.append(temp.shortDesc)
 
     shared=[]
-    try:
-        sharedIDs=SharedResponses.objects.filter(researcherID=userID)
-        for c in sharedIDs:
-            shared.append(c.responseID)
 
-    except:
-        pass
+    sharedIDs=SharedResponses.objects.filter(researcherID=userID)
+    for c in sharedIDs:
+        shared.append(c.responseID)
 
-    convoList=zip(convoNames,conversations)
+#    convoList=zip(convoNames,conversations)
 
-    page=render(request, 'Response_view.html',{'conversations':convoList, 'sharedConversations':shared})
+    page=render(request, 'Response_view.html',{'conversations':conversations, 'names':convoNames, 'sharedConversations':shared})
 #    assert False, locals()
 
     return page
+
+@login_required
+def SingleResponse(request, convoID):
+
+#check to confirm user has access
+
+	currentConvo=Conversation.objects.get(id=convoID)
+
+	responses=Response.objects.filter(conversationID=convoID).order_by('order')
+
+	page=render(request, 'Single_response.html', {'responses':responses, 'conversation':currentConvo})
+	return page
 
 def getFileHandle(): # helper function to make a unique file handle
     return User.objects.make_random_password(length=5) # TODO check for collision?

@@ -15,16 +15,10 @@ Admin | Template Wizard
     <meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
     <meta name="author" content="Nathanial Myers, Nick Horner">
 
-    <!-- Bootstrap core CSS -->
-    <link href="{% static "dist/css/bootstrap.css" %}" rel="stylesheet">
-
     <!-- prevent line breaks when using form fields -->
     <style type="text/css">
     form {display:inline; margin:0px; padding:0px;}
     </style>
-
-    <!-- jQuery addition -->
-    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.js"></script>
 
 
     <script>
@@ -213,6 +207,10 @@ Admin | Template Wizard
         <div class="alert alert-danger">
           There was an error submitting the conversation. Check all of your data and try again.
         </div>
+        {% elif request.session.error == "editButResponses" %}
+        <div class="alert alert-danger">
+          You are trying to edit a template that has corresponding responses. You cannot edit the template. Instead, you can create a new copy. The proper values below were populated. If you'd instead like to delete the template, <a href="{% url 'TemplateDelete' request.session.editTemplateID %}">click here</a>.
+        </div>
         {% endif %}
         <div class="row">
           <div class="col-md-5">
@@ -266,10 +264,4 @@ Admin | Template Wizard
       </div>
 
     </div><!-- /.container -->
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
 {% endblock %}

@@ -1,19 +1,31 @@
 {% extends "Student_Base.html" %}
 {% load staticfiles %}
-{% block title %}<title>Student Text Response</title>{% endblock %}
+{% load static %}
+{% block title %}Student Text Response{% endblock %}
 {% block content %}
       <h2><u>Response Page</u></h2>
       {# TODO did the handle for recorded media get saved into DB? #}
         <audio controls>
-        <source src="/media/{{request.session.path}}" type="audio/wav">
+        
+        <source src="/{% get_media_prefix %}{{request.session.path}}" type="audio/wav">
         Your browser does not support the audio element.
         </audio>
       <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
+<!-->
         <form name="input" action="/studentconvostep/" method="POST">{%csrf_token%}
 		  <div><br>
           {% for i in responses %} {# TODO need to pass in correct responses for context #}
             <input type="radio" name="choice" id="choice" value=i.optionNumber>{{i.responseText}}<br>
+</-->
+
+        <form name="input" action="{% url 'StudentConvoStep' %}" method="POST">{% csrf_token %}
+		  <div>
+          {% for response in responses %} {# TODO need to pass in correct responses for context #}
+            <!--input type="radio" id="choice" value=responses.object.order_by('optionNumber')[i-1].optionNumber>{#responses.objects.order_by('optionNumber')[i-1].responseText#}<br-->
+            <input type="radio" name="choice" value="{{ response.responseText }}" {% if forloop.counter == 1 %} checked {% endif %}>
+            {{response.responseText}}<br/>
           {% endfor %}
+          {# do we need to add a default response here?  Or is that done in template wizard? #}
           </div>
           <button type="submit" class="btn btn-default" value="Next">Next</button>
         </form>

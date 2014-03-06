@@ -1,0 +1,25 @@
+<!-- This template is used to display a single conversation worth of responses-->
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+{% block title %}{{currentConvo.shortDesc}}{% endblock %}
+{% block extrahead %}
+    <script src="{% static 'jquery-2.1.0.min.js' %}"></script>
+    <script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<p>{{currentConvo.shortDesc}}:</p>  
+
+{% for n in responses %}
+
+	<p>{{n.order}} {{n.choice}} {{n.audioFile}} </p>
+
+{% empty %}
+
+	<p>Nothing there/access denied</p>
+
+{% endfor %}
+
+{% endblock %}
+

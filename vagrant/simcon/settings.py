@@ -119,6 +119,7 @@ AUTH_PROFILE_MODULE = 'simcon.researcher'
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
 )
 
 from django.core.urlresolvers import reverse_lazy

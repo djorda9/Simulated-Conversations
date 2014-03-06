@@ -63,10 +63,7 @@ def load_getUserMedia(callBackFunction):
     Used to load an instance of a recorder
     callBackFunction:  the function to be called with the created blob of the recording
     '''
-    return '''
-  <button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>
-  <button class="btn btn-default btn-lg" onclick="stopRecording(this);" disabled><span class="glyphicon glyphicon-stop"\>Stop</button>
-  
+    return '''  
   <script>
   function __log(e, data) {
     console.log(e + " " + (data || ''));
@@ -153,6 +150,9 @@ def defaultHandler(func):
     func designates the function to call upon successful save
     '''
     return '''
+    
+    <button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>
+    <button class="btn btn-default btn-lg" onclick="stopRecording(this);" disabled><span class="glyphicon glyphicon-stop"\>Stop</button>
     <script type="text/javascript">
     function '''+func+'''(blob){
         alert("recording made");
@@ -162,7 +162,7 @@ def defaultHandler(func):
     function saveRecording(blob){
            var fd = new FormData();  // needed to wrap the blob
            fd.append('data', blob);
-           var data = { recording:blob };
+           var data = { recording:blob }; // TODO url this audio/save
            var args = { type:"POST", url:"/audio/save", data:fd, processData: false, contentType: false, cache:false, complete:function(){
                            alert("saved audio");
                        } };
