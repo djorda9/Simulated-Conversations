@@ -67,6 +67,69 @@ def StudentLogin(request,VKey = 123):
 #fixme
         return HttpResponse("Conversation link has expired")
 
+#student response function
+# accepts an http request object, and loads a response page
+def SResponse(request):
+    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
+    # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
+    try:
+        templ = Template.objects.get(templateID = request.session.get('TID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing template: %s" %e)
+
+    try:
+        pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing page instance: %s" %e)
+
+    try:
+        valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing student access: %s" %e)
+
+    #get the list of responses to display to the student
+    try:
+        responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
+    except Exception,e:
+#fixme
+        return HttpResponse("missing template response relation: %s" %e)
+
+    return responses    
+
+def SVideo(request):
+    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
+    # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
+    try:
+        templ = Template.objects.get(templateID = request.session.get('TID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("bad template reference: %s" %e)
+
+    try:
+        page = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
+    except Exception,e:
+#fixme
+        return HttpResponse("missing page instance: %s" %e)
+
+    try:
+        #possible case: someone changes validation key to a different validation key, would still succeed
+        valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
+    except Exception,e:
+#fixme
+        return HttpResponse("invalid validation key reference: %s" %e)
+
+    #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
+    try:
+        nextpage = TemplateFlowRel.objects.get(pageInstanceID = request.session.get('PIID'))
+        request.session['PIID'] = nextpage.nextPageInstanceID.pageInstanceID
+        request.session.modified = True
+    except Exception,e:
+#fixme
+        return HttpResponse("missing template flow relation: %s" %e)
+    return page
 
 #when the student submits their name and optional email, this updates the database
 def StudentInfo(request):
@@ -99,47 +162,20 @@ def StudentInfo(request):
             return HttpResponse("problems saving conversation object: %s" %e)
             
         if request.session.get('VoR') == "video":
-            # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
-            # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
-            try:
-                templ = Template.objects.get(templateID = request.session.get('TID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("bad template reference: %s" %e)
 
-            try:
-                page = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing page instance: %s" %e)
-
-            try:
-                #possible case: someone changes validation key to a different validation key, would still succeed
-                valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
-            except Exception,e:
-#fixme
-                return HttpResponse("invalid validation key reference: %s" %e)
-
+            #validate session variables, return page info
+            sPage = SVideo(request)
+            
             #create context variables for video web page
-            vidLink = page.videoLink
-            text = page.richText
-            playback = page.enablePlayback
-
-            #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
-            #otherwise, set PIID to 0. this will make this page end up at the Student Submission page.
-            try:
-                nextpage = TemplateFlowRel.objects.get(pageInstanceID = request.session.get('PIID'))
-                request.session['PIID'] = nextpage.nextPageInstanceID.pageInstanceID
-                request.session.modified = True
-            except Exception,e:
-#fixme
-                return HttpResponse("missing template flow relation: %s" %e)
-
+            vidLink = sPage.videoLink
+            text = sPage.richText
+            playback = sPage.enablePlayback
+        
+            #the next page to load is a response page
             request.session['VoR'] = "response"
             request.session.modified = True
-            logger.info(request.session.get('VoR'))
-            # there are ways to compact this code, but this is the most explicit way to render a template
-            t = loader.get_template('Student_Video_Response.html')
+            
+            #prepare the template context
             c = Context({
             'vidLink': vidLink,
             'text': text,
@@ -149,44 +185,14 @@ def StudentInfo(request):
             return render(request, 'Student_Video_Response.html', c)
 
         elif request.session.get('VoR') == "response":
-            # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
-            # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
-            try:
-                templ = Template.objects.get(templateID = request.session.get('TID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing template: %s" %e)
 
-            try:
-                pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing page instance: %s" %e)
+            #validate session variables, return queryset of responses
+            responses = SResponse(request)
 
-            try:
-                valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing student access: %s" %e)
-
-            #get the list of responses to display to the student
-            try:
-                responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing template response relation: %s" %e)
-
-            # is this needed for anything?
-            #try:
-            #    conv = Conversation.objects.get(templateID = request.session.get('TID'), studentName = request.session.get('SName'))
-            #except Exception,e:
-#fixme
-            #    return HttpResponse("missing conversation: %s" %e)
-
+            #the next page is a video
             request.session['VoR'] = "video"
             request.session.modified = True
-
-            t = loader.get_template('Student_Text_Response.html')
+            
             c = Context({
             'responses': responses,
             #'conv': conv,
@@ -199,7 +205,7 @@ def StudentInfo(request):
 #when the student chooses the text answer to their response, this updates the database with their choice
 def StudentConvoStep(request):
     if request.method == 'POST':
-        logger.info("about to load a response or video page:")
+        logger.info("about to load a this type of page:")
         logger.info(request.session.get('VoR'))
         if request.session.get('VoR') == "video":
             piID = request.session.get('PIID')
@@ -216,48 +222,17 @@ def StudentConvoStep(request):
 
             request.session['ConvoOrder'] += 1
             
-            # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
-            # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
-            try:
-                templ = Template.objects.get(templateID = request.session.get('TID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("bad template reference: %s" %e)
-
-            try:
-                page = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing page instance: %s" %e)
-
-            try:
-                #possible case: someone changes validation key to a different validation key, would still succeed
-                valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
-            except Exception,e:
-#fixme
-                return HttpResponse("invalid validation key reference: %s" %e)
+            sPage = SVideo(request)
 
             #create context variables for video web page
-            vidLink = page.videoLink
-            text = page.richText
-            playback = page.enablePlayback
-
-            #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
-            try:
-                nextpage = TemplateFlowRel.objects.get(pageInstanceID = request.session.get('PIID'))
-                request.session['PIID'] = nextpage.nextPageInstanceID.pageInstanceID
-                request.session.modified = True
-#fixmefixeme
-            except Exception,e:
-#fixme
-                return render(request, 'Student_Submission.html')
-                #return HttpResponse("missing template flow relation: %s" %e)
+            vidLink = sPage.videoLink
+            text = sPage.richText
+            playback = sPage.enablePlayback
 
             request.session['VoR'] = "response"
             request.session.modified = True
 
             # there are ways to compact this code, but this is the most explicit way to render a template
-            t = loader.get_template('Student_Video_Response.html')
             c = Context({
             'vidLink': vidLink,
             'text': text,
@@ -267,39 +242,14 @@ def StudentConvoStep(request):
             return render(request, 'Student_Video_Response.html', c)
 
         elif request.session.get('VoR') == "response":
-            # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
-            # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
-            try:
-                templ = Template.objects.get(templateID = request.session.get('TID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing template: %s" %e)
-
-            try:
-                pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing page instance: %s" %e)
-
-            try:
-                valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
-            except Exception,e:
-#fixme
-                return HttpResponse("missing student access: %s" %e)
-
-            #get the list of responses to display to the student (Query Set object)
-            try:
-                responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
-#fixmefixme skipping first response page?
-            except Exception,e:
-#fixme
-                return HttpResponse("missing template response relation: %s" %e)
+        
+            #validate session variables, get queryset of responses
+            responses = SResponse(request)
 
             request.session['VoR'] = "video"
             request.session.modified = True
             logger.info("about to load response page")
 
-            t = loader.get_template('Student_Text_Response.html')
             c = Context({
             'responses': responses,
             #'conv': conv,
@@ -340,7 +290,6 @@ def StudentConvoStep(request):
         request.session['VoR'] = "video"
         request.session.modified = True
 
-        t = loader.get_template('Student_Text_Response.html')
         c = Context({
         'responses': responses,
         #'conv': conv,
@@ -375,7 +324,6 @@ def StudentTextResponse(request):
     request.session['VoR'] = "video"
     request.session.modified = True
     
-    #t = loader.get_template('Student_Text_Response.html')
     c = Context({
     'responses': responses,
     #'conv': conv,
