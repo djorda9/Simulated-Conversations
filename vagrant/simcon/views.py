@@ -893,19 +893,19 @@ def ShareResponse(request, conversationID=None):
                             failed = "The ConversationID that was supplied is invalid."
                         else:
                             shared = SharedResponses(responseID=user_conversation, researcherID=researcher,
-                                                     dateTimeShared=datetime.now())
+                                                     dateTimeShared=datetime.datetime.now())
                             try:
                                 shared.save()
                             except IntegrityError as e:
                                 sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).\
                                     order_by('researcherID')
-                                failed = "The conversation has already been shared with " + researcher.user.get_full_name()
+                                failed = "The conversation has already been shared with " + researcher.get_full_name()
                                 return render_to_response('share_response.html', {'success':success, 'failed':failed,
                                         'shared':sharedWith, 'form':form}, context_instance = RequestContext(request))
 
                             sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).\
                                 order_by('researcherID')
-                            success = researcher.user.get_full_name()
+                            success = researcher.get_full_name()
                 else:
                     sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).order_by('researcherID')
                     form = ShareResponseForm(researcher=current_user)
