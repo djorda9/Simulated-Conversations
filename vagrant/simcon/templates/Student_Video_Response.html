@@ -26,15 +26,14 @@
         {% endif %}
         <div class="well well-sm">{{text|safe}}</div>
 
-<!-->because I can't record audio, I need this button to move through the conversation. this might be affecting my affecting my testing</-->
-		<form name="input" action="/studentconvostep/" method="post">{%csrf_token%}
-		  <input type="submit" class="btn btn-default" value="Record Audio">
-		</form>
+		
+		<button class="btn btn-default" onclick="gotoNext();">Next without audio</button>
+
 
         {% load_getUserMedia "makeRecording" %}
         {# defaultHandler "makeRecording" #}  
         <button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>
-        <button class="btn btn-default btn-lg" onclick="stopRecording(this);" disabled><span class="glyphicon glyphicon-stop"\>Stop</button>
+        <button class="btn btn-default btn-lg" onclick="stopRecording(this);" disabled><span class="glyphicon glyphicon-stop"/>Stop</button>
         <script type="text/javascript">
         function makeRecording(blob){
             window.savedAudio = blob;
@@ -53,11 +52,11 @@
            //var fd = new FormData();  // needed to wrap the blob
            //fd.append('data', window.savedAudio);
            //var data = { recording:blob };
-           var data = {'VoR': 'video'};
-           var args = { type:"POST", url:{% url 'StudentConvoStep' %}, data:data, processData: false, contentType: false, cache:false, complete:function(){
+           //var data = {'VoR': 'video'};
+           //var args = { type:"POST", url:{% url 'StudentConvoStep' %}, data:data, processData: false, contentType: false, cache:false, complete:function(){
                            window.location.replace("{% url 'text_response' %}");
-                       } };
-           $.ajax(args);
+                       //} };
+           //$.ajax(args);
         }
         </script>
 {% endblock %}
