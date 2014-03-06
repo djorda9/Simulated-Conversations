@@ -35,6 +35,7 @@ def StudentLogin(request,VKey = 123):
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
     if(True):
     #if(currentdate < convo_Expiration):
+#fixme
         try:
             #logger.info(access.templateID.templateID)
             TID = access.templateID.templateID
@@ -93,13 +94,10 @@ def StudentInfo(request):
 #fixme
             return HttpResponse("no researcher for conversation: %s" %e)
 
-            
-        #dt = datetime.datetime.today()
-        T = Conversation(templateID_id=templ.templateID, researcherID_id=rese.pk, studentName=studentname, studentEmail=studentemail)#, dateTime = dt)
-        
+        T = Conversation.objects.create(templateID_id=templ.templateID, researcherID_id=rese.pk, studentName=studentname, studentEmail=studentemail)
+        logger.info(request.session.get('VoR'))
         try:
             T.save()
-            #convo = Conversation.objects.get(dateTime = dt)
             request.session['convo'] = T.pk
         except Exception,e:
             return HttpResponse("problems saving conversation object: %s" %e)
@@ -143,7 +141,7 @@ def StudentInfo(request):
 
             request.session['VoR'] = "response"
             request.session.modified = True
-
+            logger.info(request.session.get('VoR'))
             # there are ways to compact this code, but this is the most explicit way to render a template
             t = loader.get_template('Student_Video_Response.html')
             c = Context({
@@ -204,7 +202,9 @@ def StudentInfo(request):
 
 #when the student chooses the text answer to their response, this updates the database with their choice
 def StudentConvoStep(request):
-    if request.method == 'POST':
+    #if request.method == 'POST':
+        logger.info("about to load a response or video page:")
+        logger.info(request.session.get('VoR'))
         if request.session.get('VoR') == "video":
             piID = request.session.get('PIID')
             cID = request.session.get('convo')
@@ -213,7 +213,8 @@ def StudentConvoStep(request):
             
             #schoice = TemplateResponseRel.objects.filter(pageInstanceID_id = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
 
-            T = Response(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = "/media/audio/the_fox_say.mp3")
+            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = "/media/audio/the_fox_say.mp3")
+#fixemefixeme
             T.save()
             #TODO if this fails, do cleanup for browser audio file copy/file system
 
@@ -246,14 +247,15 @@ def StudentConvoStep(request):
             playback = page.enablePlayback
 
             #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
-            #otherwise, set PIID to 0. this will make this page end up at the Student Submission page.
             try:
                 nextpage = TemplateFlowRel.objects.get(pageInstanceID = request.session.get('PIID'))
                 request.session['PIID'] = nextpage.nextPageInstanceID.pageInstanceID
                 request.session.modified = True
+#fixmefixeme
             except Exception,e:
 #fixme
-                return HttpResponse("missing template flow relation: %s" %e)
+                return render(request, 'Student_Submission.html')
+                #return HttpResponse("missing template flow relation: %s" %e)
 
             request.session['VoR'] = "response"
             request.session.modified = True
@@ -289,15 +291,17 @@ def StudentConvoStep(request):
 #fixme
                 return HttpResponse("missing student access: %s" %e)
 
-            #get the list of responses to display to the student
+            #get the list of responses to display to the student (Query Set object)
             try:
                 responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
+#fixmefixme skipping first response page?
             except Exception,e:
 #fixme
                 return HttpResponse("missing template response relation: %s" %e)
 
             request.session['VoR'] = "video"
             request.session.modified = True
+            logger.info("about to load response page")
 
             t = loader.get_template('Student_Text_Response.html')
             c = Context({
@@ -308,8 +312,8 @@ def StudentConvoStep(request):
             return render(request, 'Student_Text_Response.html', c)
         else:
             return render(request, 'Student_Submission.html')
-    else:
-        return HttpResponse("can't render next conversation step")
+    #else:
+        #return HttpResponse("can't render next conversation step")
 
 def Submission(request):
     return render(request, 'Student_Submission.html')
