@@ -97,7 +97,7 @@ def SResponse(request):
 #fixme
         return HttpResponse("missing template response relation: %s" %e)
 
-    return responses    
+    return responses
 
 def SVideo(request):
     # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url (see urls.py)
@@ -109,7 +109,7 @@ def SVideo(request):
         return HttpResponse("bad template reference: %s" %e)
 
     try:
-        page = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
+        page = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'))
     except Exception,e:
 #fixme
         return HttpResponse("missing page instance: %s" %e)
@@ -123,8 +123,19 @@ def SVideo(request):
 
     #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
     try:
+        logger.info("current PIID value is a video page: ")
+        logger.info(request.session.get('PIID'))
+        
         nextpage = TemplateFlowRel.objects.get(pageInstanceID = request.session.get('PIID'))
+        
+        logger.info('the template flow object:')
+        logger.info(nextpage)
+        
         request.session['PIID'] = nextpage.nextPageInstanceID.pageInstanceID
+        
+        logger.info("new PIID value is a response page: ")
+        logger.info(request.session.get('PIID'))
+        
         request.session.modified = True
     except Exception,e:
 #fixme
@@ -160,6 +171,8 @@ def StudentInfo(request):
             request.session['convo'] = T.pk
         except Exception,e:
             return HttpResponse("problems saving conversation object: %s" %e)
+            
+            
             
         if request.session.get('VoR') == "video":
 
@@ -207,14 +220,14 @@ def StudentConvoStep(request):
     if request.method == 'POST':
         logger.info("about to load a this type of page:")
         logger.info(request.session.get('VoR'))
+        
+        
         if request.session.get('VoR') == "video":
             piID = request.session.get('PIID')
             cID = request.session.get('convo')
             convoOrder = request.session.get('ConvoOrder')
             studentsChoice = request.POST.get("choice")
             
-            #schoice = TemplateResponseRel.objects.filter(pageInstanceID_id = request.session.get('PIID'), optionNumber = request.POST.get("choice"))
-
             T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = "/media/audio/the_fox_say.mp3")
 #fixemefixeme
             T.save()
@@ -222,6 +235,15 @@ def StudentConvoStep(request):
 
             request.session['ConvoOrder'] += 1
             
+            #the student has chosen a choice, figure out with the templateResponseRel table what the current PIID should be
+            try:
+                nextVideo = TemplateResponseRel.objects.get(pageInstanceID = request.session.get('PIID'), optionNumber = studentsChoice)
+                request.session['PIID'] = nextVideo.nextPageInstanceID.pageInstanceID
+            except Exception,e:
+#fixme
+                return HttpResponse("missing template response relation after response page: %s" %e)
+            
+            #will get the variables for the current video page before changing PIID to point to this videos response page
             sPage = SVideo(request)
 
             #create context variables for video web page

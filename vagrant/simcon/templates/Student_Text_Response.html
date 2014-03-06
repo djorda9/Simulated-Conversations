@@ -15,7 +15,7 @@
         <form name="input" action="{% url 'StudentConvoStep' %}" method="POST">{% csrf_token %}
 		  <div>
           {% for response in responses %} {# TODO need to pass in correct responses for context #}
-            <input type="radio" name="choice" value="{{ response.responseText }}" {% if forloop.counter == 1 %} checked {% endif %}>
+            <input type="radio" name="choice" value="{{ response.optionNumber }}" {% if forloop.counter == 1 %} checked {% endif %}>
             {{response.responseText}}<br/>
           {% endfor %}
           {# do we need to add a default response here?  Or is that done in template wizard? #}
