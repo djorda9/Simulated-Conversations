@@ -1061,9 +1061,15 @@ def Responses(request):
 @login_required
 def SingleResponse(request, convoID):
 
-#check to confirm user has access
+	#check to confirm user has access
 
 	currentConvo=Conversation.objects.get(id=convoID)
+	userID=get_researcher(request.user)
+
+	if currentConvo.researcherID != userID:
+		sharedCheck=SharedResponses.objects.filter(responseID=currentConvo)
+		if sharedCheck.filter(researcherID=userID).exists() == False:
+			raise Http403
 
 	responses=Response.objects.filter(conversationID=convoID).order_by('order')
 

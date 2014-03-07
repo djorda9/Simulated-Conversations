@@ -1,25 +1,53 @@
 <!-- This template is used to display a single conversation worth of responses-->
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
+{% load static %}
+
 {% block title %}{{currentConvo.shortDesc}}{% endblock %}
 {% block extrahead %}
-    <script src="{% static 'jquery-2.1.0.min.js' %}"></script>
-    <script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
+
+	<link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
+	<link href="{% static "tables/themes/blue/style.css"%}" rel="stylesheet">
+	<script src="{% static 'jquery-2.1.0.min.js' %}"></script>
+	<script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
+	<script src="{% static "jquery-2.1.0.min.js" %}">
+	</script>
+	<script src="{% static "tables/jquery.tablesorter.min.js" %}">
+	</script>
+
+
 {% endblock %}
 
 {% block content %}
+<body>
 
-<p>{{currentConvo.shortDesc}}:</p>  
+<h2>{{conversation.templateID.shortDesc}}:	 {{conversation.studentName}} </h2>
+<h3> {{conversation.dateTime}} </h3>
 
+
+<table id="Responses" class="tablesorter">
+<thead>
+<tr>
+	<th>#</th>
+	<th>Response</th>
+	<th>Recording</th>
+</tr>
+</thead>
+
+<tbody>
 {% for n in responses %}
+<tr>
+	<td>{{n.order}}</td>
+	<td>{{n.choice}}</td>
+	<td><a href=/{% get_media_prefix %}{{n.audioFile}}>Listen to Recording</a></td>
 
-	<p>{{n.order}} {{n.choice}} {{n.audioFile}} </p>
-
-{% empty %}
-
-	<p>Nothing there/access denied</p>
+</tr>
 
 {% endfor %}
+</tbody>
+</table>
 
+
+</body>
 {% endblock %}
 
