@@ -474,7 +474,7 @@ def TemplateWizardSave(request):
                             else:
                                 for k,vid2 in enumerate(request.session['videos']):
                                     if vid2 == res[2]:
-                                        insertNextPageInstanceID = pageInstances.objects.get(videoLink = vid2)
+                                        insertNextPageInstanceID = PageInstance.objects.get(videoLink = vid2)
                             #begin adding the responses into the templateResponseRels 
                             templateResponseRels.append(TemplateResponseRel(templateID = temp,
                                                              pageInstanceID = responsesPageInstanceID,
