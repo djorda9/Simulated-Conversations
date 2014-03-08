@@ -407,8 +407,8 @@ def TemplateWizardSave(request):
                                                   videoLink = "",
                                                   richText = "",
                                                   enablePlayback = False))
-                endpointPI = pageInstances[-1]
                 pageInstances[-1].save()
+                endpointPI = pageInstances[-1]
                 templateResponseRels = []
                 templateFlowRels = []
 
@@ -432,6 +432,7 @@ def TemplateWizardSave(request):
                                                        enablePlayback = enabPlayback
                                                        ))
                     pageInstances[-1].save()
+                    thisVidsPI = pageInstances[-1]
                 #now all the videos have pageInstanceIDs
 
                 #next, for each video, 
@@ -454,10 +455,10 @@ def TemplateWizardSave(request):
                                                           richText = "",
                                                           enablePlayback = False
                                                           ))
-                                responsesPageInstanceID = pageInstances[-1]
                                 pageInstances[-1].save()
+                                responsesPageInstanceID = pageInstances[-1]
                                 #link the parents pageInstance entry to the one we just created
-                                pageInstanceMatchesVideo = pageInstances[i]
+                                pageInstanceMatchesVideo = thisVidsPI
                                 templateFlowRels.append(TemplateFlowRel(templateID = temp,
                                                              pageInstanceID = pageInstanceMatchesVideo,
                                                              nextPageInstanceID = responsesPageInstanceID
@@ -473,7 +474,7 @@ def TemplateWizardSave(request):
                             else:
                                 for k,vid2 in enumerate(request.session['videos']):
                                     if vid2 == res[2]:
-                                        insertNextPageInstanceID = pageInstances[k]
+                                        insertNextPageInstanceID = pageInstances.objects.get(videoLink = vid2)
                             #begin adding the responses into the templateResponseRels 
                             templateResponseRels.append(TemplateResponseRel(templateID = temp,
                                                              pageInstanceID = responsesPageInstanceID,
