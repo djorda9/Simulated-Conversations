@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist,PermissionDenied
 from django.core.files.storage import default_storage
 from django.template import loader, Context
 from django.core.context_processors import csrf
@@ -1069,7 +1069,7 @@ def SingleResponse(request, convoID):
 	if currentConvo.researcherID != userID:
 		sharedCheck=SharedResponses.objects.filter(responseID=currentConvo)
 		if sharedCheck.filter(researcherID=userID).exists() == False:
-			raise Http403
+			raise PermissionDenied
 
 	responses=Response.objects.filter(conversationID=convoID).order_by('order')
 
