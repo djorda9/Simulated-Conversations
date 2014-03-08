@@ -31,8 +31,8 @@
 
 	$(document).ready(function() 
 	    { 
-	        $("#Responses").tablesorter(); 
-			$("#SharedResponses").tablesorter();
+	        $("#Responses").tablesorter().tablesorterPager({container: $("#pager")}); 
+			$("#SharedResponses").tablesorter().tablesorterPager({container: $("#pager")});
 	    } 
 	); 
 	</script>
