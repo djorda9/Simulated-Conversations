@@ -9,6 +9,10 @@
 {% block content %}
 	{# TODO url this action #}
       <form id="form1" action="/studentinfo/" method = "post">{%csrf_token%}
+
+        <p>If you were given a username by your researcher, take care to enter it <b>exactly</b> as it was given to you.  Double check capital letters and spelling. </p>
+        <p>Be sure to login with the <b>same username</b> every time you have a conversation. </p>
+
         <div class="form-group">
           <input type="text" class="form-control" name="SName" placeholder="Enter your name">
         </div>

@@ -2,14 +2,34 @@
 GenerateLink view.-->
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
+
+<!-- help text -->
+{% block extrahead %}
+    <script>
+        function generateHelp()
+        { 
+                alert("The conversation you post online will be available to anyone with the correct address until the beginning of the day you specify.");
+        }
+       
+        function linkHelp()
+        { 
+                alert("Save this address and give it to whomever you would like to take your conversation. If you right-click on it and \'copy\' the link, you don\'t have to worry about making a mistake.");
+        }
+        
+    </script>
+ 1    
+
+{% endblock %}
+
 {% block title %}Generate Link{% endblock %}
 {% block content %}
 
-    <h3>Generate Link</h3>
+    <h3>Generate Link<button class="btn btn-default" onclick="generateHelp()">?</button></h3>
     {% if link %}
         <div class="alert alert-success">
             <b>Link: </b>
             <a href="{{link}}">{{link}}</a>
+            <button class="btn btn-default" onclick="linkHelp()">?</button>
         </div>
     {% endif %}
     {% if key %}

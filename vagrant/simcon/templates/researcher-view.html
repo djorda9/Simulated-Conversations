@@ -20,6 +20,17 @@ Admin | Template Wizard
     form {display:inline; margin:0px; padding:0px;}
     </style>
 
+    <!-- help popups  -->
+    <script>
+
+        function conversationHelp()
+        { 
+                alert("These are all the conversation templates you have access to, from here you may\n\nEdit a template;     Modify any of the choices, videos or possible paths through your template.\n\nDelete a Template;     Get rid of a template no longer in use.\n\nShare a template;     Give another researcher access to one of your templates.  Note that when you share a template, changes made by you and the other researcher(s) to your copies will not affect one another.\n\nGenerate a link to a template;    Create a website that will allow your subjects to hold your conversation.  This process will give you an address that you can then give to anyone you would like to have your conversation.");
+        }
+        
+    </script>
+     
+
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -28,11 +39,12 @@ Admin | Template Wizard
     <![endif]-->
   {% endblock %}
   {% block content %}
+
     <div class="container">
       <!-- Example row of columns -->
       <div class="row">
         <div class="col-md-5">
-          <h2>Conversation Templates</h2>
+          <h2>Conversation Templates<button class="btn btn-default" onclick="conversationHelp()">?</button></h2>
           <p>
             {% if templateList %}
               <table class="table">
@@ -100,5 +112,5 @@ Admin | Template Wizard
       <button type="button" class="btn btn-default" onClick="submit()">Create/Delete Researchers &raquo;</button></form>
 
     </div> <!-- /container -->
- 
+
 {% endblock %}

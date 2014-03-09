@@ -11,6 +11,20 @@
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
 
+    <!-- help text -->
+    <script>
+	    
+        function yourHelp()
+        { 
+                alert("These are all the responses to your templates.  Click on any entry in a row to view that entire Conversation.");
+        }
+        
+        function shareHelp()
+        { 
+                alert("These are responses to other researcher\'s templates that they have shared with you.  Click on any entry in a row to view that entire conversation.");
+        }
+        
+    </script>
 
 
 	<!-- Bootstrap core CSS -->
@@ -46,7 +60,7 @@
 <body>
 
 
-<h2>Your Responses</h2>
+<h2>Your Responses<button class="btn btn-default" onclick="yourHelp()">?</button></h2>
 
 <table id="Responses" class="tablesorter"> 
 <thead> 
@@ -84,7 +98,7 @@
 </tbody>
 </table>
 
-<h2>Responses Shared With You</h2>
+<h2>Responses Shared With You<button class="btn btn-default" onclick="shareHelp()">?</button></h2>
 <table id="SharedResponses" class="tablesorter"> 
 <thead> 
 <tr> 
