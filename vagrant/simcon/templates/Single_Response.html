@@ -3,7 +3,7 @@
 {% load staticfiles %}
 {% load static %}
 
-{% block title %}{{currentConvo.shortDesc}}{% endblock %}
+{% block title %}Simcon - {{currentConvo.shortDesc}}{% endblock %}
 {% block extrahead %}
 
 	<link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
@@ -55,7 +55,12 @@
 <tr>
 	<td>{{n.order}}</td>
 	<td>{{n.choice}}</td>
-	<td><a href=/{% get_media_prefix %}{{n.audioFile}}>Listen to Recording</a><button class="btn btn-default" onclick="listHelp()">?</button></td>
+	<td>
+    <audio controls>
+        <source src="/{% get_media_prefix %}{{n.audioFile}}" type="audio/wav">
+        Your browser does not support the audio element.
+        </audio> 
+    </td>
 
 </tr>
 
