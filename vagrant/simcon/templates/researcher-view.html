@@ -5,7 +5,7 @@
 Admin | Template Wizard
 {% endblock %}
 {% block branding %}
-<h1 id="site-name">Simcon administration | Template Wizard Submit</h1>
+<h1 id="site-name">Simcon Researcher</h1>
 {% endblock %}
 
 {% block extrahead %}
@@ -45,8 +45,7 @@ Admin | Template Wizard
               <h5>
               {% for temp in templateList %}
                 <tr>
-                  <td>{{temp.shortDesc}}</td>
-                  <td><small><a href="{% url 'TemplateWizardEdit' temp.templateID %}">Edit</a></small></td>
+                  <td><small><a href="{% url 'TemplateWizardEdit' temp.templateID %}">{{temp.shortDesc}}</a></small></td>
                   <td><small><a href="{% url 'TemplateDelete' temp.templateID %}">Delete</a></small></td>
                   <td><small><a href="{% url 'ShareTemplate_with_templateID' temp.templateID %}">Share</a></small></td>
                   <td><small><a href="{% url 'GenerateLink_with_templateID' temp.templateID %}">Generate link</a></small></td>
@@ -101,10 +100,12 @@ Admin | Template Wizard
         </div>
       </div>
 
+{% if user.is_active and user.is_superuser %}
       <h3>Researcher Account Management</h3>
-      <form method="post" action="{# url 'Admin' #}">
+      <form method="get" action="/admin">
       {% csrf_token %}
       <button type="button" class="btn btn-default" onClick="submit()">Create/Delete Researchers &raquo;</button></form>
+{% endif %}
 
     <div id=conversationText title="Conversation Template Help"> These are all the conversation templates you have access to, from here you may
     <p>
