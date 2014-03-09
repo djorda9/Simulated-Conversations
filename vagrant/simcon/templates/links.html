@@ -3,31 +3,63 @@
 {% load staticfiles %}
 {% load generatelink_extras %}
 {% block title %}Generated Links{% endblock %}
+{% block extrahead %}
+    <script type="text/javascript" src="{% static "jquery-2.1.0.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tables/jquery.tablesorter.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tables/addons/pager/jquery.tablesorter.pager.js" %}"></script>
+	<link href="{% static "tables/themes/blue/style.css"%}" rel="stylesheet">
+	<link href="{% static "tables/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
+
+	<script>
+	$(document).ready(function()
+	    {
+	        $("#linkTable")
+            .tablesorter({sortList: [3,0]})
+            .tablesorterPager({container: $("#pager")});
+	    }
+	);
+	</script>
+{% endblock %}
 {% block content %}
         <h3>Generated Links</h3>
 
-        <input type=button onClick="location.href='{% url "GenerateLink" %}'"  value='Generate Link'><br><br>
-
-        <table border="1">
+        <table id="linkTable" class="tablesorter">
+        <thead>
             <tr>
-                <th align="center">Link ID</th>
-                <th align="center">Template</th>
-                <th align="center">Validation Key</th>
-                <th align="center">Expiration Date</th>
-                <th align="center">URL</th>
+                <th>Template</th>
+                <th>Validation Key</th>
+                <th>Expiration Date</th>
+                <th>URL</th>
             </tr>
+        </thead>
+        <tbody>
             <!--Gets the information for each generated link from the StudentAccess table -->
         {% for researcher_link in researcher_links %}
             <tr>
-                <td align="center">{{researcher_link.studentAccessID}}</td>
-                <td align="center">{{researcher_link.templateID}}</td>
-                <td align="center">{{researcher_link.validationKey}}</td>
-                <td align="center">{{researcher_link.expirationDate}}</td>
+                <td>{{researcher_link.templateID}}</td>
+                <td>{{researcher_link.validationKey}}</td>
+                <td>{{researcher_link.expirationDate}}</td>
                 <!-- Gets and makes a hyperlink to the generated link url -->
                 {% with id=researcher_link.validationKey %}
-                    <td align="center"><a href="{{researcher_link|get_link_filter:id}}">{{researcher_link|get_link_filter:id}}</a> </td>
+                    <td><a href="{{researcher_link|get_link_filter:id}}">{{researcher_link|get_link_filter:id}}</a> </td>
                 {% endwith %}
             </tr>
         {% endfor %}
+        </tbody>
         </table>
+        <div id="pager" class="pager">
+            <form>
+                <img src={% static "tables/addons/pager/icons/first.png"%} class="first"/>
+                <img src={% static "tables/addons/pager/icons/prev.png"%} class="prev"/>
+                <input type="text" class="pagedisplay"/>
+                <img src={% static "tables/addons/pager/icons/next.png"%} class="next"/>
+                <img src={% static "tables/addons/pager/icons/last.png"%} class="last"/>
+                <select class="pagesize">
+                    <option selected="selected"  value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option  value="40">40</option>
+                </select>
+            </form>
+        </div>
 {% endblock %}

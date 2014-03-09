@@ -27,28 +27,27 @@ GenerateLink view.-->
     <h3>Generate Link<button class="btn btn-default" onclick="generateHelp()">?</button></h3>
     {% if link %}
         <div class="alert alert-success">
+            <b>{{success}}<br/></b>
             <b>Link: </b>
             <a href="{{link}}">{{link}}</a>
             <button class="btn btn-default" onclick="linkHelp()">?</button>
         </div>
-    {% endif %}
-    {% if key %}
-        <b><br>Key: {{key}}<br><br></b>
-    {% endif %}
-    <input type=button onClick="location.href='{% url "Links" %}'"  value='View Generated Links'><br><br>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-    <script>  $(function() {$( "#datepicker" ).datepicker();});
-    </script>
+    {% else %}
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+        <script>  $(function() {$( "#datepicker" ).datepicker();});
+        </script>
 
-    <form action = "/generatelink/" method = "post"> {% csrf_token %}
-        {% for field in form %}
-        <div class = "field_error_wrapper">
-            {{field.errors}}
-            {{field.label_tag}}<br/>
-            {{field}}
-        </div>
-    {% endfor %}
-    <input type = "submit" value = "Submit" />
+        <form action = "/generatelink/" method = "post"> {% csrf_token %}
+            {% for field in form %}
+            <div class = "field_error_wrapper">
+                {{field.errors}}
+                {{field.label_tag}}<br/>
+                {{field}}
+                <br/><br/>
+            </div>
+        {% endfor %}
+        <input type = "submit" value = "Submit" />
+    {% endif %}
     </form>
 {% endblock %}

@@ -2,6 +2,23 @@
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
 {% block title %}Share Response{% endblock %}
+{% block extrahead %}
+    <script type="text/javascript" src="{% static "jquery-2.1.0.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tables/jquery.tablesorter.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tables/addons/pager/jquery.tablesorter.pager.js" %}"></script>
+	<link href="{% static "tables/themes/blue/style.css"%}" rel="stylesheet">
+	<link href="{% static "tables/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
+
+	<script>
+	$(document).ready(function()
+	    {
+	        $("#shareTable")
+            .tablesorter({sortList: [1,0]})
+            .tablesorterPager({container: $("#pager")});
+	    }
+	);
+	</script>
+{% endblock %}
 {% block content %}
     <h3>Share Responses</h3>
 
@@ -9,42 +26,62 @@
         <div class="alert alert-success">
             The response you selected was successfully shared with {{success}}
         </div>
-    {% endif %}
-
-    {% if failed %}
-        <div class="alert alert-danger">
-            {{failed}}
-        </div>
-    {% endif %}
-
-    {% if form %}
-        <form action = "" method = "post"> {% csrf_token %}
-            {% for field in form %}
-            <div class = "field_error_wrapper">
-                {{field.errors}}
-                {{field.label_tag}}<br/>
-                {{field}}
+    {% else %}
+        {% if failed %}
+            <div class="alert alert-danger">
+                {{failed}}
             </div>
-        {% endfor %}
-        <br>
-        <input type = "submit" value = "Share" />
-        </form>
+        {% endif %}
+
+        {% if form %}
+            <form action = "" method = "post"> {% csrf_token %}
+                {% for field in form %}
+                <div class = "field_error_wrapper">
+                    {{field.errors}}
+                    {{field.label_tag}}<br/>
+                    {{field}}
+                    <br/><br/>
+                </div>
+            {% endfor %}
+            <br>
+            <input type = "submit" value = "Share" />
+            </form>
+        {% endif %}
     {% endif %}
 
     {% if shared %}
-        <table border="1">
+        <table id="shareTable" class="tablesorter">
+        <thead>
             <tr>
-                <th align="center">Researcher</th>
-                <th align="center">Date Shared</th>
+                <th>Researcher</th>
+                <th>Date Shared</th>
             </tr>
+        </thead>
+        <tbody>
             <!--Gets the information for each generated link from the StudentAccess table -->
             {% for share in shared %}
                 <tr>
-                    <td align="center">{{share.researcherID}}</td>
-                    <td align="center">{{share.dateTimeShared}}</td>
+                    <td>{{share.researcherID}}</td>
+                    <td>{{share.dateTimeShared}}</td>
                 </tr>
             {% endfor %}
+        </tbody>
         </table>
+        <div id="pager" class="pager">
+            <form>
+                <img src={% static "tables/addons/pager/icons/first.png"%} class="first"/>
+                <img src={% static "tables/addons/pager/icons/prev.png"%} class="prev"/>
+                <input type="text" class="pagedisplay"/>
+                <img src={% static "tables/addons/pager/icons/next.png"%} class="next"/>
+                <img src={% static "tables/addons/pager/icons/last.png"%} class="last"/>
+                <select class="pagesize">
+                    <option selected="selected"  value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option  value="40">40</option>
+                </select>
+            </form>
+        </div>
     {% endif %}
 
 {% endblock %}

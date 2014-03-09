@@ -56,6 +56,7 @@ Admin | Template Wizard
                   <td><small><a href="{% url 'TemplateDelete' temp.templateID %}">Delete</a></small></td>
                   <td><small><a href="{% url 'ShareTemplate_with_templateID' temp.templateID %}">Share</a></small></td>
                   <td><small><a href="{% url 'GenerateLink_with_templateID' temp.templateID %}">Generate link</a></small></td>
+                  <td><small><a href="{% url 'Links' temp.templateID %}">Links</a></small></td>
                 </tr>
               {% endfor %}
               </h5>
