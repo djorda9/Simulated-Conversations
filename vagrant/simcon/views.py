@@ -431,7 +431,7 @@ def TemplateWizardSave(request):
                                                        enablePlayback = enabPlayback
                                                        ))
                     pageInstances[-1].save()
-                    thisVidsPI = pageInstances[-1]
+                    #thisVidsPI = pageInstances[-1]
                 #now all the videos have pageInstanceIDs
 
                 #next, for each video, 
@@ -457,6 +457,10 @@ def TemplateWizardSave(request):
                                 pageInstances[-1].save()
                                 responsesPageInstanceID = pageInstances[-1]
                                 #link the parents pageInstance entry to the one we just created
+                                for getapi in pageInstances:
+                                    if getapi.videoLink == vid:
+                                        thisVidsPI = getapi
+                                        break
                                 pageInstanceMatchesVideo = thisVidsPI
                                 templateFlowRels.append(TemplateFlowRel(templateID = temp,
                                                              pageInstanceID = pageInstanceMatchesVideo,
