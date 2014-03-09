@@ -15,6 +15,13 @@
 	<script src="{% static "tables/jquery.tablesorter.min.js" %}">
 	</script>
 
+        <script>
+	    
+        function yourHelp()
+        { 
+                alert("Click on any \"Listen to Recording\" link and your computer will decide the best way to play the audio file.\nOr right-click on the link and you can save it to your computer to listen to later.");
+        }
+        </script>
 
 {% endblock %}
 
@@ -39,7 +46,7 @@
 <tr>
 	<td>{{n.order}}</td>
 	<td>{{n.choice}}</td>
-	<td><a href=/{% get_media_prefix %}{{n.audioFile}}>Listen to Recording</a></td>
+	<td><a href=/{% get_media_prefix %}{{n.audioFile}}>Listen to Recording</a><button class="btn btn-default" onclick="listHelp()">?</button></td>
 
 </tr>
 

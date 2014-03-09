@@ -37,7 +37,7 @@ class StudentAccess(models.Model):
     templateID = models.ForeignKey('Template')
     researcherID = models.ForeignKey(User)
     validationKey = models.CharField(max_length = 50, unique=True)
-    expirationDate = models.DateField(auto_now_add=True)
+    expirationDate = models.DateField()
     def __unicode__(self):
         return u'%s %s %s %s %s' % \
             (self.studentAccessID, self.templateID, 

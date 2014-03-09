@@ -11,26 +11,27 @@ ShareTemplate view.-->
         <div class="alert alert-success">
             The conversation template you selected was successfully shared with {{success}}
         </div>
-    {% endif %}
-
-    {% if failed %}
-        <div class="alert alert-danger">
-            {{failed}}
-        </div>
-    {% endif %}
-
-    {% if form %}
-        <form action = "" method = "post"> {% csrf_token %}
-            {% for field in form %}
-            <div class = "field_error_wrapper">
-                {{field.errors}}
-                {{field.label_tag}}<br/>
-                {{field}}
+    {% else %}
+        {% if failed %}
+            <div class="alert alert-danger">
+                {{failed}}
             </div>
-        {% endfor %}
-        <br>
-        <input type = "submit" value = "Share" />
-        </form>
+        {% endif %}
+
+        {% if form %}
+            <form action = "" method = "post"> {% csrf_token %}
+                {% for field in form %}
+                <div class = "field_error_wrapper">
+                    {{field.errors}}
+                    {{field.label_tag}}<br/>
+                    {{field}}
+                    <br/><br/>
+                </div>
+            {% endfor %}
+            <br>
+            <input type = "submit" value = "Share" />
+            </form>
+        {% endif %}
     {% endif %}
 
 {% endblock %}
