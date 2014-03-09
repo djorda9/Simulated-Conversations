@@ -16,20 +16,6 @@
     <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css" %}">
     <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script>
 
-    <script>
-	    
-        function yourHelp()
-        { 
-                alert("These are all the responses to your templates.  Click on any entry in a row to view that entire Conversation.");
-        }
-        
-        function shareHelp()
-        { 
-                alert("These are responses to other researcher\'s templates that they have shared with you.  Click on any entry in a row to view that entire conversation.");
-        }
-        
-    </script>
-
 
 	<!-- Bootstrap core CSS -->
     <link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
@@ -71,7 +57,7 @@
 <body>
 
 
-<h2>Your Responses<button class="btn btn-default" onclick="yourHelp()">?</button></h2>
+<h2>Your Responses<button class="btn btn-default" id="yourHelp">?</button></h2>
 
 <table id="mine" class="tablesorter">
 <thead> 
@@ -128,7 +114,7 @@
 
 
 
-<h2>Responses Shared With You</h2>
+<h2>Responses Shared With You<button class="btn btn-default" id="shareHelp">?</button></h2>
 <table id="others" class="tablesorter">
 <thead> 
 <tr> 
@@ -180,11 +166,24 @@
 	</form>
 </div>
 
+   <div id="yourText">
+      <p>These are all the responses to your templates.  Click on any entry in a row to view that entire Conversation.</p>
+   </div>
+   <div id="shareText">
+       <p>These are responses to other researcher's templates that they have shared with you. </p>
+       <p>Click on any entry in a row to view that entire conversation.</p>
+   </div>
 
      <script>
-        $( "#Text" ).dialog( { autoOpen: false } );      
-        $( "#Help" ).click(function() {
-           $( "#Text" ).dialog( "open" );
+        $( "#yourText" ).dialog( { autoOpen: false } );      
+        $( "#yourHelp" ).click(function() {
+           $( "#yourText" ).dialog( "open" );
+        });
+     </script>
+     <script>
+        $( "#shareText" ).dialog( { autoOpen: false } );      
+        $( "#shareHelp" ).click(function() {
+           $( "#shareText" ).dialog( "open" );
         });
      </script>
 
