@@ -11,7 +11,11 @@
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
 
-    <!-- help text -->
+    <!-- help popups  -->
+    <script src="{% static "jquery-2.1.0.min.js" %}"></script>
+    <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css" %}">
+    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script>
+
     <script>
 	    
         function yourHelp()
@@ -177,6 +181,12 @@
 </div>
 
 
+     <script>
+        $( "#Text" ).dialog( { autoOpen: false } );      
+        $( "#Help" ).click(function() {
+           $( "#Text" ).dialog( "open" );
+        });
+     </script>
 
   </body>
 </html>
