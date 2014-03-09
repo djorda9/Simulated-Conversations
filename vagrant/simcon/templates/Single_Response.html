@@ -7,21 +7,30 @@
 {% block extrahead %}
 
 	<link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
-	<link href="{% static "tables/themes/blue/style.css"%}" rel="stylesheet">
-	<script src="{% static 'jquery-2.1.0.min.js' %}"></script>
+	<link href="{% static "tablesorter/themes/blue/style.css"%}" rel="stylesheet">
+	<link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
 	<script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
-	<script src="{% static "jquery-2.1.0.min.js" %}">
-	</script>
-	<script src="{% static "tables/jquery.tablesorter.min.js" %}">
+    <script type="text/javascript" src="{% static "jquery-2.1.0.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
+
+	<script>
+	$(document).ready(function()
+	    {
+	        $("#Responses")
+            .tablesorter({sortList: [3,0]})
+            .tablesorterPager({container: $("#pager")});
+	    }
+	);
 	</script>
 
-        <script>
-	    
-        function yourHelp()
-        { 
-                alert("Click on any \"Listen to Recording\" link and your computer will decide the best way to play the audio file.\nOr right-click on the link and you can save it to your computer to listen to later.");
-        }
-        </script>
+    <script>
+
+    function yourHelp()
+    {
+            alert("Click on any \"Listen to Recording\" link and your computer will decide the best way to play the audio file.\nOr right-click on the link and you can save it to your computer to listen to later.");
+    }
+    </script>
 
 {% endblock %}
 
@@ -53,7 +62,21 @@
 {% endfor %}
 </tbody>
 </table>
-
+<div id="pager" class="pager">
+    <form>
+        <img src={% static "tablesorter/addons/pager/icons/first.png"%} class="first"/>
+        <img src={% static "tablesorter/addons/pager/icons/prev.png"%} class="prev"/>
+        <input type="text" class="pagedisplay"/>
+        <img src={% static "tablesorter/addons/pager/icons/next.png"%} class="next"/>
+        <img src={% static "tablesorter/addons/pager/icons/last.png"%} class="last"/>
+        <select class="pagesize">
+            <option selected="selected"  value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option  value="40">40</option>
+        </select>
+    </form>
+</div>
 
 </body>
 {% endblock %}

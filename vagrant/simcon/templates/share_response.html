@@ -3,11 +3,11 @@
 {% load staticfiles %}
 {% block title %}Share Response{% endblock %}
 {% block extrahead %}
+	<link href="{% static "tablesorter/themes/blue/style.css"%}" rel="stylesheet">
+	<link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
     <script type="text/javascript" src="{% static "jquery-2.1.0.min.js" %}"></script>
-	<script type="text/javascript" src="{% static "tables/jquery.tablesorter.min.js" %}"></script>
-	<script type="text/javascript" src="{% static "tables/addons/pager/jquery.tablesorter.pager.js" %}"></script>
-	<link href="{% static "tables/themes/blue/style.css"%}" rel="stylesheet">
-	<link href="{% static "tables/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
+	<script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
 
 	<script>
 	$(document).ready(function()
@@ -69,11 +69,11 @@
         </table>
         <div id="pager" class="pager">
             <form>
-                <img src={% static "tables/addons/pager/icons/first.png"%} class="first"/>
-                <img src={% static "tables/addons/pager/icons/prev.png"%} class="prev"/>
+                <img src={% static "tablesorter/addons/pager/icons/first.png"%} class="first"/>
+                <img src={% static "tablesorter/addons/pager/icons/prev.png"%} class="prev"/>
                 <input type="text" class="pagedisplay"/>
-                <img src={% static "tables/addons/pager/icons/next.png"%} class="next"/>
-                <img src={% static "tables/addons/pager/icons/last.png"%} class="last"/>
+                <img src={% static "tablesorter/addons/pager/icons/next.png"%} class="next"/>
+                <img src={% static "tablesorter/addons/pager/icons/last.png"%} class="last"/>
                 <select class="pagesize">
                     <option selected="selected"  value="10">10</option>
                     <option value="20">20</option>
