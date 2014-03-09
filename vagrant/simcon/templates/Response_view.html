@@ -26,6 +26,9 @@
         
     </script>
 
+	<link href="{% static "tables/themes/blue/style.css"%}" rel="stylesheet">
+	<link href="{% static "tables/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
+
 
 	<!-- Bootstrap core CSS -->
     <link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
@@ -37,16 +40,15 @@
 	</script>
 	<script src="{% static "tables/addons/pager/jquery.tablesorter.pager.js" %}">
 	</script>
-	<link href="{% static "tables/themes/blue/style.css"%}" rel="stylesheet">
-	<link href="{% static "tables/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
+
 
 
 	<script>
 
 	$(document).ready(function() 
 	    { 
-	        $("#Responses").tablesorter().tablesorterPager({container: $("#pager")}); 
-			$("#SharedResponses").tablesorter().tablesorterPager({container: $("#pager")});
+			$("#Responses").tablesorter().tablesorterPager({container: $("#pager")});
+ 			$("#SharedResponses").tablesorter().tablesorterPager({container: $("#pager")});
 	    } 
 	); 
 	</script>
@@ -77,17 +79,17 @@
 
 <tr> 
     <td>
-		<a href={% url 'SingleResponse' n.id %}>
+		<a href="{% url 'SingleResponse' n.id %}">
 		{{n.templateID.shortDesc}}
 		</a>
 	</td> 
 	<td>
-		<a href={% url 'SingleResponse' n.id %}>
+		<a href="{% url 'SingleResponse' n.id %}">
 		{{n.studentName}}
 		</a>
 	</td> 
     <td>
-			<a href={% url 'SingleResponse' n.id %}>
+			<a href="{% url 'SingleResponse' n.id %}">
 			{{n.dateTime}}
 			</a>
 	</td> 
@@ -98,7 +100,26 @@
 </tbody>
 </table>
 
-<h2>Responses Shared With You<button class="btn btn-default" onclick="shareHelp()">?</button></h2>
+</table>
+<div id="pager" class="pager">
+	<form>
+		<img src="{% static "tables/addons/pager/icons/first.png" %}" class="first"/>
+		<img src="{% static "tables/addons/pager/icons/prev.png" %}" class="prev"/>
+		<input type="text" class="pagedisplay"/>
+		<img src="{% static "tables/addons/pager/icons/next.png" %}" class="next"/>
+		<img src="{% static "tables/addons/pager/icons/last.png" %}" class="last"/>
+		<select class="pagesize">
+			<option selected="selected"  value="10">10</option>
+			<option value="20">20</option>
+			<option value="30">30</option>
+			<option  value="40">40</option>
+		</select>
+	</form>
+</div>
+
+
+
+<h2>Responses Shared With You</h2>
 <table id="SharedResponses" class="tablesorter"> 
 <thead> 
 <tr> 
@@ -109,10 +130,9 @@
 </tr> 
 </thead> 
 
+<tbody>
 
-
-{% for n in SharedConversations %}
-<tbody> 
+{% for n in sharedConversations %} 
 <tr> 
     <td>
 		<a href={% url 'SingleResponse' n.id %}>
@@ -132,9 +152,24 @@
 </tr> 
 
 {% endfor %}
-
+</tbody>
 
 </table>
+<div id="pager" class="pager">
+	<form>
+		<img src="{% static "tables/addons/pager/icons/first.png" %}" class="first"/>
+		<img src="{% static "tables/addons/pager/icons/prev.png" %}" class="prev"/>
+		<input type="text" class="pagedisplay"/>
+		<img src="{% static "tables/addons/pager/icons/next.png" %}" class="next"/>
+		<img src="{% static "tables/addons/pager/icons/last.png" %}" class="last"/>
+		<select class="pagesize">
+			<option selected="selected"  value="10">10</option>
+			<option value="20">20</option>
+			<option value="30">30</option>
+			<option  value="40">40</option>
+		</select>
+	</form>
+</div>
 
 
 

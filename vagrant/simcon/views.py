@@ -1040,25 +1040,23 @@ def RetrieveAudio(request, UserAudio):
 
 @login_required
 def Responses(request):
-    convoNames=[]
 
     userID = get_researcher(request.user)
 
 
     conversations=Conversation.objects.filter(researcherID=userID)
-    for c in conversations:
-        temp=c.templateID
-        convoNames.append(temp.shortDesc)
 
     shared=[]
 
+
+
+
     sharedIDs=SharedResponses.objects.filter(researcherID=userID)
     for c in sharedIDs:
-        shared.append(c.responseID)
+		temp=c.responseID
+		shared.append(temp)
 
-#    convoList=zip(convoNames,conversations)
-
-    page=render(request, 'Response_view.html',{'conversations':conversations, 'names':convoNames, 'sharedConversations':shared})
+    page=render(request, 'Response_view.html',{'conversations':conversations, 'sharedConversations':shared})
 #    assert False, locals()
 
     return page
@@ -1066,7 +1064,6 @@ def Responses(request):
 @login_required
 def SingleResponse(request, convoID):
 
-	#check to confirm user has access
 
 	currentConvo=Conversation.objects.get(id=convoID)
 	userID=get_researcher(request.user)
