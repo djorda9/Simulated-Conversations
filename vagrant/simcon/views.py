@@ -95,7 +95,7 @@ def SResponse(request):
         responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
     except Exception,e:
 #fixme
-        return HttpResponse("missing template response relation: %s" %e)
+        request.session['PIID'] = -1
 
     return responses
 
@@ -139,7 +139,7 @@ def SVideo(request):
         request.session.modified = True
     except Exception,e:
 #fixme
-        return HttpResponse("missing template flow relation: %s" %e)
+        request.session['PIID'] = -1
     return page
 
 #when the student submits their name and optional email, this updates the database
@@ -227,7 +227,7 @@ def StudentConvoStep(request):
             convoOrder = request.session.get('ConvoOrder')
             studentsChoice = request.POST.get("choice")
             
-            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = request.session.path)
+            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = request.session.get('path'))
 #fixemefixeme
             T.save()
             #TODO if this fails, do cleanup for browser audio file copy/file system
@@ -252,6 +252,9 @@ def StudentConvoStep(request):
 
             request.session['VoR'] = "response"
             request.session.modified = True
+                
+            if vidLink == "":
+                return render(request, 'Student_Submission.html')
 
             # there are ways to compact this code, but this is the most explicit way to render a template
             c = Context({
@@ -267,9 +270,11 @@ def StudentConvoStep(request):
             #validate session variables, get queryset of responses
             responses = SResponse(request)
 
-            request.session['VoR'] = "video"
+            request.session['VoR'] = "response"
             request.session.modified = True
-            logger.info("about to load response page")
+            
+            if not responses:
+                return render(request, 'Student_Submission.html')
 
             c = Context({
             'responses': responses,
@@ -277,7 +282,7 @@ def StudentConvoStep(request):
             'message': 'I am the Student Text Response View.'
             })
             return render(request, 'Student_Text_Response.html', c)
-        else:
+        elif request.session.get('VoR') == "endpoint":
             return render(request, 'Student_Submission.html')
     else:
         #return HttpResponse("can't render next conversation step")
