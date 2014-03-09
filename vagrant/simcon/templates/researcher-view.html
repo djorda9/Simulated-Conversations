@@ -21,14 +21,8 @@ Admin | Template Wizard
     </style>
 
     <!-- help popups  -->
-    <script>
-
-        function conversationHelp()
-        { 
-                alert("These are all the conversation templates you have access to, from here you may\n\nEdit a template;     Modify any of the choices, videos or possible paths through your template.\n\nDelete a Template;     Get rid of a template no longer in use.\n\nShare a template;     Give another researcher access to one of your templates.  Note that when you share a template, changes made by you and the other researcher(s) to your copies will not affect one another.\n\nGenerate a link to a template;    Create a website that will allow your subjects to hold your conversation.  This process will give you an address that you can then give to anyone you would like to have your conversation.");
-        }
-        
-    </script>
+    <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css"%}">
+    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script> 
      
 
 
@@ -44,7 +38,7 @@ Admin | Template Wizard
       <!-- Example row of columns -->
       <div class="row">
         <div class="col-md-5">
-          <h2>Conversation Templates<button class="btn btn-default" onclick="conversationHelp()">?</button></h2>
+          <h2>Conversation Templates<button class="btn btn-default" id="conversationHelp">?</button></h2>
           <p>
             {% if templateList %}
               <table class="table">
@@ -111,6 +105,25 @@ Admin | Template Wizard
       <form method="post" action="{# url 'Admin' #}">
       {% csrf_token %}
       <button type="button" class="btn btn-default" onClick="submit()">Create/Delete Researchers &raquo;</button></form>
+
+    <div id=conversationText title="Conversation Template Help"> These are all the conversation templates you have access to, from here you may
+    <p>
+    Edit a template;     Modify any of the choices, videos or possible paths through your template.
+    <p>
+    Delete a Template;     Get rid of a template no longer in use.
+    <p>
+    Share a template;     Give another researcher access to one of your templates.  Note that when you share a template, changes made by you and the other researcher(s) to your copies will not affect one another.
+    <p>
+     Generate a link to a template;    Create a website that will allow your subjects to hold your conversation.  This process will give you an address that you can then give to anyone you would like to have your conversation. 
+    </div>
+
+    <script>
+        $( "#conversationText" ).dialog( { autoopen: false } );      
+        $( "#conversationHelp" ).click(function() {
+                $( "#conversationText" ).dialog( "open" );
+        });
+    </script>
+
 
     </div> <!-- /container -->
 
