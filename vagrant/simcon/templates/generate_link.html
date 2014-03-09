@@ -29,7 +29,16 @@ GenerateLink view.-->
         <div class="alert alert-success">
             <b>{{success}}<br/></b>
             <b>Link: </b>
+            <script type="text/javascript" src="http://www.steamdev.com/zclip/js/jquery.zclip.min.js"></script>
+            <script type="text/javascript" src="http://www.steamdev.com/zclip/js/jquery.snippet.min.js"></script>
             <a href="{{link}}">{{link}}</a>
+            <button id="copy_button">Copy</button>
+            <script>
+                $("#copy-button").zclip({
+                    path: "http://www.steamdev.com/zclip/js/ZeroClipboard.swf",
+                    copy: function() {return $(this).prev().text();}
+                    });
+            </script>
             <button class="btn btn-default" onclick="linkHelp()">?</button>
         </div>
     {% else %}
