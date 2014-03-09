@@ -128,8 +128,8 @@ def SVideo(request):
         
         nextpage = TemplateFlowRel.objects.get(pageInstanceID = request.session.get('PIID'))
         
-        logger.info('the template flow object:')
-        logger.info(nextpage)
+        #logger.info('the template flow object:')
+        #logger.info(nextpage)
         
         request.session['PIID'] = nextpage.nextPageInstanceID.pageInstanceID
         
