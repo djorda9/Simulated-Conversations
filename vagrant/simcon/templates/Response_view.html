@@ -47,11 +47,20 @@
 
 	$(document).ready(function() 
 	    { 
-			$("#Responses").tablesorter().tablesorterPager({container: $("#pager")});
- 			$("#SharedResponses").tablesorter().tablesorterPager({container: $("#pager")});
+			$('table').tablesorter().tablesorterPager({container: $("#pager")});
 	    } 
 	); 
 	</script>
+
+	<script>
+
+	$(document).ready(function()
+		{
+			$("#Responses").tablesorter().tablesorterPager({container: $("#pager")});
+		}
+	);
+	</script>
+
 
 
 
@@ -64,7 +73,7 @@
 
 <h2>Your Responses<button class="btn btn-default" onclick="yourHelp()">?</button></h2>
 
-<table id="Responses" class="tablesorter"> 
+<table class="tablesorter"> 
 <thead> 
 <tr> 
     <th>Template</th> 
@@ -120,7 +129,7 @@
 
 
 <h2>Responses Shared With You</h2>
-<table id="SharedResponses" class="tablesorter"> 
+<table class="tablesorter"> 
 <thead> 
 <tr> 
     <th>Template</th> 
@@ -141,12 +150,12 @@
 	</td> 
     <td>
 		<a href={% url 'SingleResponse' n.id %}>
-		{{n.dateTime}}
+		{{n.studentName}}
 		</a>
 	</td> 
     <td>
 		<a href={% url 'SingleResponse' n.id %}>
-		{{n.studentName}}
+		{{n.dateTime}}
 		</a>
 	</td> 
 </tr> 
