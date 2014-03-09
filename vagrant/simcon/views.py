@@ -227,7 +227,7 @@ def StudentConvoStep(request):
             convoOrder = request.session.get('ConvoOrder')
             studentsChoice = request.POST.get("choice")
             
-            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = request.session.path)
+            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = request.session.get('path'))
 #fixemefixeme
             T.save()
             #TODO if this fails, do cleanup for browser audio file copy/file system
