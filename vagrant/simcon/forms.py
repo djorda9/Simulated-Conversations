@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.models import User
 from models import Template
 from django.utils.timezone import utc
-from pytz import all_timezones
 import datetime
 
 

@@ -221,14 +221,13 @@ def StudentConvoStep(request):
         logger.info("about to load a this type of page:")
         logger.info(request.session.get('VoR'))
         
-        
         if request.session.get('VoR') == "video":
             piID = request.session.get('PIID')
             cID = request.session.get('convo')
             convoOrder = request.session.get('ConvoOrder')
             studentsChoice = request.POST.get("choice")
             
-            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = "/media/audio/the_fox_say.mp3")
+            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = request.session.path)
 #fixemefixeme
             T.save()
             #TODO if this fails, do cleanup for browser audio file copy/file system
