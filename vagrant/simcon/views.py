@@ -479,7 +479,7 @@ def TemplateWizardSave(request):
                                                              ))
                                 templateFlowRels[-1].save()
                             #since a parent video references this child video, remove it from possible video heads
-                            if res[2] != "endpoint":
+                            if res[2] != "endpoint" and res[2] in possibleVideoHeads:
                                 possibleVideoHeads.remove(res[2])
                             # find the ID of the pageInstance that matches responseChildVideo[j]
                             # unless its "endpoint", then just insert "endpoint"
@@ -488,7 +488,10 @@ def TemplateWizardSave(request):
                             else:
                                 for k,vid2 in enumerate(request.session['videos']):
                                     if vid2 == res[2]:
-                                        insertNextPageInstanceID = PageInstance.objects.get(videoLink = vid2)
+                                        for q in pageInstances:
+                                            for p in PageInstance.objects.filter(videoLink = vid2, templateID = temp):
+                                                if q == p:
+                                                    insertNextPageInstanceID = p
                             #begin adding the responses into the templateResponseRels 
                             templateResponseRels.append(TemplateResponseRel(templateID = temp,
                                                              pageInstanceID = responsesPageInstanceID,
@@ -528,7 +531,10 @@ def TemplateWizardSave(request):
                     request.session.modified = True
                     return render(request, 'template-wizard-save.html')
         except Exception as e:
-            request.session['error'] = e.message
+            if not e.message:
+                request.session['error'] = "general"
+            else:
+                request.session['error'] = e.message
             request.session.modified = True
             logger.info("error was %s" % request.session['error'])
             return TemplateWizardEdit(request, -1)
