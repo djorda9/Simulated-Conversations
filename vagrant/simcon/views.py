@@ -1115,7 +1115,7 @@ def SingleResponse(request, convoID):
 
 	responses=Response.objects.filter(conversationID=convoID).order_by('order')
 
-	page=render(request, 'Single_response.html', {'responses':responses, 'conversation':currentConvo})
+	page=render(request, 'Single_Response.html', {'responses':responses, 'conversation':currentConvo})
 	return page
 
 def getFileHandle(): # helper function to make a unique file handle
