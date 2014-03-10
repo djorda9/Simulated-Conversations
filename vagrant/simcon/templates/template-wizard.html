@@ -148,7 +148,6 @@ Admin | Template Wizard
       <!-- remove response button -->
       $("#rightPane").on("click", "#removeResponseButton", function(){
           var removeResponseId = $(this).val();
-          alert("removing button: " + removeResponseId);
           var removeResponse = "removeResponse";
           var data = { removeResponse:removeResponse, removeResponseId:removeResponseId };
           var args = {type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
