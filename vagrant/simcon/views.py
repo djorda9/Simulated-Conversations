@@ -772,6 +772,7 @@ def ResearcherView(request):
 @login_required
 def GenerateLink(request, templateID=None):
     link_url = None
+    link_user = None
     validation_key = None
     saved = False
     user_templateID = templateID
@@ -796,6 +797,7 @@ def GenerateLink(request, templateID=None):
                 except IntegrityError as e:
                     saved = False
             link_url = link.get_link(validation_key)
+            link_user = request.get_host() + link_url
             form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
 
     else:
@@ -807,8 +809,9 @@ def GenerateLink(request, templateID=None):
                 form = StudentAccessForm(researcher=current_user)
         else:
             form = StudentAccessForm(researcher=current_user)
-    return render_to_response('generate_link.html', {'link':link_url, 'key':validation_key, 'success':success,
-                                                     'form':form}, context_instance = RequestContext(request))
+    return render_to_response('generate_link.html', {'link':link_url, 'link_user':link_user, 'key':validation_key,
+                                                     'success':success, 'form':form},
+                              context_instance = RequestContext(request))
 
 # Returns the user object for the passed user
 def get_researcher(current_user):
