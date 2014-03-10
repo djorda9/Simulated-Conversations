@@ -642,6 +642,7 @@ def TemplateWizard(request):
         # DATA MODEL:
         request.session["error"] = ""
         request.session["errorFlag"] = False
+        request.session["editTemplateID"] = False
         request.session["conversationTitle"] = ""
         request.session["selectedVideo"] = "" # the currently selected video to edit
         request.session['videos'] = [] # creating an empty list to hold our videos in the pool
