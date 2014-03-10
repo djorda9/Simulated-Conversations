@@ -37,6 +37,7 @@ urlpatterns = patterns('simcon.views',
     url(r'^responses/$', 'Responses', name="Responses"),
 	url(r'^responses/(\d+)$', 'SingleResponse', name="SingleResponse"),
     url(r'^audio/save$', 'saveAudio', name="SaveAudio"),
+    url(r'logout/$', 'logout_view', name="logout"),
     #url(r'^test_recorder$', TemplateView.as_view(template_name='test_recorder.html')),
 )
 

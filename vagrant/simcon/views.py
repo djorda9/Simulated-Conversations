@@ -1,7 +1,7 @@
 from django.shortcuts import render, render_to_response, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
@@ -395,6 +395,12 @@ def TemplateWizardSave(request):
                 Storing session variables into the database template mappings
                 '''
                 request.session['error'] = ""
+
+                if request.session['editTemplateID'] != False:
+                    #you are editing an existing template, so delete the old one first.
+                    deleteTemp = Template.objects.get(templateID = request.session['editTemplateID'])
+                    deleteTemp.delete()
+
                 if request.POST.get('conversationTitle') == "":
                     request.session['conversationTitle'] = ""
                     request.session.modified = True
@@ -543,7 +549,10 @@ def TemplateWizardSave(request):
 @login_required
 def TemplateWizardEdit(request, tempID):
     request.session['edit'] = True;
-    request.session['editTemplateID'] = tempID
+    if tempID == -1:
+        request.session['errorFlag'] = True
+    else:
+        request.session['editTemplateID'] = tempID
     request.session.modified = True
     return TemplateWizard(request)
 
@@ -571,6 +580,9 @@ def TemplateWizard(request):
     if "editTemplateID" not in request.session:
         request.session["editTemplateID"] = False
         request.session.modified = True
+    if "errorFlag" not in request.session:
+        request.session["errorFlag"] = False
+        request.session.modified = True
     if request.session["edit"] == True:
         request.session['edit'] = False
         request.session.modified = True
@@ -578,8 +590,8 @@ def TemplateWizard(request):
         #if the session's template ID = -1, that just means there was an error trying to save. 
         #the session variables are still intact, so just regenerate the template wizard.
         #else, begin editing a template.
-        if request.session['editTemplateID'] != -1:
-            #ok, fuck the 'version' idea. Heres a new idea. If responses to this template exist,
+        if request.session['errorFlag'] != True:
+            #ok, screw the 'version' idea. Heres a new idea. If responses to this template exist,
             #instead just produce an error message. The researcher cannot edit this template.
             #they can "copy to a new template", which actually does populate all the 
             #same session variables, but will not save over the old template.
@@ -588,19 +600,49 @@ def TemplateWizard(request):
             responses = Conversation.objects.filter(templateID = temp.templateID)
             if len(responses) > 0:
                 request.session['error'] = "editButResponses"
+                request.session['editTemplateID'] = False
+                request.session['edit'] = False
+                request.session["conversationTitle"] = temp.shortDesc + " (copy)"
                 request.session.modified = True
-                #pre-populate all the session stuff
-                #change conversationTitle to include (copy)
-                #delete the session template id because you dont want to save over it
             else:
                 request.session["conversationTitle"] = temp.shortDesc
                 request.session.modified = True
-                fi = temp.firstInstanceID
-                #fitfl = TemplateFlowRel.objects.get(pageInstanceID = fi)
+            tempFlow = TemplateFlowRel.objects.filter(templateID = temp)
+            tempResponseFlow = TemplateResponseRel.objects.filter(templateID = temp)
+            pages = PageInstance.objects.filter(templateID = temp)
+            firstPage = temp.firstInstanceID
+            request.session["error"] = ""
+            request.session['selectedVideo'] = ""
+            request.session['videos'] = []
+            request.session['responseText'] = [] #create an empty list to hold responses text
+            request.session['responseParentVideo'] = [] #create an empty list to hold responses video (like a foreign key)
+            request.session['responseChildVideo'] = []
+            request.session['enablePlayback'] = [] #if the video exists in this list, enable playback.
+            for p in tempFlow:
+                if p.pageInstanceID.videoOrResponse == 'video':
+                    request.session['videos'].append(p.pageInstanceID.videoLink)
+                    if p.pageInstanceID.enablePlayback == True:
+                        request.session['enablePlayback'].append(p.pageInstanceID.videoLink)
+                    request.session['richText/%s' % p.pageInstanceID.videoLink] = p.pageInstanceID.richText
+                if p.nextPageInstanceID.videoOrResponse == 'response':
+                    for t in tempResponseFlow:
+                        if t.pageInstanceID.pageInstanceID == p.nextPageInstanceID.pageInstanceID:
+                            request.session['responseText'].append(t.responseText)
+                            for q in tempFlow:
+                                if q.nextPageInstanceID.pageInstanceID == t.pageInstanceID.pageInstanceID:
+                                    request.session['responseParentVideo'].append(q.pageInstanceID.videoLink)
+                            if t.nextPageInstanceID.videoOrResponse == 'endpoint':
+                                request.session['responseChildVideo'].append("endpoint")
+                            else:
+                                request.session['responseChildVideo'].append(t.nextPageInstanceID.videoLink)
+            request.session.modified = True
+
         return render(request, 'template-wizard.html')
     else:
         # DATA MODEL:
         request.session["error"] = ""
+        request.session["errorFlag"] = False
+        request.session["editTemplateID"] = False
         request.session["conversationTitle"] = ""
         request.session["selectedVideo"] = "" # the currently selected video to edit
         request.session['videos'] = [] # creating an empty list to hold our videos in the pool
@@ -1105,4 +1147,8 @@ def getTextResponse(request):
     c = {}
     c.update(csrf(request))
     return render(request, "Student_Text_Response.html")
+
+def logout_view(request):
+    logout(request)
+    return redirect('ResearcherView')
     
