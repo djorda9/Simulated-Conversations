@@ -1,7 +1,7 @@
 from django.shortcuts import render, render_to_response, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
@@ -1105,4 +1105,8 @@ def getTextResponse(request):
     c = {}
     c.update(csrf(request))
     return render(request, "Student_Text_Response.html")
+
+def logout_view(request):
+    logout(request)
+    return redirect('ResearcherView')
     

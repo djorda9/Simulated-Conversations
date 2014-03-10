@@ -45,6 +45,20 @@
                 <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
             {% endblock %}
         </div>
+        {% else %}
+            {% if user.is_authenticated %}
+            <div id="user-tools">
+                {% trans 'Welcome,' %}
+                <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+                {% block userlinks2 %}
+                    {% url 'django-admindocs-docroot' as docsroot %}
+                    {% if docsroot %}
+                        <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
+                    {% endif %}
+                    <a href="{% url 'logout' %}">{% trans 'Log out' %}</a>
+                {% endblock %}
+            </div>
+            {% endif %}
         {% endif %}
         {% block nav-global %}{% endblock %}
     </div>
