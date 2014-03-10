@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
-from django.core.exceptions import ObjectDoesNotExist,PermissionDenied, ValidationError
+from django.core.exceptions import ObjectDoesNotExist,PermissionDenied
 from django.core.files.storage import default_storage
 from django.template import loader, Context
 from django.core.context_processors import csrf
@@ -29,8 +29,8 @@ def StudentLogin(request,VKey = 123):
     convo_Expiration = access.expirationDate
     currentdate = datetime.date.today()
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
-    #if(True):
-    if(currentdate < convo_Expiration):
+    if(True):
+    #if(currentdate < convo_Expiration):
 #fixme
         try:
             #logger.info(access.templateID.templateID)
@@ -370,7 +370,7 @@ class RichTextForm(forms.Form):
 def TemplateWizardSave(request):
     #c = {}
     #c.update(csrf(request))
-    if request.method == "POST":
+    if request.POST:
         try:
             #do all of this atomically
             with transaction.atomic():        
@@ -395,16 +395,10 @@ def TemplateWizardSave(request):
                 Storing session variables into the database template mappings
                 '''
                 request.session['error'] = ""
-
-                if request.session['editTemplateID'] != False:
-                    #you are editing an existing template, so delete the old one first.
-                    deleteTemp = Template.objects.get(templateID = request.session['editTemplateID'])
-                    deleteTemp.delete()
-
                 if request.POST.get('conversationTitle') == "":
                     request.session['conversationTitle'] = ""
                     request.session.modified = True
-                    raise Exception("noTitle")
+                    raise "noTitle"
                 request.session['conversationTitle'] = request.POST.get('conversationTitle')
                 request.session.modified = True
                 temp = Template(researcherID = request.user, 
@@ -479,7 +473,7 @@ def TemplateWizardSave(request):
                                                              ))
                                 templateFlowRels[-1].save()
                             #since a parent video references this child video, remove it from possible video heads
-                            if res[2] != "endpoint" and res[2] in possibleVideoHeads:
+                            if res[2] != "endpoint":
                                 possibleVideoHeads.remove(res[2])
                             # find the ID of the pageInstance that matches responseChildVideo[j]
                             # unless its "endpoint", then just insert "endpoint"
