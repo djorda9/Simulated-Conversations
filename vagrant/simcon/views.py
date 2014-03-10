@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
-from django.core.exceptions import ObjectDoesNotExist,PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist,PermissionDenied, ValidationError
 from django.core.files.storage import default_storage
 from django.template import loader, Context
 from django.core.context_processors import csrf
@@ -404,7 +404,7 @@ def TemplateWizardSave(request):
                 if request.POST.get('conversationTitle') == "":
                     request.session['conversationTitle'] = ""
                     request.session.modified = True
-                    raise "noTitle"
+                    raise Exception("noTitle")
                 request.session['conversationTitle'] = request.POST.get('conversationTitle')
                 request.session.modified = True
                 temp = Template(researcherID = request.user, 
@@ -498,11 +498,11 @@ def TemplateWizardSave(request):
                                                              ))
                             templateResponseRels[-1].save()
                     if numberOfResponses == 0:
-                        raise "noResponses"
+                        raise Exception("noResponses")
                 #by now, there should be only one video head if the flow was built correctly.
                 if len(possibleVideoHeads) > 1:
                     #if not, produce an error message and go back to template editor.
-                    raise "noFirstVideo"
+                    raise Exception("noFirstVideo")
                 #if you want to insert more errors, do it here.
                 else:
                     #get the pageInstance that references this first video
@@ -527,21 +527,10 @@ def TemplateWizardSave(request):
                     request.session['conversationTitle'] = ""
                     request.session.modified = True
                     return render(request, 'template-wizard-save.html')
-        except "noFirstVideo":
-            request.session['error'] = "noFirstVideo"
+        except Exception as e:
+            request.session['error'] = e.message
             request.session.modified = True
-            return TemplateWizardEdit(request, -1)
-        except "noResponses":
-            request.session['error'] = "noResponses"
-            request.session.modified = True
-            return TemplateWizardEdit(request, -1)
-        except "noTitle":
-            request.session['error'] = "noTitle"
-            request.session.modified = True
-            return TemplateWizardEdit(request, -1)
-        except:
-            request.session['error'] = "general"
-            request.session.modified = True
+            logger.info("error was %s" % request.session['error'])
             return TemplateWizardEdit(request, -1)
     else:
         return HttpResponse("Failure: no post data")
