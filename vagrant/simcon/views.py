@@ -370,7 +370,7 @@ class RichTextForm(forms.Form):
 def TemplateWizardSave(request):
     #c = {}
     #c.update(csrf(request))
-    if request.POST:
+    if request.method == "POST":
         try:
             #do all of this atomically
             with transaction.atomic():        
@@ -663,7 +663,7 @@ def TemplateWizard(request):
 def TemplateWizardUpdate(request):
     c = {}
     c.update(csrf(request))
-    if request.POST:
+    if request.method == "POST":
         if request.POST.get('new_video'):
             '''
             User has demanded to add a video to the pool in the left pane
