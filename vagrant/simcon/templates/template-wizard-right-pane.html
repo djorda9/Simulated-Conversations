@@ -33,7 +33,7 @@
                   {{widge.as_p }}
                   <button type="button" class="btn btn-default btn-sm saveVideoPageButton" id="saveVideoPage" value="{{request.session.selectedVideo}}">
                       <span class="glyphicon glyphicon-save"></span> Click here to save this text
-                    </button><br>
+                    </button><button class="btn btn-default" id="richHelp">?</button><br>
                   <div style="text-align:center;">
                     <label for="enablePlayback">Enable playback of video?</label> <input type="checkbox" id="enablePlayback"
                     {% for chk in request.session.enablePlayback %}
@@ -78,10 +78,30 @@
                       <button type="button" class="btn btn-default btn-xs" id="addResponseButton" value="addResponseButton">
                          <span class="glyphicon glyphicon-plus"></span> Add Response Option 
                       </button>
+                      <button class="btn btn-default" id="addHelp">?</button>
 		    </div>
                     
                     
                 {% else %}
                   No video selected.
                 {% endif %}
+
+    <div id="rich_Text">
+            <p>Enter any supporting text as your would like it to be displayed on the video page.  <b>Be sure to click the button to save your text before leaving the page.</b>
+    </div>
+    <div id="addText">
+       <p>Enter a possible response to the video and then select from the dropdown menu where that response will lead next.
+       <p>If your video does not appear in the dropdown menu, make sure it is in the video pool to the left.            
+    </div>
+
+    <script>
+        $( "#rich_Text" ).dialog( { autoOpen: false } );      
+        $( "#richHelp" ).click(function() {
+                $( "#rich_Text" ).dialog( "open" );
+        });
+        $( "#addText" ).dialog( { autoOpen: false } );      
+        $( "#addHelp" ).click(function() {
+                $( "#addText" ).dialog( "open" );
+        });
+    </script>                
 {% endblock %}
