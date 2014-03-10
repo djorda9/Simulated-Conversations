@@ -26,10 +26,6 @@
         {% endif %}
         <div class="well well-sm">{{text|safe}}</div>
 
-		
-		<button class="btn btn-default" onclick="gotoNext();">Next without audio</button>
-
-
         {% load_getUserMedia "makeRecording" %}
         {# defaultHandler "makeRecording" #}  
         <button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>
