@@ -29,8 +29,8 @@ def StudentLogin(request,VKey = 123):
     convo_Expiration = access.expirationDate
     currentdate = datetime.date.today()
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
-    if(True):
-    #if(currentdate < convo_Expiration):
+    #if(True):
+    if(currentdate < convo_Expiration):
 #fixme
         try:
             #logger.info(access.templateID.templateID)
