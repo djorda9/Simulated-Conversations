@@ -5,32 +5,31 @@ GenerateLink view.-->
 
 <!-- help text -->
 {% block extrahead %}
-    <script>
-        function generateHelp()
-        { 
-                alert("The conversation you post online will be available to anyone with the correct address until the beginning of the day you specify.");
-        }
-       
-        function linkHelp()
-        { 
-                alert("Save this address and give it to whomever you would like to take your conversation. If you right-click on it and \'copy\' the link, you don\'t have to worry about making a mistake.");
-        }
-        
-    </script>
- 1    
+
+    <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css" %}">
+    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script
 
 {% endblock %}
 
 {% block title %}Generate Link{% endblock %}
 {% block content %}
 
-    <h3>Generate Link<button class="btn btn-default" onclick="generateHelp()">?</button></h3>
+    <h3>Generate Link</h3>
     {% if link %}
         <div class="alert alert-success">
             <b>{{success}}<br/></b>
             <b>Link: </b>
+            <script type="text/javascript" src="http://www.steamdev.com/zclip/js/jquery.zclip.min.js"></script>
+            <script type="text/javascript" src="http://www.steamdev.com/zclip/js/jquery.snippet.min.js"></script>
             <a href="{{link}}">{{link}}</a>
-            <button class="btn btn-default" onclick="linkHelp()">?</button>
+            <button id="copy_button">Copy</button>
+            <script>
+                $("#copy-button").zclip({
+                    path: "http://www.steamdev.com/zclip/js/ZeroClipboard.swf",
+                    copy: function() {return $(this).prev().text();}
+                    });
+            </script>
+            <button class="btn btn-default" id="linkHelp">?</button>
         </div>
     {% else %}
         <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
@@ -39,15 +38,39 @@ GenerateLink view.-->
         </script>
 
         <form action = "/generatelink/" method = "post"> {% csrf_token %}
-            {% for field in form %}
             <div class = "field_error_wrapper">
-                {{field.errors}}
-                {{field.label_tag}}<br/>
-                {{field}}
+                {{form.templateID.errors}}
+                {{form.templateID.label_tag}}<br/>
+                {{form.templateID}}
                 <br/><br/>
             </div>
-        {% endfor %}
+            <div class = "field_error_wrapper">
+                {{form.expirationDate.errors}}
+                {{form.expirationDate.label_tag}}<button class="btn btn-default" id="generateHelp" type='button'>?</button><br/>
+                {{form.expirationDate}}
+                <br/><br/>
+            </div>
         <input type = "submit" value = "Submit" />
     {% endif %}
     </form>
+
+    <div id="generateText" title="">
+        <p>The conversation you post online will be available to anyone with the correct address until the beginning of the day you specify.</p>
+    </div>
+    <div id="linkText" title="">
+        <p>Save this address and give it to whomever you would like to take your conversation. If you right-click on it and 'copy' the link, you don't have to worry about making a mistake.</p>
+    </div>
+
+    <script>
+        $( "#generateText" ).dialog( { autoOpen: false } );     
+        $( "#linkText" ).dialog( { autoOpen: false } );    
+        $( "#generateHelp" ).click(function() {
+           $( "#generateText" ).dialog( "open" );
+        });
+   
+        $( "#linkHelp" ).click(function() {
+           $( "#linkText" ).dialog( "open" );
+        });
+    </script>
+
 {% endblock %}

@@ -8,38 +8,21 @@
 
     <!-- Bootstrap core JavaScript -->
 
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
 
-    <!-- help text -->
-    <script>
-	    
-        function yourHelp()
-        { 
-                alert("These are all the responses to your templates.  Click on any entry in a row to view that entire Conversation.");
-        }
-        
-        function shareHelp()
-        { 
-                alert("These are responses to other researcher\'s templates that they have shared with you.  Click on any entry in a row to view that entire conversation.");
-        }
-        
-    </script>
-
-	<link href="{% static "tables/themes/blue/style.css"%}" rel="stylesheet">
-	<link href="{% static "tables/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
+    <!-- help popups  -->
+    <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css" %}">
+    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script>
 
 
 	<!-- Bootstrap core CSS -->
     <link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
 
 
-	<script type="text/javascript" src="{% static "jquery-2.1.0.min.js" %}">
-	</script>
-	<script src="{% static "tables/jquery.tablesorter.min.js" %}">
-	</script>
-	<script src="{% static "tables/addons/pager/jquery.tablesorter.pager.js" %}">
-	</script>
+	<link href="{% static "tablesorter/themes/blue/style.css"%}" rel="stylesheet">
+	<link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
+	<script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
 
 
 
@@ -47,16 +30,8 @@
 
 	$(document).ready(function() 
 	    { 
-			$('table').tablesorter().tablesorterPager({container: $("#pager")});
-	    } 
-	); 
-	</script>
-
-	<script>
-
-	$(document).ready(function()
-		{
-			$("#Responses").tablesorter().tablesorterPager({container: $("#pager")});
+			$("#mine").tablesorter().tablesorterPager({container: $("#pager1")});
+			$("#others").tablesorter().tablesorterPager({container: $("#pager2")});
 		}
 	);
 	</script>
@@ -68,12 +43,11 @@
 
 
 {% block content %}
-<body>
 
 
-<h2>Your Responses<button class="btn btn-default" onclick="yourHelp()">?</button></h2>
+<h2>Your Responses<button class="btn btn-default" id="yourHelp">?</button></h2>
 
-<table class="tablesorter"> 
+<table id="mine" class="tablesorter">
 <thead> 
 <tr> 
     <th>Template</th> 
@@ -110,13 +84,13 @@
 </table>
 
 </table>
-<div id="pager" class="pager">
+<div id="pager1" class="pager">
 	<form>
-		<img src="{% static "tables/addons/pager/icons/first.png" %}" class="first"/>
-		<img src="{% static "tables/addons/pager/icons/prev.png" %}" class="prev"/>
-		<input type="text" class="pagedisplay"/>
-		<img src="{% static "tables/addons/pager/icons/next.png" %}" class="next"/>
-		<img src="{% static "tables/addons/pager/icons/last.png" %}" class="last"/>
+		<img src={% static "tablesorter/addons/pager/icons/first.png"%} class="first"/>
+        <img src={% static "tablesorter/addons/pager/icons/prev.png"%} class="prev"/>
+        <input type="text" class="pagedisplay"/>
+        <img src={% static "tablesorter/addons/pager/icons/next.png"%} class="next"/>
+        <img src={% static "tablesorter/addons/pager/icons/last.png"%} class="last"/>
 		<select class="pagesize">
 			<option selected="selected"  value="10">10</option>
 			<option value="20">20</option>
@@ -128,8 +102,8 @@
 
 
 
-<h2>Responses Shared With You</h2>
-<table class="tablesorter"> 
+<h2>Responses Shared With You<button class="btn btn-default" id="shareHelp">?</button></h2>
+<table id="others" class="tablesorter">
 <thead> 
 <tr> 
     <th>Template</th> 
@@ -164,13 +138,13 @@
 </tbody>
 
 </table>
-<div id="pager" class="pager">
+<div id="pager2" class="pager">
 	<form>
-		<img src="{% static "tables/addons/pager/icons/first.png" %}" class="first"/>
-		<img src="{% static "tables/addons/pager/icons/prev.png" %}" class="prev"/>
-		<input type="text" class="pagedisplay"/>
-		<img src="{% static "tables/addons/pager/icons/next.png" %}" class="next"/>
-		<img src="{% static "tables/addons/pager/icons/last.png" %}" class="last"/>
+		<img src={% static "tablesorter/addons/pager/icons/first.png"%} class="first"/>
+        <img src={% static "tablesorter/addons/pager/icons/prev.png"%} class="prev"/>
+        <input type="text" class="pagedisplay"/>
+        <img src={% static "tablesorter/addons/pager/icons/next.png"%} class="next"/>
+        <img src={% static "tablesorter/addons/pager/icons/last.png"%} class="last"/>
 		<select class="pagesize">
 			<option selected="selected"  value="10">10</option>
 			<option value="20">20</option>
@@ -180,9 +154,25 @@
 	</form>
 </div>
 
+   <div id="yourText" title="Your Respones Help">
+      <p>These are all the responses to your templates.  Click on any entry in a row to view that entire Conversation.</p>
+   </div>
+   <div id="shareText" title="Shared Responses Help">
+       <p>These are responses to other researcher's templates that they have shared with you. </p>
+       <p>Click on any entry in a row to view that entire conversation.</p>
+   </div>
 
+     <script>
+        $( "#yourText" ).dialog( { autoOpen: false } );     
+        $( "#shareText" ).dialog( { autoOpen: false } );    
+        $( "#yourHelp" ).click(function() {
+           $( "#yourText" ).dialog( "open" );
+        });
+   
+        $( "#shareHelp" ).click(function() {
+           $( "#shareText" ).dialog( "open" );
+   });
+     </script>
 
-  </body>
-</html>
 {% endblock %}
 
