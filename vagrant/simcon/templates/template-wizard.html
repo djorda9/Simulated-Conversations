@@ -20,6 +20,9 @@ Admin | Template Wizard
     form {display:inline; margin:0px; padding:0px;}
     </style>
 
+    <!-- help popups  -->
+    <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css" %}">
+    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script>
 
     <script>
 
@@ -148,7 +151,6 @@ Admin | Template Wizard
       <!-- remove response button -->
       $("#rightPane").on("click", "#removeResponseButton", function(){
           var removeResponseId = $(this).val();
-          alert("removing button: " + removeResponseId);
           var removeResponse = "removeResponse";
           var data = { removeResponse:removeResponse, removeResponseId:removeResponseId };
           var args = {type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){

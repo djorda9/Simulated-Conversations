@@ -10,7 +10,6 @@
 	<link href="{% static "tablesorter/themes/blue/style.css"%}" rel="stylesheet">
 	<link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
 	<script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
-    <script type="text/javascript" src="{% static "jquery-2.1.0.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
 
@@ -22,20 +21,17 @@
             .tablesorterPager({container: $("#pager")});
 	    }
 	);
-	</script>
-
-    <script>
-
-    function yourHelp()
-    {
-            alert("Click on any \"Listen to Recording\" link and your computer will decide the best way to play the audio file.\nOr right-click on the link and you can save it to your computer to listen to later.");
-    }
     </script>
+
+
+    <!-- help stuff -->
+    <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css" %}">
+    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script
+
 
 {% endblock %}
 
 {% block content %}
-<body>
 
 <h2>{{conversation.templateID.shortDesc}}:	 {{conversation.studentName}} </h2>
 <h3> {{conversation.dateTime}} </h3>
@@ -46,7 +42,13 @@
 <tr>
 	<th>#</th>
 	<th>Response</th>
-	<th>Recording</th>
+        <th>Recording<button class="btn btn-default" id="resHelp">?</button>
+          <script>
+             $( "#resHelp" ).click(function() {
+                $( "#resText" ).dialog( "open" );
+             });
+          </script>
+        </th>
 </tr>
 </thead>
 
@@ -83,6 +85,14 @@
     </form>
 </div>
 
-</body>
+   <div id="resText" title="Audio Help">
+           <p>Click on any Listen to Recording link and your computer will decide the best way to play the audio file.
+           </br>Or right-click on the link and you can save it to your computer to listen to later.
+           </p>
+   </div>
+
+     <script>
+             $( "#resText" ).dialog( { autoOpen: false } );
+     </script>     
 {% endblock %}
 
