@@ -553,6 +553,8 @@ def TemplateWizardEdit(request, tempID):
         request.session['errorFlag'] = True
     else:
         request.session['editTemplateID'] = tempID
+        request.session['errorFlag'] = False
+        request.session['error'] = ""
     request.session.modified = True
     return TemplateWizard(request)
 
