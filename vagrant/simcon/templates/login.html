@@ -5,8 +5,11 @@
     {% if message %}
         <b>{{message}}</b>
     {% endif %}
-    <form action = ""method="post">{% csrf_token %}
+    <form action ="" method="post">{% csrf_token %}
     {{form.as_p}}
     <input type="submit" value="Submit"/>
     </form>
+    {% url 'admin_password_reset' as password_reset_url %}
+    <a href="{{ password_reset_url }}">Forgotten your password or username?</a>
+
 {% endblock %}
