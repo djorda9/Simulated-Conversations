@@ -24,7 +24,7 @@ def StudentLogin(request,VKey = 123):
         access = StudentAccess.objects.get(validationKey = VKey)
     except Exception,e:
 #fixme
-        return HttpResponse("missing student access table entry: %s" %e)
+        return render('Student_Expired.html')
 
     convo_Expiration = access.expirationDate
     currentdate = datetime.date.today()
@@ -227,7 +227,9 @@ def StudentConvoStep(request):
             convoOrder = request.session.get('ConvoOrder')
             studentsChoice = request.POST.get("choice")
             
-            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = studentsChoice, audioFile = request.session.get('path'))
+            responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
+            
+            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = responseRel, audioFile = request.session.get('path'))
 #fixemefixeme
             T.save()
             #TODO if this fails, do cleanup for browser audio file copy/file system
