@@ -50,6 +50,7 @@
              });
           </script>
         </th>
+	<th>Audio File</th>
 </tr>
 </thead>
 
@@ -64,6 +65,9 @@
         Your browser does not support the audio element.
         </audio> 
     </td>
+	<td>
+		<a href="/{% get_media_prefix %}{{n.audioFile}}" type="audio/wav"> Right click to save audio</a>
+	</td>
 
 </tr>
 
