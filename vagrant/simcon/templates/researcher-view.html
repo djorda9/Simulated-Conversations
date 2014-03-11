@@ -22,9 +22,23 @@ Admin | Template Wizard
 
     <!-- help popups  -->
     <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css"%}">
-    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script> 
-     
+    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script>
 
+    <link href="{% static "tablesorter/css/theme.blue.css"%}" rel="stylesheet">
+    <link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
+	<script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
+    <script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.widgets.js" %}"></script>
+    <script type="text/javascript" src="{% static "tablesorter/js/tbSorter.js" %}"></script>
+     
+    <script>
+	$(document).ready(function()
+	    {
+            tbSorter("#template", "#pager1");
+            tbSorter_no_pager("#response");
+            tbSorter_no_pager("#sharedResponse");
+        });
+    </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -41,19 +55,43 @@ Admin | Template Wizard
           <h2>Conversation Templates<button class="btn btn-default" id="conversationHelp">?</button></h2>
           <p>
             {% if templateList %}
-              <table class="table">
-              <h5>
-              {% for temp in templateList %}
-                <tr>
-                  <td><small><a href="{% url 'TemplateWizardEdit' temp.templateID %}">{{temp.shortDesc}}</a></small></td>
-                  <td><small><a href="{% url 'TemplateDelete' temp.templateID %}">Delete</a></small></td>
-                  <td><small><a href="{% url 'ShareTemplate_with_templateID' temp.templateID %}">Share</a></small></td>
-                  <td><small><a href="{% url 'GenerateLink_with_templateID' temp.templateID %}">Generate link</a></small></td>
-                  <td><small><a href="{% url 'Links' temp.templateID %}">Links</a></small></td>
-                </tr>
-              {% endfor %}
-              </h5>
+              <table id="template" class="tablesorter">
+                  <thead>
+                    <tr>
+                        <th>Template</th>
+                        <th class="filter-false"></th>
+                        <th class="filter-false"></th>
+                        <th class="filter-false"></th>
+                        <th class="filter-false"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for temp in templateList %}
+                      <tr>
+                          <td><small><a href="{% url 'TemplateWizardEdit' temp.templateID %}">{{temp.shortDesc}}</a></small></td>
+                          <td><small><a href="{% url 'TemplateDelete' temp.templateID %}">Delete</a></small></td>
+                          <td><small><a href="{% url 'ShareTemplate_with_templateID' temp.templateID %}">Share</a></small></td>
+                          <td><small><a href="{% url 'GenerateLink_with_templateID' temp.templateID %}">Generate link</a></small></td>
+                          <td><small><a href="{% url 'Links' temp.templateID %}">Links</a></small></td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
               </table>
+              <div id="pager1" class="pager">
+                <form>
+                    <img src={% static "tablesorter/addons/pager/icons/first.png"%} class="first"/>
+                    <img src={% static "tablesorter/addons/pager/icons/prev.png"%} class="prev"/>
+                    <input type="text" class="pagedisplay"/>
+                    <img src={% static "tablesorter/addons/pager/icons/next.png"%} class="next"/>
+                    <img src={% static "tablesorter/addons/pager/icons/last.png"%} class="last"/>
+                    <select class="pagesize">
+                        <option selected="selected"  value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option  value="40">40</option>
+                    </select>
+                </form>
+              </div>
             {% else %}
                There are no templates yet.
             {% endif %}
@@ -64,34 +102,49 @@ Admin | Template Wizard
           <h2>Recent Responses</h2>
           <p>
           {% if responseList %}
-            <table class="table">
-            <h5>
-            {% for res in responseList %}
-              <tr>
-                <td><a href="{% url 'SingleResponse' res.id %}">Response from {{res.studentName}}</a></td>
-                <td><small>{{res.templateID.shortDesc}}</small></td>
-                <td><small>{{res.dateTime}}</small></td>
-                <td><small><a href="{% url 'ShareResponse_with_responseID' res.id %}">Share</a></small></td>
-              </tr>
-            {% endfor %}
-            </h5>
+            <table id="response" class="tablesorter">
+              <thead>
+                <tr>
+                  <th>Response From</th>
+                  <th>Template</th>
+                  <th>Date</th>
+                  <th class="filter-false"></th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for res in responseList %}
+                <tr>
+                  <td><a href="{% url 'SingleResponse' res.id %}">{{res.studentName}}</a></td>
+                  <td><small>{{res.templateID.shortDesc}}</small></td>
+                  <td><small>{{res.dateTime}}</small></td>
+                  <td><small><a href="{% url 'ShareResponse_with_responseID' res.id %}">Share</a></small></td>
+                </tr>
+              {% endfor %}
+              </tbody>
             </table>
           {% else %}
             No recent responses.
           {% endif %}
             <h4><u>Responses shared with you</u></h4>
           {% if sharedResponseList %}
-              <table class="table">
-              <h5>
-                {% for sh in sharedResponseList %}
+            <table id="sharedResponse" class="tablesorter">
+              <thead>
                 <tr>
-                  <td><a href="{% url 'SingleResponse' sh.responseID.id %}">Response from {{sh.responseID.studentName}}</a></td>
-                  <td><small>{{sh.responseID.templateID.shortDesc}}</small></td>
-                  <td><small>{{res.responseID.dateTime}}</small></td>
+                  <th>Response From</th>
+                  <th>Template</th>
+                  <th>Date</th>
                 </tr>
+              </thead>
+              <tbody>
+                {% for sh in sharedResponseList %}
+                  <tr>
+                    <td><a href="{% url 'SingleResponse' sh.responseID.id %}">{{sh.responseID.studentName}}</a></td>
+                    <td><small>{{sh.responseID.templateID.shortDesc}}</small></td>
+                    <td><small>{{sh.responseID.dateTime}}</small></td>
+                  </tr>
                 {% endfor %}
-              </h5>
-              </table>
+              </tbody>
+            </table>
           {% else %}
             No shared responses yet.
           {% endif %}

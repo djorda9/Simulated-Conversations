@@ -4,19 +4,18 @@
 {% load generatelink_extras %}
 {% block title %}Generated Links{% endblock %}
 {% block extrahead %}
-    <link href="{% static "tablesorter/themes/blue/style.css"%}" rel="stylesheet">
+    <link href="{% static "tablesorter/css/theme.blue.css"%}" rel="stylesheet">
 	<link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
     <script type="text/javascript" src="{% static "jquery-2.1.0.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
-
+    <script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.widgets.js" %}"></script>
+    <script type="text/javascript" src="{% static "tablesorter/js/tbSorter.js" %}"></script>
 
 	<script>
 	$(document).ready(function()
 	    {
-	        $("#linkTable")
-            .tablesorter({sortList: [3,0]})
-            .tablesorterPager({container: $("#pager")});
+            tbSorter("#linkTable","#pager");
 	    }
 	);
 	</script>
