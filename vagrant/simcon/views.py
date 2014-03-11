@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
-from django.core.exceptions import ObjectDoesNotExist,PermissionDenied, ValidationError
+from django.core.exceptions import ObjectDoesNotExist,PermissionDenied
 from django.core.files.storage import default_storage
 from django.template import loader, Context
 from django.core.context_processors import csrf
@@ -372,7 +372,7 @@ class RichTextForm(forms.Form):
 def TemplateWizardSave(request):
     #c = {}
     #c.update(csrf(request))
-    if request.POST:
+    if request.method == "POST":
         try:
             #do all of this atomically
             with transaction.atomic():        
@@ -481,7 +481,7 @@ def TemplateWizardSave(request):
                                                              ))
                                 templateFlowRels[-1].save()
                             #since a parent video references this child video, remove it from possible video heads
-                            if res[2] != "endpoint":
+                            if res[2] != "endpoint" and res[2] in possibleVideoHeads:
                                 possibleVideoHeads.remove(res[2])
                             # find the ID of the pageInstance that matches responseChildVideo[j]
                             # unless its "endpoint", then just insert "endpoint"
@@ -490,7 +490,10 @@ def TemplateWizardSave(request):
                             else:
                                 for k,vid2 in enumerate(request.session['videos']):
                                     if vid2 == res[2]:
-                                        insertNextPageInstanceID = PageInstance.objects.get(videoLink = vid2)
+                                        for q in pageInstances:
+                                            for p in PageInstance.objects.filter(videoLink = vid2, templateID = temp):
+                                                if q == p:
+                                                    insertNextPageInstanceID = p
                             #begin adding the responses into the templateResponseRels 
                             templateResponseRels.append(TemplateResponseRel(templateID = temp,
                                                              pageInstanceID = responsesPageInstanceID,
@@ -530,7 +533,10 @@ def TemplateWizardSave(request):
                     request.session.modified = True
                     return render(request, 'template-wizard-save.html')
         except Exception as e:
-            request.session['error'] = e.message
+            if not e.message:
+                request.session['error'] = "general"
+            else:
+                request.session['error'] = e.message
             request.session.modified = True
             logger.info("error was %s" % request.session['error'])
             return TemplateWizardEdit(request, -1)
@@ -544,6 +550,8 @@ def TemplateWizardEdit(request, tempID):
         request.session['errorFlag'] = True
     else:
         request.session['editTemplateID'] = tempID
+        request.session['errorFlag'] = False
+        request.session['error'] = ""
     request.session.modified = True
     return TemplateWizard(request)
 
@@ -657,7 +665,7 @@ def TemplateWizard(request):
 def TemplateWizardUpdate(request):
     c = {}
     c.update(csrf(request))
-    if request.POST:
+    if request.method == "POST":
         if request.POST.get('new_video'):
             '''
             User has demanded to add a video to the pool in the left pane
@@ -772,6 +780,7 @@ def ResearcherView(request):
 @login_required
 def GenerateLink(request, templateID=None):
     link_url = None
+    link_user = None
     validation_key = None
     saved = False
     user_templateID = templateID
@@ -796,6 +805,7 @@ def GenerateLink(request, templateID=None):
                 except IntegrityError as e:
                     saved = False
             link_url = link.get_link(validation_key)
+            link_user = request.get_host() + link_url
             form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
 
     else:
@@ -807,8 +817,9 @@ def GenerateLink(request, templateID=None):
                 form = StudentAccessForm(researcher=current_user)
         else:
             form = StudentAccessForm(researcher=current_user)
-    return render_to_response('generate_link.html', {'link':link_url, 'key':validation_key, 'success':success,
-                                                     'form':form}, context_instance = RequestContext(request))
+    return render_to_response('generate_link.html', {'link':link_url, 'link_user':link_user, 'key':validation_key,
+                                                     'success':success, 'form':form},
+                              context_instance = RequestContext(request))
 
 # Returns the user object for the passed user
 def get_researcher(current_user):
@@ -1117,7 +1128,7 @@ def SingleResponse(request, convoID):
 
 	responses=Response.objects.filter(conversationID=convoID).order_by('order')
 
-	page=render(request, 'Single_response.html', {'responses':responses, 'conversation':currentConvo})
+	page=render(request, 'Single_Response.html', {'responses':responses, 'conversation':currentConvo})
 	return page
 
 def getFileHandle(): # helper function to make a unique file handle

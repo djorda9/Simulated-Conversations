@@ -102,7 +102,7 @@ Admin | Template Wizard
 
 {% if user.is_active and user.is_superuser %}
       <h3>Researcher Account Management</h3>
-      <form method="get" action="/admin">
+      <form method="get" action="/admin/">
       {% csrf_token %}
       <button type="button" class="btn btn-default" onClick="submit()">Create/Delete Researchers &raquo;</button></form>
 {% endif %}
