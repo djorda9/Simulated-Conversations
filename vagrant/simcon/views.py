@@ -922,6 +922,8 @@ def ShareTemplate(request, templateID=None):
 
                     form = ShareTemplateForm(researcher=current_user)
                     researcher_name = researcher.get_full_name()
+                    if(researcher_name==''):
+                        researcher_name = researcher.get_username()
 
             except ValueError as e:
                 failed = "Required data is missing in database in order to copy the template."
@@ -986,6 +988,8 @@ def ShareResponse(request, conversationID=None):
                             sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).\
                                 order_by('researcherID')
                             success = researcher.get_full_name()
+                            if(success==''):
+                                success = researcher.get_username()
                 else:
                     sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).order_by('researcherID')
                     form = ShareResponseForm(researcher=current_user)

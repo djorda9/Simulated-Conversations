@@ -52,7 +52,8 @@
 <tr> 
     <th>Template</th> 
     <th>Student</th> 
-    <th>Date Taken</th> 
+    <th>Date Taken</th>
+    <th></th>
 
 </tr> 
 </thead> 
@@ -75,7 +76,8 @@
 			<a href="{% url 'SingleResponse' n.id %}">
 			{{n.dateTime}}
 			</a>
-	</td> 
+	</td>
+    <td><small><a href="{% url 'ShareResponse_with_responseID' n.id %}">Share</a></small></td>
 	</tr> 
 
 {% endfor %}
@@ -110,7 +112,7 @@
     <th>Student</th> 
     <th>Date Taken</th> 
 
-</tr> 
+</tr>
 </thead> 
 
 <tbody>
