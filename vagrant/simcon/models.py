@@ -22,7 +22,7 @@ class Response(models.Model):
         pageInstanceID  = models.ForeignKey('PageInstance') 
         conversationID  = models.ForeignKey(Conversation)
         order           = models.SmallIntegerField()
-        choice          = models.CharField(max_length=1000)
+        choice          = models.ForeignKey('TemplateResponseRel')
         audioFile       = models.FileField(upload_to='audio')
 #       audioFile is tied to MEDIA_ROOT set in settings, to save in a
 #       subdirectory within MEDIA_ROOT, set upload_to=$PATH.  
