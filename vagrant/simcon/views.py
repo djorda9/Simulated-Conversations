@@ -29,8 +29,8 @@ def StudentLogin(request,VKey = 123):
     convo_Expiration = access.expirationDate
     currentdate = datetime.date.today()
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
-    if(True):
-    #if(currentdate < convo_Expiration):
+    #if(True):
+    if(currentdate < convo_Expiration):
 #fixme
         try:
             #logger.info(access.templateID.templateID)
@@ -404,7 +404,7 @@ def TemplateWizardSave(request):
                 if request.POST.get('conversationTitle') == "":
                     request.session['conversationTitle'] = ""
                     request.session.modified = True
-                    raise "noTitle"
+                    raise Exception("noTitle")
                 request.session['conversationTitle'] = request.POST.get('conversationTitle')
                 request.session.modified = True
                 temp = Template(researcherID = request.user, 
@@ -479,7 +479,7 @@ def TemplateWizardSave(request):
                                                              ))
                                 templateFlowRels[-1].save()
                             #since a parent video references this child video, remove it from possible video heads
-                            if res[2] != "endpoint":
+                            if res[2] != "endpoint" and res[2] in possibleVideoHeads:
                                 possibleVideoHeads.remove(res[2])
                             # find the ID of the pageInstance that matches responseChildVideo[j]
                             # unless its "endpoint", then just insert "endpoint"
