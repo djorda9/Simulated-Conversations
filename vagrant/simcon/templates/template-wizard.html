@@ -88,6 +88,17 @@ Admin | Template Wizard
                        } };
            $.ajax(args);
       });
+      <!-- This is to allow the reseacher to change out the video without changing wiping out their linked responses-->
+      $("#rightPane").on("click", "#editVideoUrlButton", function(){
+           var old_video = $(this).val();
+           var new_video = $("#change_video").val();
+           var data = { oldVideo:old_video, newURL:new_video};
+           var args = { type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
+                            $("#leftPane").load("{% url 'TemplateWizardLeftPane' %}")
+                            $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
+                       } };
+           $.ajax(args);
+      });
       <!-- select a video to edit the video/response page (by clicking button)-->
       $("#leftPane").on("click", "button.editVideoButton", function(){
           var editVideo = $(this).val();
@@ -167,7 +178,7 @@ Admin | Template Wizard
            var textOfEditor = tinymce.get('id_richText').getContent();
            var data = { saveVideoPage:saveVideoPage, mce:textOfEditor };
            var args = { type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
-                           //$("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
+                           $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                            //tinymce.get('id_richText').setContent(textOfEditor)
                        } };
            $.ajax(args);
