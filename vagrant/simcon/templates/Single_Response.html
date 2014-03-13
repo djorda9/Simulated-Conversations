@@ -7,18 +7,18 @@
 {% block extrahead %}
 
 	<link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
-	<link href="{% static "tablesorter/themes/blue/style.css"%}" rel="stylesheet">
+	<link href="{% static "tablesorter/css/theme.blue.css"%}" rel="stylesheet">
 	<link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
 	<script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
 	<script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
+    <script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.widgets.js" %}"></script>
+    <script type="text/javascript" src="{% static "tablesorter/js/tbSorter.js" %}"></script>
 
 	<script>
 	$(document).ready(function()
 	    {
-	        $("#Responses")
-            .tablesorter({sortList: [3,0]})
-            .tablesorterPager({container: $("#pager")});
+            tbSorter("#Responses", "#pager");
 	    }
 	);
     </script>
@@ -43,14 +43,14 @@
 <tr>
 	<th>#</th>
 	<th>Response</th>
-        <th>Recording<button class="btn btn-default" id="resHelp">?</button>
+        <th class="filter-false">Recording<button class="btn btn-default" id="resHelp">?</button>
           <script>
              $( "#resHelp" ).click(function() {
                 $( "#resText" ).dialog( "open" );
              });
           </script>
         </th>
-	<th>Audio File</th>
+	<th class="filter-false">Audio File</th>
 </tr>
 </thead>
 

@@ -7,6 +7,12 @@
 {% block content %}
 {% load simcon_extras %}
                 {% if request.session.selectedVideo != "" %}
+                  {% if request.session.errorRightPane != "" %}
+                    <div class="alert alert-danger">
+                      There was an error editing the video page. Check all of your data and try again.
+                      Error message: {{ request.session.error }}
+                     </div>
+                  {% endif %}
                   <div id="rightPaneVideoTitle" class="center-block"></div>
                   <script>
                          $(document).ready(function(){
@@ -27,6 +33,11 @@
 			     width="400" height="243"></embed>
 		    </object><br>
                   </div><br>
+
+            <input id="change_video" name="change_video" type="text" class="form-control" placeholder="Enter web address of YouTube video">
+            <button type="button" class="btn btn-default btn-sm addVideoButton" value="{{ request.session.selectedVideo }}" id="editVideoUrlButton">
+              <span class="glyphicon glyphicon-circle-arrow-right"></span> Change Video
+            </button>
                   
                   
                   {# Rich Text box http://django-tinymce.readthedocs.org/en/latest/index.html #}

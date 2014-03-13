@@ -19,22 +19,20 @@
     <link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
 
 
-	<link href="{% static "tablesorter/themes/blue/style.css"%}" rel="stylesheet">
+	<link href="{% static "tablesorter/css/theme.blue.css"%}" rel="stylesheet">
 	<link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
 	<script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
+    <script type="text/javascript" src="{% static "tablesorter/js/jquery.tablesorter.widgets.js" %}"></script>
+    <script type="text/javascript" src="{% static "tablesorter/js/tbSorter.js" %}"></script>
 
-
-
-	<script>
-
+    <script>
 	$(document).ready(function() 
-	    { 
-			$("#mine").tablesorter().tablesorterPager({container: $("#pager1")});
-			$("#others").tablesorter().tablesorterPager({container: $("#pager2")});
-		}
-	);
-	</script>
+	    {
+            tbSorter("#mine", "#pager1");
+            tbSorter("#others","#pager2");
+        });
+    </script>
 
 
 
@@ -52,7 +50,8 @@
 <tr> 
     <th>Template</th> 
     <th>Student</th> 
-    <th>Date Taken</th> 
+    <th>Date Taken</th>
+    <th class="filter-false"></th>
 
 </tr> 
 </thead> 
@@ -75,7 +74,8 @@
 			<a href="{% url 'SingleResponse' n.id %}">
 			{{n.dateTime}}
 			</a>
-	</td> 
+	</td>
+    <td><small><a href="{% url 'ShareResponse_with_responseID' n.id %}">Share</a></small></td>
 	</tr> 
 
 {% endfor %}
@@ -110,7 +110,7 @@
     <th>Student</th> 
     <th>Date Taken</th> 
 
-</tr> 
+</tr>
 </thead> 
 
 <tbody>

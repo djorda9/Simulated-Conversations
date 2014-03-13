@@ -228,7 +228,9 @@ def StudentConvoStep(request):
             studentsChoice = request.POST.get("choice")
             
             #fill a response object with the students audio and their choice
-            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice_id = studentsChoice, audioFile = request.session.get('path'))
+            responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
+            
+            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = responseRel, audioFile = request.session.get('path'))
 #fixemefixeme
             T.save()
             #TODO if this fails, do cleanup for browser audio file copy/file system
@@ -503,8 +505,11 @@ def TemplateWizardSave(request):
                             templateResponseRels[-1].save()
                     if numberOfResponses == 0:
                         raise Exception("noResponses")
+                pHeadLen = len(possibleVideoHeads)
+                if pHeadLen == 0:
+                    raise  Exception("The FirstVideo can not be linked as a response.")
                 #by now, there should be only one video head if the flow was built correctly.
-                if len(possibleVideoHeads) > 1:
+                if pHeadLen > 1:
                     #if not, produce an error message and go back to template editor.
                     raise Exception("noFirstVideo")
                 #if you want to insert more errors, do it here.
@@ -571,6 +576,9 @@ def TemplateWizard(request):
     c.update(csrf(request))
     if "error" not in request.session:
         request.session["error"] = ""
+        request.session.modified = True
+    if "error" not in request.session:
+        request.session["errorRightPane"] = ""
         request.session.modified = True
     if "edit" not in request.session:
         request.session["edit"] = False
@@ -639,6 +647,7 @@ def TemplateWizard(request):
     else:
         # DATA MODEL:
         request.session["error"] = ""
+        request.session["errorRightPane"] = ""
         request.session["errorFlag"] = False
         request.session["editTemplateID"] = False
         request.session["conversationTitle"] = ""
@@ -665,6 +674,10 @@ def TemplateWizardUpdate(request):
     c = {}
     c.update(csrf(request))
     if request.method == "POST":
+<<<<<<< HEAD
+=======
+        request.session["errorRightPane"] = ""
+>>>>>>> 09d58afb722f6ee7cdc01afc1828e941c7886efe
         if request.POST.get('new_video'):
             '''
             User has demanded to add a video to the pool in the left pane
@@ -693,6 +706,53 @@ def TemplateWizardUpdate(request):
                 request.session.modified = True
                 request.session['richText/%s' % request.session['selectedVideo']] = "" # push current tinymce into session
                 request.session.modified = True
+        elif request.POST.get('oldVideo'):
+            oldVideo = request.POST.get('oldVideo')
+            videoCode = re.match(r'.*?v=([^&]*)&?.*', request.POST['newURL'], 0)
+            videoCode = videoCode.group(1) # just pertinent code
+            try:
+                if videoCode and videoCode not in request.session['videos']:
+                    for idx, item in enumerate(request.session['videos']):
+                        if oldVideo == item:
+                            request.session['videos'][idx] = videoCode
+                            request.session.modified = True
+                            request.session['selectedVideo'] = videoCode
+                            request.session['richText/%s' % videoCode] = request.session['richText/%s' % oldVideo]
+                            del request.session['richText/%s' % oldVideo]
+                            removeIndex = []
+                            loopRestart = True
+                            while loopRestart:
+                                loopRestart = False
+                                for idxRes, response in enumerate(request.session['responseParentVideo']):
+                                    if(oldVideo == response):
+                                        removeIndex.append(idxRes)
+                                        request.session["responseText"].append(request.session["responseText"][idxRes])
+                                        request.session["responseParentVideo"].append(videoCode)
+                                        request.session["responseChildVideo"].append(request.session["responseChildVideo"][idxRes])
+                                        request.session["responseParentVideo"].pop(idxRes)
+                                        request.session["responseText"].pop(idxRes)
+                                        request.session["responseChildVideo"].pop(idxRes)
+                                        loopRestart = True
+                                        break
+                                    if loopRestart:
+                                        break
+
+                            for idxChild, child in enumerate(request.session['responseChildVideo']):
+                                if(oldVideo == child):
+                                    request.session['responseChildVideo'][idxChild] = videoCode
+                            if oldVideo in request.session['enablePlayback']:
+                              request.session["enablePlayback"].remove(oldVideo)
+                              request.session["enablePlayback"].append(request.session['selectedVideo'])
+                            request.session.modified = True
+                else:
+                    raise Exception('The video link is either invalid or it is already in the video pool.')
+            except Exception as e:
+                if not e.message:
+                    request.session["errorRightPane"] = "general"
+                else:
+                    request.session["errorRightPane"] = e.message
+                request.session.modified = True
+                logger.info("error was %s" % request.session["errorRightPane"])
         elif request.POST.get('editVideo'):
             '''
             User selected a video to edit. Populate the right pane.
@@ -921,6 +981,8 @@ def ShareTemplate(request, templateID=None):
 
                     form = ShareTemplateForm(researcher=current_user)
                     researcher_name = researcher.get_full_name()
+                    if(researcher_name==''):
+                        researcher_name = researcher.get_username()
 
             except ValueError as e:
                 failed = "Required data is missing in database in order to copy the template."
@@ -985,6 +1047,8 @@ def ShareResponse(request, conversationID=None):
                             sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).\
                                 order_by('researcherID')
                             success = researcher.get_full_name()
+                            if(success==''):
+                                success = researcher.get_username()
                 else:
                     sharedWith = SharedResponses.objects.filter(responseID=user_conversationID).order_by('researcherID')
                     form = ShareResponseForm(researcher=current_user)
