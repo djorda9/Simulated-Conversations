@@ -115,7 +115,6 @@ def SVideo(request):
         return HttpResponse("missing page instance: %s" %e)
 
     try:
-        #possible case: someone changes validation key to a different validation key, would still succeed
         valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
     except Exception,e:
 #fixme
@@ -165,7 +164,6 @@ def StudentInfo(request):
             return HttpResponse("no researcher for conversation: %s" %e)
 
         T = Conversation.objects.create(templateID_id=templ.templateID, researcherID_id=rese.pk, studentName=studentname, studentEmail=studentemail)
-        logger.info(request.session.get('VoR'))
         try:
             T.save()
             request.session['convo'] = T.pk
@@ -237,6 +235,9 @@ def StudentConvoStep(request):
 
             request.session['ConvoOrder'] += 1
             
+            if vidLink == "":
+                return render(request, 'Student_Submission.html')
+            
             #the student has chosen a choice, figure out with the templateResponseRel table what the current PIID should be
             try:
                 nextVideo = TemplateResponseRel.objects.get(pageInstanceID = request.session.get('PIID'), optionNumber = studentsChoice)
@@ -247,18 +248,23 @@ def StudentConvoStep(request):
             
             #will get the variables for the current video page before changing PIID to point to this videos response page
             sPage = SVideo(request)
+            
+            #get the student access object to check for replayability of videos
+            try:
+                sAccess = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
+            except Exception,e:
+#fixme
+                return HttpResponse("invalid validation key reference: %s" %e)
 
             #create context variables for video web page
             vidLink = sPage.videoLink
             text = sPage.richText
-            playback = sPage.enablePlayback
+            playback = sAccess.enablePlayback
+            #playback = sPage.enablePlayback  # lookup from studentaccess instead
 
             request.session['VoR'] = "response"
             request.session.modified = True
-                
-            if vidLink == "":
-                return render(request, 'Student_Submission.html')
-
+            
             # there are ways to compact this code, but this is the most explicit way to render a template
             c = Context({
             'vidLink': vidLink,
