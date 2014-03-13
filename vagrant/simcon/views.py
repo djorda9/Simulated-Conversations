@@ -261,8 +261,6 @@ def StudentConvoStep(request):
             #create context variables for video web page
             vidLink = sPage.videoLink
             text = sPage.richText
-            playback = sAccess.enablePlayback
-            #playback = sPage.enablePlayback  # lookup from studentaccess instead
 
             request.session['VoR'] = "response"
             request.session.modified = True
