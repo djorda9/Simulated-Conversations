@@ -30,6 +30,7 @@ def StudentLogin(request,VKey = 123):
     currentdate = datetime.date.today()
     request.session['playbackAudio'] = access.playbackAudio
     request.session['playbackVideo'] = access.playbackVideo
+    request.session['collectEmail']  = access.collectEmail
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
     #if(True):
     if(currentdate < convo_Expiration):
@@ -150,6 +151,8 @@ def StudentInfo(request):
         #logger.info(request.POST)
         studentname = request.POST.get("SName")
         studentemail = request.POST.get("SEmail")
+        if not studentemail:
+            studentemail = ""
         request.session['SName'] = studentname
         #Conversation wants a instances, not just the ids
         try:
@@ -847,6 +850,7 @@ def GenerateLink(request, templateID=None):
     template = None
     playback_audio = None
     playback_video = None
+    collect_email = None
     current_user = get_researcher(request.user)
     if request.method == 'POST':
         #logger.info("post for playback was %s" % request.POST['playbackAudio'])
@@ -866,9 +870,12 @@ def GenerateLink(request, templateID=None):
                     exp_date = form.cleaned_data['expirationDate']
                     playback_audio = form.cleaned_data['playbackAudio']
                     playback_video = form.cleaned_data['playbackVideo']
+                    collect_email = form.cleaned_data['collectEmail']
                     #logger.info("playbackaudio is %s" % playback_audio)
                     link = StudentAccess(templateID=template, researcherID = current_user,
-                                        validationKey = validation_key, expirationDate=exp_date, playbackAudio = playback_audio, playbackVideo = playback_video)
+                                        validationKey = validation_key, expirationDate=exp_date, 
+                                        playbackAudio = playback_audio, playbackVideo = playback_video,
+                                        collectEmail = collect_email)
                     link.save()
                     saved = True
                     success = "You have successfully generated a link to " + template.__unicode__() + " template.\n"
