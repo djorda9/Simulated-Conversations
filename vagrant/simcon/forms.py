@@ -2,8 +2,10 @@ from django import forms
 from django.contrib.auth.models import User
 from models import Template
 from django.utils.timezone import utc
-import datetime
+import datetime, logging
 
+
+logger = logging.getLogger("simcon") #global logger handler
 
 class LoginForm(forms.Form):
     username = forms.CharField()
@@ -14,11 +16,18 @@ class StudentAccessForm(forms.Form):
     templateID = forms.ModelChoiceField(queryset=Template.objects.all(), empty_label='Select a template',
                                         label="Template")
     expirationDate = forms.DateField(widget=forms.TextInput(attrs={'id':'datepicker'}), label="Expiration Date")
+    
+    playbackAudio  = forms.BooleanField(initial=True, required=False, label='Playback audio?') 
+    
+    playbackVideo  = forms.BooleanField(initial=True, required=False, label='Playback video?')
 
     def __init__(self, *args, **kwargs):
         self.researcher = kwargs.pop('researcher',None)
         self.user_template = kwargs.pop('templateID',None)
+        #rawaudio = args[0]['playbackAudio']#kwargs.pop('playbackAudio', None)
+        #logger.info("playback in form is %s" % rawaudio)
         super(StudentAccessForm, self).__init__(*args, **kwargs)
+        #self.playbackAudio = False
         if self.researcher > 0:
             self.fields['templateID'] = forms.ModelChoiceField(queryset=Template.objects.filter
                                         (researcherID=self.researcher).filter(deleted=0),

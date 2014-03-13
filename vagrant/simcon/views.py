@@ -28,6 +28,8 @@ def StudentLogin(request,VKey = 123):
 
     convo_Expiration = access.expirationDate
     currentdate = datetime.date.today()
+    request.session['playbackAudio'] = access.playbackAudio
+    request.session['playbackVideo'] = access.playbackVideo
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
     #if(True):
     if(currentdate < convo_Expiration):
@@ -842,20 +844,33 @@ def GenerateLink(request, templateID=None):
     exp_date = None
     success = None
     template = None
+    playback_audio = None
+    playback_video = None
     current_user = get_researcher(request.user)
     if request.method == 'POST':
+        #logger.info("post for playback was %s" % request.POST['playbackAudio'])
+        
+        #if request.POST['playbackAudio'] == 'on':
+        #    playback_audio = True
+        #else:
+        #    playback_audio = False
+            
         form = StudentAccessForm(request.POST, researcher=current_user)
+        #logger.info("is the form valid? %s" % form.is_valid())
         if form.is_valid():
             template =form.cleaned_data['templateID']
             while not saved:
                 try:
                     validation_key = User.objects.make_random_password(length=10)
                     exp_date = form.cleaned_data['expirationDate']
+                    playback_audio = form.cleaned_data['playbackAudio']
+                    playback_video = form.cleaned_data['playbackVideo']
+                    #logger.info("playbackaudio is %s" % playback_audio)
                     link = StudentAccess(templateID=template, researcherID = current_user,
-                                        validationKey = validation_key, expirationDate=exp_date)
+                                        validationKey = validation_key, expirationDate=exp_date, playbackAudio = playback_audio, playbackVideo = playback_video)
                     link.save()
                     saved = True
-                    success = "You have successfully generated at link to " + template.__unicode__() + " template.\n"
+                    success = "You have successfully generated a link to " + template.__unicode__() + " template.\n"
                     success = success + "The Link expires on " + exp_date.strftime("%B %d, %Y")
                 except IntegrityError as e:
                     saved = False
@@ -868,6 +883,7 @@ def GenerateLink(request, templateID=None):
             try:
                 template = Template.objects.get(pk=user_templateID)
                 form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
+                #logger.info("initial playback in form is %s" % form.data['playbackAudio'])
             except ObjectDoesNotExist as e:
                 form = StudentAccessForm(researcher=current_user)
         else:
