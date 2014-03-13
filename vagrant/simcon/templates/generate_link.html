@@ -7,7 +7,7 @@ GenerateLink view.-->
 {% block extrahead %}
 
     <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css" %}">
-    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script
+    <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script>
 
 {% endblock %}
 
@@ -19,16 +19,10 @@ GenerateLink view.-->
         <div class="alert alert-success">
             <b>{{success}}<br/></b>
             <b>Link: </b>
-            <script type="text/javascript" src="http://www.steamdev.com/zclip/js/jquery.zclip.min.js"></script>
-            <script type="text/javascript" src="http://www.steamdev.com/zclip/js/jquery.snippet.min.js"></script>
-            <a href="{{link}}">{{link}}</a>
-            <button id="copy_button">Copy</button>
-            <script>
-                $("#copy-button").zclip({
-                    path: "http://www.steamdev.com/zclip/js/ZeroClipboard.swf",
-                    copy: function() {return $(this).prev().text();}
-                    });
-            </script>
+            <a href="{{link}}">{{link_user}}</a>
+            <button id="copy_button" data-clipboard-text="{{link_user}}" title="Click to link.">Copy</button>
+            <script src={% static "zeroclipboard-1.3.2/ZeroClipboard.js" %}></script>
+            <script src={% static "zeroclipboard-1.3.2/copy.js" %}></script>
             <button class="btn btn-default" id="linkHelp">?</button>
         </div>
     {% else %}

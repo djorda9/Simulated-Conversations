@@ -34,6 +34,7 @@
 {% block content %}
 
 <h2>{{conversation.templateID.shortDesc}}:	 {{conversation.studentName}} </h2>
+<h3>Email comments to student at <a href="mailto:{{conversation.studentEmail}}?subject=Simulated Conversation Feedback for {{conversation.templateID.shortDesc}}">  {{conversation.studentEmail}}</a> 
 <h3> {{conversation.dateTime}} </h3>
 
 
@@ -49,6 +50,7 @@
              });
           </script>
         </th>
+	<th>Audio File</th>
 </tr>
 </thead>
 
@@ -63,6 +65,9 @@
         Your browser does not support the audio element.
         </audio> 
     </td>
+	<td>
+		<a href="/{% get_media_prefix %}{{n.audioFile}}" type="audio/wav"> Right click to save audio</a>
+	</td>
 
 </tr>
 

@@ -84,6 +84,7 @@ Admin | Template Wizard
            var data = { new_video:new_video };
            var args = { type:"POST", url:"{% url 'TemplateWizardUpdate' %}", data:data, cache:false, complete:function(){
                             $("#leftPane").load("{% url 'TemplateWizardLeftPane' %}")
+                            $("#rightPane").load("{% url 'TemplateWizardRightPane' %}")
                        } };
            $.ajax(args);
       });
@@ -211,13 +212,13 @@ Admin | Template Wizard
         <div class="alert alert-danger">
           There was an error submitting the conversation. One of your videos has no possible responses.
         </div>
-        {% elif request.session.error == "general" %}
-        <div class="alert alert-danger">
-          There was an error submitting the conversation. Check all of your data and try again.
-        </div>
         {% elif request.session.error == "editButResponses" %}
         <div class="alert alert-danger">
           You are trying to edit a template that has corresponding responses. You cannot edit the template. Instead, you can create a new copy. The proper values below were populated. If you'd instead like to delete the template, <a href="{% url 'TemplateDelete' request.session.editTemplateID %}">click here</a>.
+        </div>
+        {% elif request.session.error != "" %}
+        <div class="alert alert-danger">
+          There was an error submitting the conversation. Check all of your data and try again. Error message: {{ request.session.error }}
         </div>
         {% endif %}
         <div class="row">
