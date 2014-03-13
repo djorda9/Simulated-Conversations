@@ -3,7 +3,8 @@
 {% load staticfiles %}
 {% load static %}
 
-{% block title %}Simcon - {{currentConvo.shortDesc}}{% endblock %}
+{% block title %}Simcon | {{conversation.templateID.shortDesc}}{% endblock %}
+{% block branding %}<h1>Simcon Response View </h1>{% endblock %}
 {% block extrahead %}
 
 	<link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">

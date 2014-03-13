@@ -14,6 +14,18 @@
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
 <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Created for Simulated Conversations Senior Capstone Project">
+<meta name="author" content="Daniel Jordan, Ken Williams, Nick Horner, Nathanial Myers,Jason Nelson, Griff Masters, Alexander Steiert">
+
+<!-- prevent line breaks when using form fields -->
+<style type="text/css">
+form {display:inline; margin:0px; padding:0px;}
+</style>
+    
 {% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 </head>
