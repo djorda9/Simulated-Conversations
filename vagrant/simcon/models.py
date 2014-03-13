@@ -22,7 +22,7 @@ class Response(models.Model):
         pageInstanceID  = models.ForeignKey('PageInstance') 
         conversationID  = models.ForeignKey(Conversation)
         order           = models.SmallIntegerField()
-        choice          = models.ForeignKey('TemplateResponseRel')
+        choice          = models.ForeignKey('TemplateResponseRel') # needs to default to a certain flag so can be nullable, in case of recorded audio with no choice
         audioFile       = models.FileField(upload_to='audio')
 #       audioFile is tied to MEDIA_ROOT set in settings, to save in a
 #       subdirectory within MEDIA_ROOT, set upload_to=$PATH.  

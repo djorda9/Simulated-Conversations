@@ -227,11 +227,12 @@ def StudentConvoStep(request):
             piID = request.session.get('PIID')
             cID = request.session.get('convo')
             convoOrder = request.session.get('ConvoOrder')
-            studentsChoice = request.POST.get("choice")
+            studentsChoice = request.POST.get('choice')
             
+            #fill a response object with the students audio and their choice
             responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
             
-            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice = responseRel, audioFile = request.session.get('path'))
+            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice_id = studentsChoice, audioFile = request.session.get('path'))
 #fixemefixeme
             T.save()
             #TODO if this fails, do cleanup for browser audio file copy/file system

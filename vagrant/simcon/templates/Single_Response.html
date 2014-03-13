@@ -58,7 +58,7 @@
 {% for n in responses %}
 <tr>
 	<td>{{n.order}}</td>
-	<td>{{n.choice}}</td>
+	<td>{{n.choice.responseText}}</td>
 	<td>
     <audio controls>
         <source src="/{% get_media_prefix %}{{n.audioFile}}" type="audio/wav">
