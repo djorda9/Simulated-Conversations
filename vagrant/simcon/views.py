@@ -674,10 +674,7 @@ def TemplateWizardUpdate(request):
     c = {}
     c.update(csrf(request))
     if request.method == "POST":
-<<<<<<< HEAD
-=======
         request.session["errorRightPane"] = ""
->>>>>>> 09d58afb722f6ee7cdc01afc1828e941c7886efe
         if request.POST.get('new_video'):
             '''
             User has demanded to add a video to the pool in the left pane
