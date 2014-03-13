@@ -10,6 +10,7 @@
 {% block extrahead %}
 {% getRecorderHead %}
 
+
 {% endblock %}
 
 {% block content %}
@@ -17,7 +18,7 @@
         Press the <b>record</b> button below, and in a clear voice, respond to the speaker in the video as if you were in the same room, or on the telephone.<br/>
         Press the <b>stop</b> button to go to the next phase of the conversation.</div>
         <h3>Video Page</h3>
-	    {% if playback == True %}
+	    {% if request.session.playbackVideo %}
           <p><iframe title="YouTube video player" class="youtube-player" type="text/html" 
               width="640" height="390" src="http://www.youtube.com/embed/{{vidLink}}?rel=0"
               frameborder="0" allowFullScreen></iframe></p>
@@ -27,7 +28,6 @@
               frameborder="0" allowFullScreen></iframe></p>
         {% endif %}
         <div class="well well-sm">{{text|safe}}</div>
-
         {% load_getUserMedia "makeRecording" %}
         {# defaultHandler "makeRecording" #}  
         <button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>

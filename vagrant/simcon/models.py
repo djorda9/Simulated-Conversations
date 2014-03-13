@@ -38,6 +38,9 @@ class StudentAccess(models.Model):
     researcherID = models.ForeignKey(User)
     validationKey = models.CharField(max_length = 50, unique=True)
     expirationDate = models.DateField()
+    playbackAudio = models.BooleanField(default = False) # can the student playback the audio in line
+    playbackVideo = models.BooleanField(default = False) # can the student playback the video?
+    
     def __unicode__(self):
         return u'%s %s %s %s %s' % \
             (self.studentAccessID, self.templateID, 

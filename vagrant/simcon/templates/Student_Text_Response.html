@@ -4,12 +4,13 @@
 {% block title %}Student Text Response{% endblock %}
 {% block content %}
       <h2><u>Response Page</u></h2>
-      {# TODO did the handle for recorded media get saved into DB? #}
+        {% if request.session.playbackAudio %}
         <audio controls>
         
         <source src="/{% get_media_prefix %}{{request.session.path}}" type="audio/wav">
         Your browser does not support the audio element.
         </audio>
+        {% endif %}
 
       <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
         <form name="input" action="{% url 'StudentConvoStep' %}" method="POST">{% csrf_token %}
