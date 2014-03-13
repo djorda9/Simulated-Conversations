@@ -409,6 +409,7 @@ def TemplateWizardSave(request):
                 Storing session variables into the database template mappings
                 '''
                 request.session['error'] = ""
+                request.session['metaError'] = ""
 
                 if request.session['editTemplateID'] != False:
                     #you are editing an existing template, so delete the old one first.
@@ -449,6 +450,7 @@ def TemplateWizardSave(request):
                         enabPlayback = True
 
                     #add the page instance for this video
+                    request.session['metaError'] = i # save current video being worked on
                     pageInstances.append(PageInstance(templateID = temp,
                                                        videoOrResponse = "video",
                                                        videoLink = vid,
@@ -464,6 +466,7 @@ def TemplateWizardSave(request):
                     #the pageInstances should correspond to the session videos by id at this point.
                     #so only keep track of the responses that match this parent video (vid)
                     numberOfResponses = 0
+                    request.session['metaError'] = i
                     #loop through each of the responses....                         
                     # note that the following three values can be accessed by res[0], res[1], res[2]
                     for j, res in enumerate(zip(request.session['responseText'],request.session['responseParentVideo'],request.session['responseChildVideo'])):
@@ -517,6 +520,7 @@ def TemplateWizardSave(request):
                     if numberOfResponses == 0:
                         raise Exception("noResponses")
                 pHeadLen = len(possibleVideoHeads)
+                request.session['metaError'] = "" # clear meta error
                 if pHeadLen == 0:
                     raise  Exception("The FirstVideo can not be linked as a response.")
                 #by now, there should be only one video head if the flow was built correctly.
@@ -552,8 +556,10 @@ def TemplateWizardSave(request):
                 request.session['error'] = "general"
             else:
                 request.session['error'] = e.message
+            if request.session['metaError'] != "":
+                request.session['error'] += " in video: " + str(request.session['metaError'] + 1)
             request.session.modified = True
-            logger.info("error was %s" % request.session['error'])
+            #logger.info("error was %s" % request.session['error'])
             return TemplateWizardEdit(request, -1)
     else:
         return HttpResponse("Failure: no post data")
