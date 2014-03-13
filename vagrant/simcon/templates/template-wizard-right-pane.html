@@ -45,15 +45,7 @@
                   <button type="button" class="btn btn-default btn-sm saveVideoPageButton" id="saveVideoPage" value="{{request.session.selectedVideo}}">
                       <span class="glyphicon glyphicon-save"></span> Click here to save this text
                     </button><button class="btn btn-default" id="richHelp">?</button><br>
-                  <div style="text-align:center;">
-                    <label for="enablePlayback">Enable playback of video?</label> <input type="checkbox" id="enablePlayback"
-                    {% for chk in request.session.enablePlayback %}
-                      {% if chk == request.session.selectedVideo %} 
-                        checked 
-                      {% endif %}
-                    {% endfor %}>
-                  </div>
-                  <h4><u>Responses:</u></h4>
+                 <h4><u>Responses:</u></h4>
 		    <div class="form-group">
                       <table>
                         <input type="hidden" id="addResponseParentVideo" value="{{request.session.selectedVideo}}">
