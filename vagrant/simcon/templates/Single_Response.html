@@ -34,7 +34,14 @@
 {% block content %}
 
 <h2>{{conversation.templateID.shortDesc}}:	 {{conversation.studentName}} </h2>
+
+{% if conversation.studentEmail %}
 <h3>Email comments to student at <a href="mailto:{{conversation.studentEmail}}?subject=Simulated Conversation Feedback for {{conversation.templateID.shortDesc}}">  {{conversation.studentEmail}}</a> 
+
+{% else %}
+<h3>No email provided for this conversation</h3>
+{% endif %}
+
 <h3> {{conversation.dateTime}} </h3>
 
 
