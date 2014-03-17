@@ -145,3 +145,25 @@ class TemplateFlowRel(models.Model):
 
     def nex_page(self):
         return self.nextPageInstanceIDtemplateID 
+
+#TemplateInProgress: this allows the researcher to save a template
+# in progress. there is no error checking before saving, and the researcher
+# can come back to it before saving as a template.
+class TemplateInProgress(models.Model):
+    templateInProgressID    = models.AutoField(primary_key = True)
+    researcherID            = models.ForeignKey(User)
+    conversationTitle       = models.TextField()
+    videoList               = models.TextField()
+    responseTextList        = models.TextField()
+    responseParentVideoList = models.TextField()
+    responseChildVideoList  = models.TextField()
+    dateTimeSaved           = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return u"A saved template in progress"
+
+class TemplateInProgressRichText(models.Model):
+    TIPRTID                 = models.AutoField(primary_key = True)
+    templateInProgressID    = models.ForeignKey(TemplateInProgress, blank=True, null=True)
+    video                   = models.TextField()
+    richText                = HTMLField()

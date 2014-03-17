@@ -12,9 +12,9 @@ from django.core.context_processors import csrf
 from django import forms # for forms
 from django.http import Http404
 from forms import StudentAccessForm, ShareTemplateForm, LoginForm, ShareResponseForm
-from models import StudentAccess, Response, Template, PageInstance, TemplateFlowRel, TemplateResponseRel, SharedResponses, Conversation
+from models import StudentAccess, Response, Template, PageInstance, TemplateFlowRel, TemplateResponseRel, SharedResponses, Conversation, TemplateInProgress, TemplateInProgressRichText
 from tinymce.widgets import TinyMCE
-import re, logging, datetime
+import re, logging, datetime, json
 
 logger = logging.getLogger("simcon") #global logger handler
 
@@ -382,184 +382,212 @@ def TemplateWizardSave(request):
     #c = {}
     #c.update(csrf(request))
     if request.method == "POST":
-        try:
-            #do all of this atomically
-            with transaction.atomic():        
-
-                #variables to translate into db:
-                  #request.session['videos']               <-- array of videos in the pools
-                  #request.session['responseText']                 <-- these 3 are all associated by id
-                  #request.session['responseChildVideo']           <--
-                  #request.session['responseParentVideo']          <--
-                  #request.POST.get('conversationTitle')
-                  #request.session['enablePlayback']       <-- True or False
-
-                #logger.info("Inserting conversation into database")
-
-                #TODO check if values are valid   --- note, the values should all be valid already, due to how we implemented the jQuery add functions. -nm
-                  #if not, send back to edit page and display errors
-
-                #TODO check if conversation already existed  --- we should maybe have a "edittingTemplate" variable that is set when you open the edit page -nm
-                  #if yes, check if associated with responses/shared responses
-                  #if yes, save as new version
-                '''
-                Storing session variables into the database template mappings
-                '''
-                request.session['error'] = ""
-
-                if request.session['editTemplateID'] != False:
-                    #you are editing an existing template, so delete the old one first.
-                    deleteTemp = Template.objects.get(templateID = request.session['editTemplateID'])
-                    deleteTemp.delete()
-
-                if request.POST.get('conversationTitle') == "":
-                    request.session['conversationTitle'] = ""
-                    request.session.modified = True
-                    raise Exception("noTitle")
-                request.session['conversationTitle'] = request.POST.get('conversationTitle')
-                request.session.modified = True
-                temp = Template(researcherID = request.user, 
-                                 shortDesc   = request.POST.get('conversationTitle')) # NOTE: need firstInstanceID (TemplateFlowRel), added retroactively
-
-                temp.save() # need this to create id
-                pageInstances = []
-                pageInstances.append(PageInstance(templateID = temp,       #need this to use as endpoint in template flow
-                                                  videoOrResponse = "endpoint",
-                                                  videoLink = "",
-                                                  richText = "",
-                                                  enablePlayback = False))
-                pageInstances[-1].save()
-                endpointPI = pageInstances[-1]
-                templateResponseRels = []
-                templateFlowRels = []
-
-                #this is how we will know which video comes first in the relationships
-                possibleVideoHeads = []
-                for vid in request.session['videos']:
-                   possibleVideoHeads.append(vid)
-
-                # build up structure in models
-                # first create page instance entries for all videos in pool
-                for i, vid in enumerate(request.session['videos']):
-                    enabPlayback = False
-                    if vid in request.session['enablePlayback']:
-                        enabPlayback = True
-
-                    #add the page instance for this video
-                    pageInstances.append(PageInstance(templateID = temp,
-                                                       videoOrResponse = "video",
-                                                       videoLink = vid,
-                                                       richText = request.session['richText/%s' % vid],
-                                                       enablePlayback = enabPlayback
-                                                       ))
-                    pageInstances[-1].save()
-                    #thisVidsPI = pageInstances[-1]
-                #now all the videos have pageInstanceIDs
-
-                #next, for each video, 
-                for i, vid in enumerate(request.session['videos']):     
-                    #the pageInstances should correspond to the session videos by id at this point.
-                    #so only keep track of the responses that match this parent video (vid)
-                    numberOfResponses = 0
-                    #loop through each of the responses....                         
-                    # note that the following three values can be accessed by res[0], res[1], res[2]
-                    for j, res in enumerate(zip(request.session['responseText'],request.session['responseParentVideo'],request.session['responseChildVideo'])):
-                        # ...that match the video 
-                        if res[1] == vid:
-                            numberOfResponses += 1
-                            #..and if this is the first one so far,
-                            if numberOfResponses == 1:
-                                #create a page instance for this group of responses.
-                                pageInstances.append(PageInstance(templateID = temp,
-                                                          videoOrResponse = "response",
-                                                          videoLink = "",
-                                                          richText = "",
-                                                          enablePlayback = False
-                                                          ))
-                                pageInstances[-1].save()
-                                responsesPageInstanceID = pageInstances[-1]
-                                #link the parents pageInstance entry to the one we just created
-                                for getapi in pageInstances:
-                                    if getapi.videoLink == vid:
-                                        thisVidsPI = getapi
-                                        break
-                                pageInstanceMatchesVideo = thisVidsPI
-                                templateFlowRels.append(TemplateFlowRel(templateID = temp,
-                                                             pageInstanceID = pageInstanceMatchesVideo,
-                                                             nextPageInstanceID = responsesPageInstanceID
-                                                             ))
-                                templateFlowRels[-1].save()
-                            #since a parent video references this child video, remove it from possible video heads
-                            if res[2] != "endpoint" and res[2] in possibleVideoHeads:
-                                possibleVideoHeads.remove(res[2])
-                            # find the ID of the pageInstance that matches responseChildVideo[j]
-                            # unless its "endpoint", then just insert "endpoint"
-                            if res[2] == "endpoint":
-                                insertNextPageInstanceID = endpointPI
-                            else:
-                                for k,vid2 in enumerate(request.session['videos']):
-                                    if vid2 == res[2]:
-                                        for q in pageInstances:
-                                            for p in PageInstance.objects.filter(videoLink = vid2, templateID = temp):
-                                                if q == p:
-                                                    insertNextPageInstanceID = p
-                            #begin adding the responses into the templateResponseRels 
-                            templateResponseRels.append(TemplateResponseRel(templateID = temp,
-                                                             pageInstanceID = responsesPageInstanceID,
-                                                             responseText = res[0],
-                                                             optionNumber = numberOfResponses,
-                                                             nextPageInstanceID = insertNextPageInstanceID         
-                                                             ))
-                            templateResponseRels[-1].save()
-                    if numberOfResponses == 0:
-                        raise Exception("noResponses")
-                pHeadLen = len(possibleVideoHeads)
-                if pHeadLen == 0:
-                    raise  Exception("The FirstVideo can not be linked as a response.")
-                #by now, there should be only one video head if the flow was built correctly.
-                if pHeadLen > 1:
-                    #if not, produce an error message and go back to template editor.
-                    raise Exception("noFirstVideo")
-                #if you want to insert more errors, do it here.
-                else:
-                    #get the pageInstance that references this first video
-                    for pi in pageInstances:
-                        if pi.videoLink == possibleVideoHeads[0]:
-                            firstPageID = pi
-                    #firstPageID = pageInstances[pageInstances.index(possibleVideoHeads[0])]
-                    #insert this video as the templates firstInstanceID
-                    temp.firstInstanceID = firstPageID
-                    temp.save()
-                    #TODO map these arrays to the actual db -- should already be done by save() -nm
-                    #TODO print success message
-                    #TODO provide link back to main page
-                    #return HttpResponse("Success")#render(request, 'admin/template-wizard-submission.html')
-                    for vid in request.session['videos']:
-                        request.session['richText/%s' % vid] = ""
-                    request.session['videos'] = []
-                    request.session['responseText'] = []
-                    request.session['responseParentVideo'] = []
-                    request.session['responseChildVideo'] = []
-                    request.session['enablePlayback'] = []
-                    request.session['conversationTitle'] = ""
-                    request.session.modified = True
-                    return render(request, 'template-wizard-save.html')
-        except Exception as e:
-            if not e.message:
-                request.session['error'] = "general"
-            else:
-                request.session['error'] = e.message
+        if request.POST.get("saveInProg") == "saveInProg":
+            request.session['conversationTitle'] = request.POST.get('conversationTitle')
             request.session.modified = True
-            logger.info("error was %s" % request.session['error'])
-            return TemplateWizardEdit(request, -1)
+            return TemplateSaveInProgress(request)
+        else:
+            try:
+                #do all of this atomically
+                with transaction.atomic():        
+
+                    #variables to translate into db:
+                      #request.session['videos']               <-- array of videos in the pools
+                      #request.session['responseText']                 <-- these 3 are all associated by id
+                      #request.session['responseChildVideo']           <--
+                      #request.session['responseParentVideo']          <--
+                      #request.POST.get('conversationTitle')
+                      #request.session['enablePlayback']       <-- True or False
+
+                    #logger.info("Inserting conversation into database")
+
+                    #TODO check if values are valid   --- note, the values should all be valid already, due to how we implemented the jQuery add functions. -nm
+                      #if not, send back to edit page and display errors
+
+                    #TODO check if conversation already existed  --- we should maybe have a "edittingTemplate" variable that is set when you open the edit page -nm
+                      #if yes, check if associated with responses/shared responses
+                      #if yes, save as new version
+                    '''
+                    Storing session variables into the database template mappings
+                    '''
+                    request.session['error'] = ""
+
+                    if request.session['editTemplateID'] != False:
+                        #you are editing an existing template, so delete the old one first.
+                        deleteTemp = Template.objects.get(templateID = request.session['editTemplateID'])
+                        deleteTemp.delete()
+
+                    if request.POST.get('conversationTitle') == "":
+                        request.session['conversationTitle'] = ""
+                        request.session.modified = True
+                        raise Exception("noTitle")
+                    request.session['conversationTitle'] = request.POST.get('conversationTitle')
+                    request.session.modified = True
+                    temp = Template(researcherID = request.user, 
+                                     shortDesc   = request.POST.get('conversationTitle')) # NOTE: need firstInstanceID (TemplateFlowRel), added retroactively
+
+                    temp.save() # need this to create id
+                    pageInstances = []
+                    pageInstances.append(PageInstance(templateID = temp,       #need this to use as endpoint in template flow
+                                                      videoOrResponse = "endpoint",
+                                                      videoLink = "",
+                                                      richText = "",
+                                                      enablePlayback = False))
+                    pageInstances[-1].save()
+                    endpointPI = pageInstances[-1]
+                    templateResponseRels = []
+                    templateFlowRels = []
+
+                    #this is how we will know which video comes first in the relationships
+                    possibleVideoHeads = []
+                    for vid in request.session['videos']:
+                       possibleVideoHeads.append(vid)
+
+                    # build up structure in models
+                    # first create page instance entries for all videos in pool
+                    for i, vid in enumerate(request.session['videos']):
+                        enabPlayback = False
+                        if vid in request.session['enablePlayback']:
+                            enabPlayback = True
+
+                        #add the page instance for this video
+                        pageInstances.append(PageInstance(templateID = temp,
+                                                           videoOrResponse = "video",
+                                                           videoLink = vid,
+                                                           richText = request.session['richText/%s' % vid],
+                                                           enablePlayback = enabPlayback
+                                                           ))
+                        pageInstances[-1].save()
+                        #thisVidsPI = pageInstances[-1]
+                    #now all the videos have pageInstanceIDs
+
+                    #next, for each video, 
+                    for i, vid in enumerate(request.session['videos']):     
+                        #the pageInstances should correspond to the session videos by id at this point.
+                        #so only keep track of the responses that match this parent video (vid)
+                        numberOfResponses = 0
+                        #loop through each of the responses....                         
+                        # note that the following three values can be accessed by res[0], res[1], res[2]
+                        for j, res in enumerate(zip(request.session['responseText'],request.session['responseParentVideo'],request.session['responseChildVideo'])):
+                            # ...that match the video 
+                            if res[1] == vid:
+                                numberOfResponses += 1
+                                #..and if this is the first one so far,
+                                if numberOfResponses == 1:
+                                    #create a page instance for this group of responses.
+                                    pageInstances.append(PageInstance(templateID = temp,
+                                                              videoOrResponse = "response",
+                                                              videoLink = "",
+                                                              richText = "",
+                                                              enablePlayback = False
+                                                              ))
+                                    pageInstances[-1].save()
+                                    responsesPageInstanceID = pageInstances[-1]
+                                    #link the parents pageInstance entry to the one we just created
+                                    for getapi in pageInstances:
+                                        if getapi.videoLink == vid:
+                                            thisVidsPI = getapi
+                                            break
+                                    pageInstanceMatchesVideo = thisVidsPI
+                                    templateFlowRels.append(TemplateFlowRel(templateID = temp,
+                                                                 pageInstanceID = pageInstanceMatchesVideo,
+                                                                 nextPageInstanceID = responsesPageInstanceID
+                                                                 ))
+                                    templateFlowRels[-1].save()
+                                #since a parent video references this child video, remove it from possible video heads
+                                if res[2] != "endpoint" and res[2] in possibleVideoHeads:
+                                    possibleVideoHeads.remove(res[2])
+                                # find the ID of the pageInstance that matches responseChildVideo[j]
+                                # unless its "endpoint", then just insert "endpoint"
+                                if res[2] == "endpoint":
+                                    insertNextPageInstanceID = endpointPI
+                                else:
+                                    for k,vid2 in enumerate(request.session['videos']):
+                                        if vid2 == res[2]:
+                                            for q in pageInstances:
+                                                for p in PageInstance.objects.filter(videoLink = vid2, templateID = temp):
+                                                    if q == p:
+                                                        insertNextPageInstanceID = p
+                                #begin adding the responses into the templateResponseRels 
+                                templateResponseRels.append(TemplateResponseRel(templateID = temp,
+                                                                 pageInstanceID = responsesPageInstanceID,
+                                                                 responseText = res[0],
+                                                                 optionNumber = numberOfResponses,
+                                                                 nextPageInstanceID = insertNextPageInstanceID         
+                                                                 ))
+                                templateResponseRels[-1].save()
+                        if numberOfResponses == 0:
+                            raise Exception("noResponses")
+                    pHeadLen = len(possibleVideoHeads)
+                    if pHeadLen == 0:
+                        raise  Exception("The FirstVideo can not be linked as a response.")
+                    #by now, there should be only one video head if the flow was built correctly.
+                    if pHeadLen > 1:
+                        #if not, produce an error message and go back to template editor.
+                        raise Exception("noFirstVideo")
+                    #if you want to insert more errors, do it here.
+                    else:
+                        #get the pageInstance that references this first video
+                        for pi in pageInstances:
+                            if pi.videoLink == possibleVideoHeads[0]:
+                                firstPageID = pi
+                        #firstPageID = pageInstances[pageInstances.index(possibleVideoHeads[0])]
+                        #insert this video as the templates firstInstanceID
+                        temp.firstInstanceID = firstPageID
+                        temp.save()
+                        #now delete the in progress template if it exists.....
+                        if "tempInProg" not in request.session:
+                            request.session["tempInProg"] = -2
+                            request.session.modified = True
+                        if request.session['tempInProg'] != -2 and request.session['tempInProg'] != "":
+                            deleteTIP = TemplateInProgress.objects.get(templateInProgressID = request.session['tempInProg'])
+                            deleteTIP.delete()
+                            request.session['tempInProg'] = ""
+                        for vid in request.session['videos']:
+                            request.session['richText/%s' % vid] = ""
+                        request.session['videos'] = []
+                        request.session['responseText'] = []
+                        request.session['responseParentVideo'] = []
+                        request.session['responseChildVideo'] = []
+                        request.session['enablePlayback'] = []
+                        request.session['conversationTitle'] = ""
+                        request.session.modified = True
+                        return render(request, 'template-wizard-save.html')
+            except Exception as e:
+                if not e.message:
+                    request.session['error'] = "general"
+                else:
+                    request.session['error'] = e.message
+                request.session.modified = True
+                logger.info("error was %s" % request.session['error'])
+                return TemplateWizardEdit(request, -1)
     else:
         return HttpResponse("Failure: no post data")
 
 @login_required
 def TemplateWizardEdit(request, tempID):
     request.session['edit'] = True;
-    if tempID == -1:
+    if tempID == -1 or tempID == -2:
         request.session['errorFlag'] = True
+        if tempID == -2:
+            tempInProg = TemplateInProgress.objects.get(templateInProgressID = request.session['tempInProg'])
+            request.session['conversationTitle'] = tempInProg.conversationTitle
+            logger.info(tempInProg.videoList)
+            request.session['videos'] = []
+            request.session['responseText'] = []
+            request.session['responseParentVideo'] = []
+            request.session['responseChildVideo'] = []
+            jsonDec = json.decoder.JSONDecoder()
+            request.session['videos'] = jsonDec.decode(tempInProg.videoList)
+            request.session['responseText'] = jsonDec.decode(tempInProg.responseTextList)
+            request.session['responseParentVideo'] = jsonDec.decode(tempInProg.responseParentVideoList)
+            request.session['responseChildVideo'] = jsonDec.decode(tempInProg.responseChildVideoList)
+            for vid in request.session['videos']:
+                result = TemplateInProgressRichText.objects.get(templateInProgressID = request.session['tempInProg'], video = vid)
+                request.session['richText/%s'%vid] = result.richText
+            request.session.modified = True
+        else:
+            request.session['tempInProg'] = -2
     else:
         request.session['editTemplateID'] = tempID
         request.session['errorFlag'] = False
@@ -597,6 +625,10 @@ def TemplateWizard(request):
     if "errorFlag" not in request.session:
         request.session["errorFlag"] = False
         request.session.modified = True
+    pastTempInProgs = TemplateInProgress.objects.filter(researcherID = request.user).order_by('-dateTimeSaved')
+    context = RequestContext(request, {
+            'pastTempInProgs': pastTempInProgs
+        })
     if request.session["edit"] == True:
         request.session['edit'] = False
         request.session.modified = True
@@ -625,13 +657,14 @@ def TemplateWizard(request):
             tempResponseFlow = TemplateResponseRel.objects.filter(templateID = temp)
             pages = PageInstance.objects.filter(templateID = temp)
             firstPage = temp.firstInstanceID
+            request.session['tempInProg'] = ""
             request.session["error"] = ""
             request.session['selectedVideo'] = ""
             request.session['videos'] = []
             request.session['responseText'] = [] #create an empty list to hold responses text
             request.session['responseParentVideo'] = [] #create an empty list to hold responses video (like a foreign key)
             request.session['responseChildVideo'] = []
-            request.session['enablePlayback'] = [] #if the video exists in this list, enable playback.
+            request.session['enablePlayback'] = [] #this now does nothing. ignore.
             for p in tempFlow:
                 if p.pageInstanceID.videoOrResponse == 'video':
                     request.session['videos'].append(p.pageInstanceID.videoLink)
@@ -650,8 +683,7 @@ def TemplateWizard(request):
                             else:
                                 request.session['responseChildVideo'].append(t.nextPageInstanceID.videoLink)
             request.session.modified = True
-
-        return render(request, 'template-wizard.html')
+        return render(request, 'template-wizard.html', context)
     else:
         # DATA MODEL:
         request.session["error"] = ""
@@ -669,12 +701,45 @@ def TemplateWizard(request):
         request.session['responseText'] = [] #create an empty list to hold responses text
         request.session['responseParentVideo'] = [] #create an empty list to hold responses video (like a foreign key)
         request.session['responseChildVideo'] = []
-        request.session['enablePlayback'] = [] #if the video exists in this list, enable playback.
+        request.session['enablePlayback'] = [] #apparently this is now useless.... look in "generate link"
         #request.session['videos'].append('zJ8Vfx4721M')  # sample video
         #request.session['videos'].append('DewJHJlYOIU') #sample 
         request.session.modified = True
+        return render(request, 'template-wizard.html', context)
 
-        return render(request, 'template-wizard.html')
+#This allows a researcher to save a template in progress
+@login_required
+def TemplateSaveInProgress(request):
+    if "tempInProg" not in request.session:
+        pass
+    elif request.session['tempInProg'] != -2 and request.session['tempInProg'] != "":
+        deleteOld = TemplateInProgress.objects.get(templateInProgressID = request.session['tempInProg'])
+        deleteOld.delete()
+    tempInProg = TemplateInProgress()
+    tempInProg.researcherID = request.user
+    tempInProg.save()
+    for vid in request.session['videos']:
+        tempIPRT = TemplateInProgressRichText()
+        tempIPRT.templateInProgressID = tempInProg
+        tempIPRT.video = vid
+        tempIPRT.richText = request.session['richText/%s'%vid]
+        tempIPRT.save()
+    tempInProg.conversationTitle = request.POST.get("conversationTitle")
+    tempInProg.videoList = json.dumps(list(request.session['videos']))
+    tempInProg.responseTextList = json.dumps(list(request.session['responseText']))
+    tempInProg.responseParentVideoList = json.dumps(list(request.session['responseParentVideo']))
+    tempInProg.responseChildVideoList = json.dumps(list(request.session['responseChildVideo']))
+    tempInProg.save()
+    request.session['tempInProg'] = tempInProg.templateInProgressID
+    request.session.modified = True
+    return TemplateWizardEdit(request, -2)
+
+@login_required
+def TemplateLoadInProgress(request, tempIPID):
+    request.session['tempInProg'] = tempIPID
+    request.session.modified = True
+    return TemplateWizardEdit(request, -2)
+
 
 #This is the "behind the scenes" stuff for the template wizard above
 @login_required

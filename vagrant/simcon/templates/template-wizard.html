@@ -171,6 +171,15 @@ Admin | Template Wizard
                      }};
           $.ajax(args);
       });
+      $("#inProgSaver").on("click", "#saveInProg", function(){
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "saveInProg");
+        hiddenField.setAttribute("value", "saveInProg");
+        this.form.appendChild(hiddenField);
+        this.form.submit()
+         
+      })
       <!-- save video page -->
       $("#rightPane").on("click", "#saveVideoPage", function(){
            tinyMCE.triggerSave();
@@ -243,10 +252,35 @@ Admin | Template Wizard
             <br><br><button type="button" class="btn btn-default btn-xs" id="showInstruc"> Show Instructions </button>
           </div>
           <div class="col-md-3" id="templateSaver">
-            <br><form method="post" action="{% url 'TemplateWizardSave' %}">{% csrf_token %}
+            <br><form method="post" id="aform" action="{% url 'TemplateWizardSave' %}">{% csrf_token %}
                 <input type="hidden" name="saveTemplate" value="saveTemplate">
                 <button type="button" id="saveTemplateButton" class="btn btn-default btn-lg" onclick="submit();">Save Template &raquo; 
                 </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-5"></div>
+          <div class="col-md-3" id="inProgSaver">
+            <button type="button" id="saveInProg" name="saveInProg" value="hit" class="btn btn-default btn-sm">Save In-Progress &raquo; 
+                </button>
+          </div>
+          <div class="col-md-4">
+              <div class="dropdown">
+                <button data-toggle="dropdown" type="button" id="loadTemplateButton" class="btn btn-default btn-sm">Load In-Progress Template &raquo; 
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                {% for p in pastTempInProgs %}
+                  <span class="glyphicon glyphicon-folder-open"></span>
+                  <a href="{% url 'TemplateLoadInProgress' p.templateInProgressID %}">
+                  {% if p.conversationTitle != "" %}
+                    {{ p.conversationTitle }}
+                  {% else %}
+                    (No title)
+                  {% endif %}
+                  </a><br>
+                {% endfor %}
+                </ul>
+              </div>   
           </div>
         </div>
           <div id="instructions"></div>
