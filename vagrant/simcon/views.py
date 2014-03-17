@@ -216,6 +216,7 @@ def StudentInfo(request):
             })
             return render(request, 'Student_Text_Response.html', c)
         else:
+            request.session.flush()
             return render(request, 'Student_Submission.html')
 
 #when the student chooses the text answer to their response, this updates the database with their choice
@@ -247,6 +248,7 @@ def StudentConvoStep(request):
             except Exception,e:
 #fixme
                 #No next video page, go to submission page
+                request.session.flush()
                 return render(request, 'Student_Submission.html')
             
             #will get the variables for the current video page before changing PIID to point to this videos response page
@@ -262,11 +264,13 @@ def StudentConvoStep(request):
             #create context variables for video web page
             vidLink = sPage.videoLink
             text = sPage.richText
+            playback = sPage.enablePlayback
 
             request.session['VoR'] = "response"
             request.session.modified = True
             
             if vidLink == "":
+                request.session.flush()
                 return render(request, 'Student_Submission.html')
             
             # there are ways to compact this code, but this is the most explicit way to render a template
@@ -287,6 +291,7 @@ def StudentConvoStep(request):
             request.session.modified = True
             
             if not responses:
+                request.session.flush()
                 return render(request, 'Student_Submission.html')
 
             c = Context({
@@ -296,6 +301,7 @@ def StudentConvoStep(request):
             })
             return render(request, 'Student_Text_Response.html', c)
         elif request.session.get('VoR') == "endpoint":
+            request.session.flush()
             return render(request, 'Student_Submission.html')
     else:
         #return HttpResponse("can't render next conversation step")
