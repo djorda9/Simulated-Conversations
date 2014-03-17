@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+SERVER_EMAIL = 'django@pdx.edu'
+
 SITE_ID = "http://127.0.0.1:8000"
 
 # Quick-start development settings - unsuitable for production
