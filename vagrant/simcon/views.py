@@ -243,7 +243,7 @@ def StudentConvoStep(request):
             
             #the student has chosen a choice, figure out with the templateResponseRel table what the current PIID should be
             try:
-                nextVideo = TemplateResponseRel.objects.get(pageInstanceID = request.session.get('PIID'), optionNumber = studentsChoice)
+                nextVideo = TemplateResponseRel.objects.get(pageInstanceID = request.session.get('PIID'), templateResponseRelID = studentsChoice)
                 request.session['PIID'] = nextVideo.nextPageInstanceID.pageInstanceID
             except Exception,e:
 #fixme
