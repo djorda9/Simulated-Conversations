@@ -20,6 +20,8 @@ class StudentAccessForm(forms.Form):
     playbackAudio  = forms.BooleanField(initial=True, required=False, label='Playback audio?') 
     
     playbackVideo  = forms.BooleanField(initial=True, required=False, label='Playback video?')
+    
+    collectEmail = forms.BooleanField(initial=True, required=False, label='Collect Email?')
 
     def __init__(self, *args, **kwargs):
         self.researcher = kwargs.pop('researcher',None)

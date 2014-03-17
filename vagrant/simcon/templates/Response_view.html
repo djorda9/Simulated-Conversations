@@ -2,22 +2,12 @@
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
 {% block title %}Response Review{% endblock %}
+{% block branding %}<h1>Response View</h1>{% endblock %}
 {% block extrahead %}
-
-
-
-    <!-- Bootstrap core JavaScript -->
-
-    <script src="{% static "dist/js/bootstrap.min.js" %}"></script>
 
     <!-- help popups  -->
     <link rel="stylesheet" href="{%static "css/smoothness/jquery-ui-1.10.4.custom.css" %}">
     <script src="{%static "js/jquery-ui-1.10.4.custom.js" %}"></script>
-
-
-	<!-- Bootstrap core CSS -->
-    <link href="{% static "dist/css/bootstrap.css"%}" rel="stylesheet">
-
 
 	<link href="{% static "tablesorter/css/theme.blue.css"%}" rel="stylesheet">
 	<link href="{% static "tablesorter/addons/pager/jquery.tablesorter.pager.css"%}" rel="stylesheet">
@@ -34,14 +24,9 @@
         });
     </script>
 
-
-
-
 {% endblock %}
 
-
 {% block content %}
-
 
 <h2>Your Responses<button class="btn btn-default" id="yourHelp">?</button></h2>
 

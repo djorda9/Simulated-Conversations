@@ -1,7 +1,15 @@
 {% extends "admin/base_site.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Simcon Login{% endblock %}
 {% block content %}
-    <h1>Login</h1>
+    <a href="http://www.pdx.edu/linguistics/welcome" title="Portland State University"><img src="http://www.pdx.edu/sites/www.pdx.edu.syndication/files/psulogo_horiz_std.gif" alt="Portland State University Logo" width="256" height="84" border="0"></a>
+    <h2>Welcome to the Simulated Conversation Project </h2>
+    <p>This website allows researchers to create simulated conversations with videos and text responses.
+    Researchers can then generate links to these conversations and email them to subjects for testing.
+    After subjects step through a simulated conversation, which includes recording their audio responses,
+    the researcher can look through the responses and listen to audio files for research purposes.
+    This project was sponsored by the Department of Applied Linguistics of Portland State University</p>
+
+    <h1>Simcon Login</h1>
     {% if message %}
         <b>{{message}}</b>
     {% endif %}
@@ -11,5 +19,6 @@
     </form>
     {% url 'admin_password_reset' as password_reset_url %}
     <a href="{{ password_reset_url }}">Forgotten your password or username?</a>
+
 
 {% endblock %}

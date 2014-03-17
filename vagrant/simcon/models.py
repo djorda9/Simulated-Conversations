@@ -38,6 +38,7 @@ class StudentAccess(models.Model):
     researcherID = models.ForeignKey(User)
     validationKey = models.CharField(max_length = 50, unique=True)
     expirationDate = models.DateField()
+    collectEmail = models.BooleanField(default = False) # collect email on this link?
     playbackAudio = models.BooleanField(default = False) # can the student playback the audio in line
     playbackVideo = models.BooleanField(default = False) # can the student playback the video?
     
