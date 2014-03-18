@@ -92,6 +92,7 @@ Simcon | Researcher View
                   <th>Template</th>
                   <th>Date</th>
                   <th class="filter-false"></th>
+                  <th class="filter-false"></th>
                 </tr>
               </thead>
               <tbody>
@@ -101,6 +102,7 @@ Simcon | Researcher View
                   <td><small>{{res.templateID.shortDesc}}</small></td>
                   <td><small>{{res.dateTime}}</small></td>
                   <td><small><a href="{% url 'ShareResponse_with_responseID' res.id %}">Share</a></small></td>
+                  <td><small><a href="{% url 'DeleteResponse_by_id' res.pk %}">Delete</a></small></td>
                 </tr>
               {% endfor %}
               </tbody>

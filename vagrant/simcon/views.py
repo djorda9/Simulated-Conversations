@@ -1318,4 +1318,17 @@ def getTextResponse(request):
 def logout_view(request):
     logout(request)
     return redirect('ResearcherView')
+ 
+@login_required 
+def DeleteResponse(request, responseNum=None):
+    response = Conversation.objects.get(pk = responseNum)
     
+    #Security check:
+    if not request.user.is_superuser and response.conversationID.researcherID != request.user:
+        raise Http404
+    
+        
+    response.delete()
+    return redirect('ResearcherView')
+            
+            
