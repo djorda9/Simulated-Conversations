@@ -1324,7 +1324,7 @@ def DeleteResponse(request, responseNum=None):
     response = Conversation.objects.get(pk = responseNum)
     
     #Security check:
-    if not request.user.is_superuser and response.conversationID.researcherID != request.user:
+    if not request.user.is_superuser and response.researcherID != request.user:
         raise Http404
     
         
