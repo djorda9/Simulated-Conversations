@@ -33,7 +33,7 @@ def StudentLogin(request,VKey = 123):
     request.session['collectEmail']  = access.collectEmail
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
     #if(True):
-    if(currentdate < convo_Expiration):
+    if(currentdate <= convo_Expiration):
 #fixme
         try:
             #logger.info(access.templateID.templateID)
