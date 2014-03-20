@@ -1,0 +1,38 @@
+{% extends "Student_Base.html" %}
+
+{% load staticfiles %}
+
+{# for recorder functions #}
+{% load recorder_tags %}
+
+{% block title %}Student Conversation Simulator{% endblock %}
+
+{% block extrahead %}
+{% getRecorderHead %}
+{# NOTE:  the above includes the required ajax code #}
+<script>
+function gotoNext(){
+   //window.location.replace("{% url 'StudentConvoStep' %}"); //TODO change to a load body
+   $("#modePane").load("{% url 'StudentConvoStep' %}");
+}
+
+function nextVideo(){  
+   var choice = $("input[type='radio']").val();
+   var data = { choice: choice  };
+   var args = { type:"POST", url:"{% url 'PostChoice' %}", data:data, cache:false, complete:function(){
+                   $("#modePane").load("{% url 'StudentConvoStep' %}")
+               } };
+   $.ajax(args);
+}
+
+
+</script>
+{% load_getUserMedia "makeRecording" %}  {# this will now hang around for our later use #}
+{% endblock %}
+
+{% block content %}
+<div id="modePane"> {# this holds the current pane, either a video or text response #}
+{% include 'Conversation_Video.html' %}
+</div>
+	
+{% endblock %}

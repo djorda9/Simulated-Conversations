@@ -1,0 +1,32 @@
+{% block content %}
+{% if request.session.playbackVideo %}
+  <p><iframe title="YouTube video player" class="youtube-player" type="text/html" 
+      width="640" height="390" src="http://www.youtube.com/embed/{{vidLink}}?rel=0"
+      frameborder="0" allowFullScreen></iframe></p>
+{% else %}
+  <p><iframe title="YouTube video player" class="youtube-player" type="text/html" 
+      width="640" height="390" src="http://www.youtube.com/embed/{{vidLink}}?controls=0&rel=0"
+      frameborder="0" allowFullScreen></iframe></p>
+{% endif %}
+<div class="well well-sm">{{text|safe}}</div>
+
+<button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>
+<button class="btn btn-default btn-lg" onclick="stopRecording(this);" disabled><span class="glyphicon glyphicon-stop"/>Stop</button>
+<script type="text/javascript">
+function makeRecording(blob){
+    window.savedAudio = blob;
+    saveRecording(blob);
+}
+function saveRecording(blob){
+       var fd = new FormData();  // needed to wrap the blob
+       fd.append('data', blob);
+       var data = { recording:blob };
+       var args = { type:"POST", url:"{% url "SaveAudio" %}", data:fd, processData: false, contentType: false, cache:false, complete:function(){
+                       gotoNext()
+                   } };
+       $.ajax(args);
+}
+
+</script>
+
+{% endblock %}

@@ -198,7 +198,7 @@ def StudentInfo(request):
             'playback': playback,
             'message': 'I am the Student Video Response View.'
             })
-            return render(request, 'Student_Video_Response.html', c)
+            return render(request, 'Conversation_Parent.html', c)#'Student_Video_Response.html', c)
 
         elif request.session.get('VoR') == "response":
 
@@ -221,7 +221,8 @@ def StudentInfo(request):
 
 #when the student chooses the text answer to their response, this updates the database with their choice
 def StudentConvoStep(request):
-    if request.method == 'POST':
+    logger.info("method in studentconvo is %s" % request.method)
+    if request.method == 'POST' or request.method == 'GET':
         logger.info("about to load a this type of page:")
         logger.info(request.session.get('VoR'))
         
@@ -229,7 +230,8 @@ def StudentConvoStep(request):
             piID = request.session.get('PIID')
             cID = request.session.get('convo')
             convoOrder = request.session.get('ConvoOrder')
-            studentsChoice = request.POST.get('choice')
+            studentsChoice = request.session.get('choice')#request.POST.get('choice')
+            logger.info("choice was %s" % studentsChoice)
             
             #fill a response object with the students audio and their choice
             responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
@@ -280,7 +282,7 @@ def StudentConvoStep(request):
             'playback': playback,
             'message': 'I am the Student Video Response View.'
             })
-            return render(request, 'Student_Video_Response.html', c)
+            return render(request, 'Conversation_Video.html', c)#'Student_Video_Response.html', c)
 
         elif request.session.get('VoR') == "response":
         
@@ -299,7 +301,7 @@ def StudentConvoStep(request):
             #'conv': conv,
             'message': 'I am the Student Text Response View.'
             })
-            return render(request, 'Student_Text_Response.html', c)
+            return render(request, 'Conversation_Text.html', c)#'Student_Text_Response.html', c)
         elif request.session.get('VoR') == "endpoint":
             request.session.flush()
             return render(request, 'Student_Submission.html')
@@ -341,7 +343,8 @@ def StudentConvoStep(request):
         'message': 'I am the Student Text Response View.'
         })
         return render(request, 'Student_Text_Response.html', c)
-        
+
+'''        
 def StudentTextResponse(request):
     # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
     # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
@@ -374,7 +377,26 @@ def StudentTextResponse(request):
     #'conv': conv,
     'message': 'I am the Student Text Response View.'
     })
-    return render(request, 'Student_Text_Response.html', c)
+    return render(request, 'Conversation_Text.html', c)#'Student_Text_Response.html', c)
+    '''
+
+
+#Reload the mode Pane in conversation
+@login_required
+def RenderVideo(request):
+    c = {}
+    c.update(csrf(request))
+    return render(request, 'Conversation_Video.html')
+
+def PostChoice(request):
+    c = {}
+    c.update(csrf(request))
+    request.session['choice'] = request.POST.get('choice')
+    logger.info("Posting choice %s" % request.session['choice'])
+    request.session['VoR'] = "video"
+    request.session.modified = True
+    return HttpResponse("success")
+
     
 def Submission(request):
     return render(request, 'Student_Submission.html')
