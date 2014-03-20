@@ -17,7 +17,7 @@ function gotoNext(){
 }
 
 function nextVideo(){  
-   var choice = $("input[type='radio']").val();
+   var choice = $("input[type='radio']:checked").val();
    var data = { choice: choice  };
    var args = { type:"POST", url:"{% url 'PostChoice' %}", data:data, cache:false, complete:function(){
                    $("#modePane").load("{% url 'StudentConvoStep' %}")
