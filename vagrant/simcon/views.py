@@ -98,7 +98,7 @@ def SResponse(request):
         responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
     except Exception,e:
 #fixme
-        request.session['PIID'] = -1
+        return 0
 
     return responses
 
@@ -275,11 +275,21 @@ def StudentConvoStep(request):
                 request.session.flush()
                 return render(request, 'Student_Submission.html')
             
+            #Feed the current video PIID into SResponse to check for responses. If no responses to this video,
+            #set a context variable. Make sure the user can't record audio, and end the conversation
+            Rcheck = SResponse(request)
+			
+            if Rcheck == 0:
+                End = True
+            else:
+                End = False
+            
             # there are ways to compact this code, but this is the most explicit way to render a template
             c = Context({
             'vidLink': vidLink,
             'text': text,
             'playback': playback,
+            'End': End,
             'message': 'I am the Student Video Response View.'
             })
             return render(request, 'Conversation_Video.html', c)#'Student_Video_Response.html', c)
