@@ -23,7 +23,6 @@ def StudentLogin(request,VKey = 123):
     try:
         access = StudentAccess.objects.get(validationKey = VKey)
     except Exception,e:
-#fixme
         return render('Student_Expired.html')
 
     convo_Expiration = access.expirationDate
@@ -32,15 +31,12 @@ def StudentLogin(request,VKey = 123):
     request.session['playbackVideo'] = access.playbackVideo
     request.session['collectEmail']  = access.collectEmail
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
-    #if(True):
+
     if(currentdate <= convo_Expiration):
-#fixme
         try:
-            #logger.info(access.templateID.templateID)
             TID = access.templateID.templateID
             template = Template.objects.get(templateID = TID)
         except Exception,e:
-#fixme
             return HttpResponse("missing template: %s" %e)
 
         pageInstance = template.firstInstanceID.pageInstanceID
@@ -48,7 +44,6 @@ def StudentLogin(request,VKey = 123):
         try:
             nextPage = PageInstance.objects.get(pageInstanceID = pageInstance)
         except Exception,e:
-#fixme
             return HttpResponse("missing page instance: %s" %e)
 
         #reference variables ex: request.session.ValKey
@@ -67,7 +62,6 @@ def StudentLogin(request,VKey = 123):
         return render(request, 'Student_Login.html')
     else:
         print "Conversation link has expired"
-#fixme
         return HttpResponse("Conversation link has expired")
 
 #student response function
@@ -78,26 +72,22 @@ def SResponse(request):
     try:
         templ = Template.objects.get(templateID = request.session.get('TID'))
     except Exception,e:
-#fixme
         return HttpResponse("missing template: %s" %e)
 
     try:
         pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
     except Exception,e:
-#fixme
         return HttpResponse("missing page instance: %s" %e)
 
     try:
         valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
     except Exception,e:
-#fixme
         return HttpResponse("missing student access: %s" %e)
 
     #get the list of responses to display to the student
     try:
         responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
     except Exception,e:
-#fixme
         return 0
 
     return responses
@@ -108,19 +98,16 @@ def SVideo(request):
     try:
         templ = Template.objects.get(templateID = request.session.get('TID'))
     except Exception,e:
-#fixme
         return HttpResponse("bad template reference: %s" %e)
 
     try:
         page = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'))
     except Exception,e:
-#fixme
         return HttpResponse("missing page instance: %s" %e)
 
     try:
         valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
     except Exception,e:
-#fixme
         return HttpResponse("invalid validation key reference: %s" %e)
 
     #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
@@ -130,9 +117,6 @@ def SVideo(request):
         
         nextpage = TemplateFlowRel.objects.get(pageInstanceID = request.session.get('PIID'))
         
-        #logger.info('the template flow object:')
-        #logger.info(nextpage)
-        
         request.session['PIID'] = nextpage.nextPageInstanceID.pageInstanceID
         
         logger.info("new PIID value is a response page: ")
@@ -140,14 +124,12 @@ def SVideo(request):
         
         request.session.modified = True
     except Exception,e:
-#fixme
         request.session['PIID'] = -1
     return page
 
 #when the student submits their name and optional email, this updates the database
 def StudentInfo(request):
     if request.method == 'POST':
-        #logger.info(request.POST)
         studentname = request.POST.get("SName")
         studentemail = request.POST.get("SEmail")
         if not studentemail:
@@ -158,34 +140,28 @@ def StudentInfo(request):
             rID = request.session.get('RID')
             rese = User.objects.get(pk = rID)
         except Exception,e:
-#fixme
             return HttpResponse("no researcher for conversation: %s" %e)
             
         try:
             tID = request.session.get('TID') #this doesn't equate to 2, this equates to "first working template"
             templ = Template.objects.get(templateID = tID)
         except Exception,e:
-#fixme
             return HttpResponse("no researcher for conversation: %s" %e)
 
-        T = Conversation.objects.create(templateID_id=templ.templateID, researcherID_id=rese.pk, studentName=studentname, studentEmail=studentemail)
+        T = Conversation.objects.create(templateID_id   = templ.templateID, 
+                                        researcherID_id = rese.pk, 
+                                        studentName     = studentname, 
+                                        studentEmail    = studentemail)
         try:
             T.save()
             request.session['convo'] = T.pk
         except Exception,e:
-            return HttpResponse("problems saving conversation object: %s" %e)
-            
-            
+            return HttpResponse("problems saving conversation object: %s" %e)           
             
         if request.session.get('VoR') == "video":
 
             #validate session variables, return page info
             sPage = SVideo(request)
-            
-            #create context variables for video web page
-            vidLink = sPage.videoLink
-            text = sPage.richText
-            playback = sPage.enablePlayback
         
             #the next page to load is a response page
             request.session['VoR'] = "response"
@@ -193,12 +169,12 @@ def StudentInfo(request):
             
             #prepare the template context
             c = Context({
-            'vidLink': vidLink,
-            'text': text,
-            'playback': playback,
+            'vidLink': sPage.videoLink,
+            'text': sPage.richText,
+            'playback': sPage.enablePlayback,
             'message': 'I am the Student Video Response View.'
             })
-            return render(request, 'Conversation_Parent.html', c)#'Student_Video_Response.html', c)
+            return render(request, 'Conversation_Parent.html', c)
 
         elif request.session.get('VoR') == "response":
 
@@ -211,198 +187,111 @@ def StudentInfo(request):
             
             c = Context({
             'responses': responses,
-            #'conv': conv,
             'message': 'I am the Student Text Response View.'
             })
-            return render(request, 'Student_Text_Response.html', c)
+            return render(request, 'Conversation_Parent.html', c)
         else:
             request.session.flush()
             return render(request, 'Student_Submission.html')
 
 #when the student chooses the text answer to their response, this updates the database with their choice
 def StudentConvoStep(request):
-    logger.info("method in studentconvo is %s" % request.method)
-    if request.method == 'POST' or request.method == 'GET':
-        logger.info("about to load a this type of page:")
-        logger.info(request.session.get('VoR'))
+    if request.session.get('VoR') == "video":
+        piID = request.session.get('PIID')
+        cID = request.session.get('convo')
+        convoOrder = request.session.get('ConvoOrder')
+        studentsChoice = request.session.get('choice')
         
-        if request.session.get('VoR') == "video":
-            piID = request.session.get('PIID')
-            cID = request.session.get('convo')
-            convoOrder = request.session.get('ConvoOrder')
-            studentsChoice = request.session.get('choice')#request.POST.get('choice')
-            logger.info("choice was %s" % studentsChoice)
-            
-            #fill a response object with the students audio and their choice
-            responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
-            
-            T = Response.objects.create(pageInstanceID_id = piID, conversationID_id = cID, order = convoOrder, choice_id = studentsChoice, audioFile = request.session.get('path'))
-#fixemefixeme
-            T.save()
-            #TODO if this fails, do cleanup for browser audio file copy/file system
-
-            request.session['ConvoOrder'] += 1
-            
-            #the student has chosen a choice, figure out with the templateResponseRel table what the current PIID should be
-            try:
-                nextVideo = TemplateResponseRel.objects.get(pageInstanceID = request.session.get('PIID'), templateResponseRelID = studentsChoice)
-                request.session['PIID'] = nextVideo.nextPageInstanceID.pageInstanceID
-            except Exception,e:
-#fixme
-                #No next video page, go to submission page
-                request.session.flush()
-                return render(request, 'Student_Submission.html')
-            
-            #will get the variables for the current video page before changing PIID to point to this videos response page
-            sPage = SVideo(request)
-            
-            #get the student access object to check for replayability of videos
-            try:
-                sAccess = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
-            except Exception,e:
-#fixme
-                return HttpResponse("invalid validation key reference: %s" %e)
-
-            #create context variables for video web page
-            vidLink = sPage.videoLink
-            text = sPage.richText
-            playback = sPage.enablePlayback
-
-            request.session['VoR'] = "response"
-            request.session.modified = True
-            
-            if vidLink == "":
-                request.session.flush()
-                return render(request, 'Student_Submission.html')
-            
-            #Feed the current video PIID into SResponse to check for responses. If no responses to this video,
-            #set a context variable. Make sure the user can't record audio, and end the conversation
-            Rcheck = SResponse(request)
-			
-            if Rcheck == 0:
-                End = True
-            else:
-                End = False
-            
-            # there are ways to compact this code, but this is the most explicit way to render a template
-            c = Context({
-            'vidLink': vidLink,
-            'text': text,
-            'playback': playback,
-            'End': End,
-            'message': 'I am the Student Video Response View.'
-            })
-            return render(request, 'Conversation_Video.html', c)#'Student_Video_Response.html', c)
-
-        elif request.session.get('VoR') == "response":
+        #fill a response object with the students audio and their choice
+        responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
         
-            #validate session variables, get queryset of responses
-            responses = SResponse(request)
+        T = Response.objects.create(pageInstanceID_id = piID, 
+                                    conversationID_id = cID, 
+                                    order             = convoOrder, 
+                                    choice_id         = studentsChoice, 
+                                    audioFile         = request.session.get('path'))
+        T.save()
+        #TODO if this fails, do cleanup for browser audio file copy/file system
 
-            request.session['VoR'] = "response"
-            request.session.modified = True
-            
-            if not responses:
-                request.session.flush()
-                return render(request, 'Student_Submission.html')
-
-            c = Context({
-            'responses': responses,
-            #'conv': conv,
-            'message': 'I am the Student Text Response View.'
-            })
-            return render(request, 'Conversation_Text.html', c)#'Student_Text_Response.html', c)
-        elif request.session.get('VoR') == "endpoint":
+        request.session['ConvoOrder'] += 1
+        
+        #the student has chosen a choice, figure out with the templateResponseRel table what the current PIID should be
+        try:
+            nextVideo = TemplateResponseRel.objects.get(pageInstanceID = request.session.get('PIID'), templateResponseRelID = studentsChoice)
+            request.session['PIID'] = nextVideo.nextPageInstanceID.pageInstanceID
+        except Exception,e:
+            #No next video page, go to submission page
             request.session.flush()
             return render(request, 'Student_Submission.html')
-    else:
-        #return HttpResponse("can't render next conversation step")
-        # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
-        # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
+        
+        #will get the variables for the current video page before changing PIID to point to this videos response page
+        sPage = SVideo(request)
+        
+        #get the student access object to check for replayability of videos
         try:
-            templ = Template.objects.get(templateID = request.session.get('TID'))
+            sAccess = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
         except Exception,e:
-#fixme
-            return HttpResponse("missing template: %s" %e)
+            return HttpResponse("invalid validation key reference: %s" %e)
 
-        try:
-            pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
-        except Exception,e:
-#fixme
-            return HttpResponse("missing page instance: %s" %e)
+        #create context variables for video web page
+        vidLink = sPage.videoLink
+        text = sPage.richText
+        playback = sPage.enablePlayback
 
-        try:
-            valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
-        except Exception,e:
-#fixme
-            return HttpResponse("missing student access: %s" %e)
-
-        #get the list of responses to display to the student
-        try:
-            responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID'))
-        except Exception,e:
-#fixme
-            return HttpResponse("missing template response relation: %s" %e)
-
-        request.session['VoR'] = "video"
+        request.session['VoR'] = "response"
         request.session.modified = True
+        
+        if vidLink == "":
+            request.session.flush()
+            return render(request, 'Student_Submission.html')
+        
+        #Feed the current video PIID into SResponse to check for responses. If no responses to this video,
+        #set a context variable. Make sure the user can't record audio, and end the conversation
+        Rcheck = SResponse(request)
+        
+        if Rcheck == 0:
+            End = True
+        else:
+            End = False
+        
+        # there are ways to compact this code, but this is the most explicit way to render a template
+        c = Context({
+        'vidLink': vidLink,
+        'text': text,
+        'playback': playback,
+        'End': End,
+        'message': 'I am the Student Video Response View.'
+        })
+        return render(request, 'Conversation_Video.html', c)
+
+    elif request.session.get('VoR') == "response":
+
+        #validate session variables, get queryset of responses
+        responses = SResponse(request)
+
+        request.session['VoR'] = "response"
+        request.session.modified = True
+        
+        if not responses:
+            request.session.flush()
+            return render(request, 'Student_Submission.html')
 
         c = Context({
         'responses': responses,
-        #'conv': conv,
         'message': 'I am the Student Text Response View.'
         })
-        return render(request, 'Student_Text_Response.html', c)
+        return render(request, 'Conversation_Text.html', c)
+    elif request.session.get('VoR') == "endpoint":
+        request.session.flush()
+        return render(request, 'Student_Submission.html')
+    else:
+        raise Exception
 
-'''        
-def StudentTextResponse(request):
-    # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
-    # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
-    try:
-        templ = Template.objects.get(templateID = request.session.get('TID'))
-    except Exception,e:
-        return HttpResponse("missing template: %s" %e)
-
-    try:
-        pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
-    except Exception,e:
-        return HttpResponse("missing page instance: %s" %e)
-
-    try:
-        valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
-    except Exception,e:
-        return HttpResponse("missing student access: %s" %e)
-
-    #get the list of responses to display to the student
-    try:
-        responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
-    except Exception,e:
-        return HttpResponse("missing template response relation: %s" %e)
-
-    request.session['VoR'] = "video"
-    request.session.modified = True
-    
-    c = Context({
-    'responses': responses,
-    #'conv': conv,
-    'message': 'I am the Student Text Response View.'
-    })
-    return render(request, 'Conversation_Text.html', c)#'Student_Text_Response.html', c)
-    '''
-
-
-#Reload the mode Pane in conversation
-@login_required
-def RenderVideo(request):
-    c = {}
-    c.update(csrf(request))
-    return render(request, 'Conversation_Video.html')
-
+# post the choice via ajax  
 def PostChoice(request):
     c = {}
     c.update(csrf(request))
     request.session['choice'] = request.POST.get('choice')
-    logger.info("Posting choice %s" % request.session['choice'])
     request.session['VoR'] = "video"
     request.session.modified = True
     return HttpResponse("success")
@@ -967,15 +856,7 @@ def GenerateLink(request, templateID=None):
     collect_email = None
     current_user = get_researcher(request.user)
     if request.method == 'POST':
-        #logger.info("post for playback was %s" % request.POST['playbackAudio'])
-        
-        #if request.POST['playbackAudio'] == 'on':
-        #    playback_audio = True
-        #else:
-        #    playback_audio = False
-            
         form = StudentAccessForm(request.POST, researcher=current_user)
-        #logger.info("is the form valid? %s" % form.is_valid())
         if form.is_valid():
             template =form.cleaned_data['templateID']
             while not saved:
@@ -985,7 +866,6 @@ def GenerateLink(request, templateID=None):
                     playback_audio = form.cleaned_data['playbackAudio']
                     playback_video = form.cleaned_data['playbackVideo']
                     collect_email = form.cleaned_data['collectEmail']
-                    #logger.info("playbackaudio is %s" % playback_audio)
                     link = StudentAccess(templateID=template, researcherID = current_user,
                                         validationKey = validation_key, expirationDate=exp_date, 
                                         playbackAudio = playback_audio, playbackVideo = playback_video,
@@ -1005,7 +885,6 @@ def GenerateLink(request, templateID=None):
             try:
                 template = Template.objects.get(pk=user_templateID)
                 form = StudentAccessForm(initial = {'templateID':template}, researcher=current_user)
-                #logger.info("initial playback in form is %s" % form.data['playbackAudio'])
             except ObjectDoesNotExist as e:
                 form = StudentAccessForm(researcher=current_user)
         else:
@@ -1236,15 +1115,6 @@ def login_page(request):
         form = LoginForm()
     return render_to_response('login.html',{'message':message, 'form':form},context_instance=RequestContext(request))
 
-'''
-class TemplateView(View):
-    def get(self, request, *args, **kwargs):
-        return HttpResponse('This is GET request')
-        logger.error("No post data")
-        return HttpResponse("no POST data")
-    return HttpResponse("null")
-'''
-
 #Reload the template wizards left pane if requested
 @login_required
 def TemplateWizardLeftPane(request):
@@ -1267,16 +1137,6 @@ def TemplateWizardRightPane(request):
             
     widge = RichTextForm()        
     return render(request, 'template-wizard-right-pane.html', {'widge': widge})
-'''
-urlpatterns = patterns('',
-    url(r'^mine/$', MyView.as_view(), name='my-view'),
-) # in urls
- '''
-
-'''
-#@login_required
-#def UpdateVideos(request):
-'''
 
 @login_required
 def RetrieveAudio(request, UserAudio):
@@ -1293,13 +1153,9 @@ def Responses(request):
 
     userID = get_researcher(request.user)
 
-
     conversations=Conversation.objects.filter(researcherID=userID)
 
     shared=[]
-
-
-
 
     sharedIDs=SharedResponses.objects.filter(researcherID=userID)
     for c in sharedIDs:
@@ -1313,8 +1169,6 @@ def Responses(request):
 
 @login_required
 def SingleResponse(request, convoID):
-
-
 	currentConvo=Conversation.objects.get(id=convoID)
 	userID=get_researcher(request.user)
 
@@ -1340,12 +1194,7 @@ def saveAudio(request):
     
     path = default_storage.save(saveTo, data)
     request.session['path'] = path
-    return HttpResponse("null") #render(request, "Student_Text_Response.html", {'data':data})
-    
-def getTextResponse(request):
-    c = {}
-    c.update(csrf(request))
-    return render(request, "Student_Text_Response.html")
+    return HttpResponse("saved") 
 
 def logout_view(request):
     logout(request)
@@ -1358,7 +1207,6 @@ def DeleteResponse(request, responseNum=None):
     #Security check:
     if not request.user.is_superuser and response.researcherID != request.user:
         raise Http404
-    
         
     response.delete()
     return redirect('ResearcherView')
