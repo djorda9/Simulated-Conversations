@@ -452,7 +452,17 @@ def TemplateWizardSave(request):
                                                                  nextPageInstanceID = insertNextPageInstanceID         
                                                                  ))
                                 templateResponseRels[-1].save()
-                        #if numberOfResponses == 0:
+                        if numberOfResponses == 0:
+                            for getapi in pageInstances:
+                                if getapi.videoLink == vid:
+                                    thisVidsPI = getapi
+                                    break
+                            pageInstanceMatchesVideo = thisVidsPI
+                            templateFlowRels.append(TemplateFlowRel(templateID = temp,
+                                                         pageInstanceID = pageInstanceMatchesVideo,
+                                                         nextPageInstanceID = None
+                                                         ))
+                            templateFlowRels[-1].save()
                             #raise Exception("noResponses")
                     pHeadLen = len(possibleVideoHeads)
                     request.session['metaError'] = "" # clear meta error
@@ -610,17 +620,19 @@ def TemplateWizard(request):
                     if p.pageInstanceID.enablePlayback == True:
                         request.session['enablePlayback'].append(p.pageInstanceID.videoLink)
                     request.session['richText/%s' % p.pageInstanceID.videoLink] = p.pageInstanceID.richText
-                if p.nextPageInstanceID.videoOrResponse == 'response':
-                    for t in tempResponseFlow:
-                        if t.pageInstanceID.pageInstanceID == p.nextPageInstanceID.pageInstanceID:
-                            request.session['responseText'].append(t.responseText)
-                            for q in tempFlow:
-                                if q.nextPageInstanceID.pageInstanceID == t.pageInstanceID.pageInstanceID:
-                                    request.session['responseParentVideo'].append(q.pageInstanceID.videoLink)
-                            if t.nextPageInstanceID.videoOrResponse == 'endpoint':
-                                request.session['responseChildVideo'].append("endpoint")
-                            else:
-                                request.session['responseChildVideo'].append(t.nextPageInstanceID.videoLink)
+                if(p.nextPageInstanceID <> None):
+                    if p.nextPageInstanceID.videoOrResponse == 'response':
+                        for t in tempResponseFlow:
+                            if t.pageInstanceID.pageInstanceID == p.nextPageInstanceID.pageInstanceID:
+                                request.session['responseText'].append(t.responseText)
+                                for q in tempFlow:
+                                    if(q.nextPageInstanceID <> None):
+                                        if q.nextPageInstanceID.pageInstanceID == t.pageInstanceID.pageInstanceID:
+                                            request.session['responseParentVideo'].append(q.pageInstanceID.videoLink)
+                                if t.nextPageInstanceID.videoOrResponse == 'endpoint':
+                                    request.session['responseChildVideo'].append("endpoint")
+                                else:
+                                    request.session['responseChildVideo'].append(t.nextPageInstanceID.videoLink)
             request.session.modified = True
         return render(request, 'template-wizard.html', context)
     else:
