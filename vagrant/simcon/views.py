@@ -85,7 +85,7 @@ def SResponse(request):
         pi = PageInstance.objects.get(pageInstanceID = request.session.get('PIID'), templateID = request.session.get('TID'))
     except Exception,e:
 #fixme
-        return HttpResponse("missing page instance: %s" %e)
+        return None
 
     try:
         valid = StudentAccess.objects.get(validationKey = request.session.get('ValKey'))
@@ -98,7 +98,7 @@ def SResponse(request):
         responses = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
     except Exception,e:
 #fixme
-        return 0
+        return None
 
     return responses
 
@@ -125,8 +125,8 @@ def SVideo(request):
 
     #try to find the next page, if it exists. Get it's PIID so we know where to go after this page.
     try:
-        logger.info("current PIID value is a video page: ")
-        logger.info(request.session.get('PIID'))
+        #logger.info("current PIID value is a video page: ")
+        #logger.info(request.session.get('PIID'))
         
         nextpage = TemplateFlowRel.objects.get(pageInstanceID = request.session.get('PIID'))
         
@@ -135,8 +135,8 @@ def SVideo(request):
         
         request.session['PIID'] = nextpage.nextPageInstanceID.pageInstanceID
         
-        logger.info("new PIID value is a response page: ")
-        logger.info(request.session.get('PIID'))
+        #logger.info("new PIID value is a response page: ")
+        #logger.info(request.session.get('PIID'))
         
         request.session.modified = True
     except Exception,e:
@@ -221,17 +221,17 @@ def StudentInfo(request):
 
 #when the student chooses the text answer to their response, this updates the database with their choice
 def StudentConvoStep(request):
-    logger.info("method in studentconvo is %s" % request.method)
+    #logger.info("method in studentconvo is %s" % request.method)
     if request.method == 'POST' or request.method == 'GET':
-        logger.info("about to load a this type of page:")
-        logger.info(request.session.get('VoR'))
+        #logger.info("about to load a this type of page:")
+        #logger.info(request.session.get('VoR'))
         
         if request.session.get('VoR') == "video":
             piID = request.session.get('PIID')
             cID = request.session.get('convo')
             convoOrder = request.session.get('ConvoOrder')
             studentsChoice = request.session.get('choice')#request.POST.get('choice')
-            logger.info("choice was %s" % studentsChoice)
+            #logger.info("choice was %s" % studentsChoice)
             
             #fill a response object with the students audio and their choice
             responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
@@ -277,13 +277,13 @@ def StudentConvoStep(request):
             
             #Feed the current video PIID into SResponse to check for responses. If no responses to this video,
             #set a context variable. Make sure the user can't record audio, and end the conversation
-            Rcheck = SResponse(request)
-			
-            if Rcheck == 0:
-                End = True
-            else:
+            Rcheck = TemplateResponseRel.objects.filter(pageInstanceID = request.session.get('PIID')).order_by('optionNumber')
+
+            if Rcheck.exists():
                 End = False
-            
+            else:
+                End = True
+            logger.info(End)
             # there are ways to compact this code, but this is the most explicit way to render a template
             c = Context({
             'vidLink': vidLink,
@@ -302,7 +302,7 @@ def StudentConvoStep(request):
             request.session['VoR'] = "response"
             request.session.modified = True
             
-            if not responses:
+            if not responses or not responses.exists():
                 request.session.flush()
                 return render(request, 'Student_Submission.html')
 
@@ -316,7 +316,8 @@ def StudentConvoStep(request):
             request.session.flush()
             return render(request, 'Student_Submission.html')
     else:
-        #return HttpResponse("can't render next conversation step")
+        return HttpResponse("can't render next conversation step")
+"""
         # Get the template ID(TID), Page Instance ID(PIID), and Validation Key(ValKey) as  variables from the url
         # Check tID against template table. Check piID against piID of template, and valKey from StudentAccess table
         try:
@@ -353,6 +354,7 @@ def StudentConvoStep(request):
         'message': 'I am the Student Text Response View.'
         })
         return render(request, 'Student_Text_Response.html', c)
+"""
 
 '''        
 def StudentTextResponse(request):
@@ -402,7 +404,7 @@ def PostChoice(request):
     c = {}
     c.update(csrf(request))
     request.session['choice'] = request.POST.get('choice')
-    logger.info("Posting choice %s" % request.session['choice'])
+    #logger.info("Posting choice %s" % request.session['choice'])
     request.session['VoR'] = "video"
     request.session.modified = True
     return HttpResponse("success")
@@ -559,8 +561,8 @@ def TemplateWizardSave(request):
                                                                  nextPageInstanceID = insertNextPageInstanceID         
                                                                  ))
                                 templateResponseRels[-1].save()
-                        if numberOfResponses == 0:
-                            raise Exception("noResponses")
+                        #if numberOfResponses == 0:
+                            #raise Exception("noResponses")
                     pHeadLen = len(possibleVideoHeads)
                     request.session['metaError'] = "" # clear meta error
                     if pHeadLen == 0:

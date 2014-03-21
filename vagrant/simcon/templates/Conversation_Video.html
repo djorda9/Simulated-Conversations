@@ -9,9 +9,13 @@
       frameborder="0" allowFullScreen></iframe></p>
 {% endif %}
 <div class="well well-sm">{{text|safe}}</div>
+{% if End %}
+	<button class="btn btn-default btn-lg" onclick="stopRecording(this);">End Conversation</button>
+{% else %}
+    <button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>
+    <button class="btn btn-default btn-lg" onclick="stopRecording(this);" disabled><span class="glyphicon glyphicon-stop"/>Stop</button>
+{% endif %}
 
-<button class="btn btn-default btn-lg" onclick="startRecording(this);"><span class="glyphicon glyphicon-record"/>Record</button>
-<button class="btn btn-default btn-lg" onclick="stopRecording(this);" disabled><span class="glyphicon glyphicon-stop"/>Stop</button>
 <script type="text/javascript">
 function makeRecording(blob){
     window.savedAudio = blob;
