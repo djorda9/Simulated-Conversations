@@ -22,14 +22,9 @@ urlpatterns = patterns('simcon.views',
     url(r'^links/(?P<tempID>\d*)$', 'Links', name="Links"),
     url(r'^studentconvostep/$', 'StudentConvoStep', name = 'StudentConvoStep'),
     url(r'^studentinfo/$', 'StudentInfo', name = 'StudentInfo'),
-    #url(r'^studentinfo/text_response$', 'StudentTextResponse', name='text_response'), #'getTextResponse'),
     url(r'^student/(?P<VKey>\w{10})/$', 'StudentLogin', name = "StudentLogin"),
-    url(r'^conversationvideo/$', 'RenderVideo', name = "RenderVideo"),
-    url(r'^postchoice/$', 'PostChoice', name = 'PostChoice'),
-    #url(r'^studenttextpane/$', 'ConversationTextPane', name= 'ConversationTextPane'),
-    #url(r'^   $', 'Con
-    #url(r'^student/video/$', 'StudentVideoInstance', name = "StudentVideoInstance"),
-    #url(r'^student/response/$', 'StudentResponseInstance', name = "StudentResponseInstance"),
+    url(r'^postchoice/$', 'PostChoice', name = 'PostChoice'),    
+    url(r'^audio/save$', 'saveAudio', name="SaveAudio"),
     url(r'^student/submission/$', 'Submission', name = "Submission"),
     url(r'^template-delete/(\d+)$', 'TemplateDelete', name="TemplateDelete"),
     url(r'^template-wizard/(\d+)$', 'TemplateWizardEdit', name="TemplateWizardEdit"),
@@ -43,9 +38,8 @@ urlpatterns = patterns('simcon.views',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^responses/$', 'Responses', name="Responses"),
 	url(r'^responses/(\d+)$', 'SingleResponse', name="SingleResponse"),
-    url(r'^audio/save$', 'saveAudio', name="SaveAudio"),
+
     url(r'logout/$', 'logout_view', name="logout"),
-    #url(r'^test_recorder$', TemplateView.as_view(template_name='test_recorder.html')),
 )
 
 # password recovery URLs

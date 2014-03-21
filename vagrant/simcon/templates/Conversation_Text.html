@@ -1,8 +1,7 @@
 {% load static %}
 {% load staticfiles %}
 {% block content %}
-{# TODO add ajax #}
-      <h2><u>Convesation Response Page</u></h2>
+      <h2><u>Conversation Response Page</u></h2>
         {% if request.session.playbackAudio %}
         <audio controls>
         
@@ -12,14 +11,11 @@
         {% endif %}
 
       <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
-        <!--form id="input" name="input" action="{% url 'StudentConvoStep' %}" method="POST"-->{% csrf_token %}
-		  <div>
-          {% for response in responses %} {# TODO need to pass in correct responses for context #}
-            <input type="radio" id="choice" name="choice" value="{{ response.templateResponseRelID }}" {% if forloop.counter == 1 %} checked {% endif %}>
+		  <div id="responses">
+          {% for response in responses %}
+            <input type="radio" name="choice" value="{{ response.templateResponseRelID }}" {% if forloop.counter == 1 %} checked {% endif %}>
             {{response.responseText}}<br/>
-          {% endfor %}
-          {# do we need to add a default response here?  Or is that done in template wizard? #}
-          </div>
+          {% endfor %}         
           <button class="btn btn-default" value="Next" onclick="nextVideo()">Next</button>
-        <!--/form-->
+          </div>
 {% endblock %}

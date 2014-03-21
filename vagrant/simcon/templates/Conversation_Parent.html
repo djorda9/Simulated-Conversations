@@ -12,7 +12,6 @@
 {# NOTE:  the above includes the required ajax code #}
 <script>
 function gotoNext(){
-   //window.location.replace("{% url 'StudentConvoStep' %}"); //TODO change to a load body
    $("#modePane").load("{% url 'StudentConvoStep' %}");
 }
 
@@ -20,14 +19,12 @@ function nextVideo(){
    var choice = $("input[type='radio']:checked").val();
    var data = { choice: choice  };
    var args = { type:"POST", url:"{% url 'PostChoice' %}", data:data, cache:false, complete:function(){
-                   $("#modePane").load("{% url 'StudentConvoStep' %}")
+                   gotoNext();
                } };
    $.ajax(args);
 }
-
-
 </script>
-{% load_getUserMedia "makeRecording" %}  {# this will now hang around for our later use #}
+{% load_getUserMedia "makeRecording" %} 
 {% endblock %}
 
 {% block content %}
