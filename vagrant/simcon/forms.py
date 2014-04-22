@@ -22,6 +22,8 @@ class StudentAccessForm(forms.Form):
     playbackVideo  = forms.BooleanField(initial=True, required=False, label='Playback video?')
     
     collectEmail = forms.BooleanField(initial=True, required=False, label='Collect Email?')
+    
+    allowTypedResponse = forms.BooleanField(initial=False, required=False, label='Allow student to end conversation with a typed response?')
 
     def __init__(self, *args, **kwargs):
         self.researcher = kwargs.pop('researcher',None)

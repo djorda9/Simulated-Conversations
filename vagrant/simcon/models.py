@@ -14,6 +14,7 @@ class Conversation(models.Model):
         studentName     = models.CharField(max_length=50)
         studentEmail    = models.EmailField(max_length=254)
         dateTime        = models.DateTimeField(auto_now_add=True)
+        typedResponse   = models.NullBooleanField(default=False, null=True)  # Conversation ended with a typed response
 
         def __unicode__(self):
                 return u" %s: %s" % (str(self.dateTime), self.studentName)
@@ -24,6 +25,7 @@ class Response(models.Model):
         order           = models.SmallIntegerField()
         choice          = models.ForeignKey('TemplateResponseRel') # needs to default to a certain flag so can be nullable, in case of recorded audio with no choice
         audioFile       = models.FileField(upload_to='audio')
+        typedResponse   = models.CharField(max_length=50, null=True) # this holds an optional typed response
 #       audioFile is tied to MEDIA_ROOT set in settings, to save in a
 #       subdirectory within MEDIA_ROOT, set upload_to=$PATH.  
 #       To do the madia management manually change this to assume ( FilePathField );
@@ -41,6 +43,7 @@ class StudentAccess(models.Model):
     collectEmail = models.BooleanField(default = False) # collect email on this link?
     playbackAudio = models.BooleanField(default = False) # can the student playback the audio in line
     playbackVideo = models.BooleanField(default = False) # can the student playback the video?
+    allowTypedResponse = models.BooleanField(default = False)  # can a student go off script and type their own response?
     
     def __unicode__(self):
         return u'%s %s %s %s %s' % \

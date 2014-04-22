@@ -28,8 +28,10 @@
             <tr>
                 <th>Template</th>
                 <th>Validation Key</th>
-                <th>Expiration Date</th>
+                <th>Expiration Date</th>                
+                <th>Allow end with typed response?</th>
                 <th>URL</th>
+
             </tr>
         </thead>
         <tbody>
@@ -39,6 +41,7 @@
                 <td>{{researcher_link.templateID}}</td>
                 <td>{{researcher_link.validationKey}}</td>
                 <td>{{researcher_link.expirationDate}}</td>
+                <td>{{researcher_link.allowTypedResponse}}</td>
                 <!-- Gets and makes a hyperlink to the generated link url -->
                 {% with id=researcher_link.validationKey %}
                     <td><a href="{{researcher_link|get_link_filter:id}}">{{researcher_link|get_link_filter:id}}</a> </td>

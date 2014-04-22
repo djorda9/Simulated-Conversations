@@ -870,6 +870,7 @@ def GenerateLink(request, templateID=None):
     playback_audio = None
     playback_video = None
     collect_email = None
+    allow_typed_response = None
     current_user = get_researcher(request.user)
     if request.method == 'POST':
         form = StudentAccessForm(request.POST, researcher=current_user)
@@ -882,10 +883,11 @@ def GenerateLink(request, templateID=None):
                     playback_audio = form.cleaned_data['playbackAudio']
                     playback_video = form.cleaned_data['playbackVideo']
                     collect_email = form.cleaned_data['collectEmail']
+                    allow_typed_response = form.cleaned_data['allowTypedResponse']
                     link = StudentAccess(templateID=template, researcherID = current_user,
                                         validationKey = validation_key, expirationDate=exp_date, 
                                         playbackAudio = playback_audio, playbackVideo = playback_video,
-                                        collectEmail = collect_email)
+                                        collectEmail = collect_email, allowTypedResponse= allow_typed_response)
                     link.save()
                     saved = True
                     success = "You have successfully generated a link to " + template.__unicode__() + " template.\n"
