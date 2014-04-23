@@ -16,12 +16,20 @@ function gotoNext(){
 }
 
 function nextVideo(){  
-   var choice = $("input[type='radio']:checked").val();
-   var data = { choice: choice  };
-   var args = { type:"POST", url:"{% url 'PostChoice' %}", data:data, cache:false, complete:function(){
-                   gotoNext();
-               } };
-   $.ajax(args);
+   if (typeof $("#typedResponse").val() === 'undefined' || $("#typedResponse").val().length == 0){ // no response entered
+       var choice = $("input[type='radio']:checked").val();
+       var data = { choice: choice  };
+       var args = { type:"POST", url:"{% url 'PostChoice' %}", data:data, cache:false, complete:function(){
+                       gotoNext();
+                   } };
+       $.ajax(args);
+   } else {
+       var data = { typedResponse: $("#typedResponse").val() };
+       var args = { type:"POST", url:"{% url 'PostTypedResponse' %}", data:data, cache:false, complete:function(){
+                      $("#modePane").load("{% url 'Submission' %}");
+                   } };
+       $.ajax(args);      
+   }
 }
 </script>
 {% load_getUserMedia "makeRecording" %} 

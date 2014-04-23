@@ -15,7 +15,13 @@
           {% for response in responses %}
             <input type="radio" name="choice" value="{{ response.templateResponseRelID }}" {% if forloop.counter == 1 %} checked {% endif %}>
             {{response.responseText}}<br/>
-          {% endfor %}         
+          {% endfor %}
+          {% if request.session.allowTypedResponse %}
+          <br/>
+          <label for="typedResponse">Custom response?</label>
+          <input type="text" id="typedResponse">
+          <br/>
+          {% endif %}
           <button class="btn btn-default" value="Next" onclick="nextVideo()">Next</button>
           </div>
 {% endblock %}

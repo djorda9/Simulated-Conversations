@@ -109,6 +109,7 @@ class SharedResponses(models.Model):
     responseID = models.ForeignKey('Conversation')
     researcherID = models.ForeignKey(User)
     dateTimeShared = models.DateTimeField(auto_now=True)
+    #typedResponse = models.
 
     # Note(Daniel): To insure that a response is only shared once
     # with a researcher, I used the unique_together to force this 

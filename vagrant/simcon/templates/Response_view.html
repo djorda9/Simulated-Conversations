@@ -36,6 +36,7 @@
     <th>Template</th> 
     <th>Student</th> 
     <th>Date Taken</th>
+    <th>Ends with typed response?</th>
     <th class="filter-false"></th>
 
 </tr> 
@@ -60,6 +61,7 @@
 			{{n.dateTime}}
 			</a>
 	</td>
+    <td>{{n.typedResponse}}</td>
     <td><small><a href="{% url 'ShareResponse_with_responseID' n.id %}">Share</a></small></td>
 	</tr> 
 
@@ -94,7 +96,7 @@
     <th>Template</th> 
     <th>Student</th> 
     <th>Date Taken</th> 
-
+    <th>Ends with typed response?</th>
 </tr>
 </thead> 
 
@@ -117,6 +119,7 @@
 		{{n.dateTime}}
 		</a>
 	</td> 
+    <td>{{n.templateID.typedResponse}}</td>
 </tr> 
 
 {% endfor %}

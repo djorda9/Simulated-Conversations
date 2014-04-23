@@ -44,6 +44,9 @@
 {% endif %}
 
 <h3> {{conversation.dateTime}} </h3>
+{% if conversation.typedResponse %}
+<h3>This conversation ends with a student typed response</h3>
+{% endif %}
 
 
 <table id="Responses" class="tablesorter">
@@ -65,8 +68,17 @@
 <tbody>
 {% for n in responses %}
 <tr>
+    
 	<td>{{n.order}}</td>
+    {% if conversation.typedResponse %}
+    {% if n.typedResponse %}
+    <td>{{n.typedResponse}}</td>
+    {% else %}
+    <td>{{n.choice.responseText}}</td>
+    {% endif %}
+    {% else %}
 	<td>{{n.choice.responseText}}</td>
+    {% endif %}
 	<td>
     <audio controls>
         <source src="/{% get_media_prefix %}{{n.audioFile}}" type="audio/wav">

@@ -91,6 +91,7 @@ Simcon | Researcher View
                   <th>Response From</th>
                   <th>Template</th>
                   <th>Date</th>
+                  <th>Ends with typed response?</th>
                   <th class="filter-false"></th>
                   <th class="filter-false"></th>
                 </tr>
@@ -101,6 +102,7 @@ Simcon | Researcher View
                   <td><a href="{% url 'SingleResponse' res.id %}">{{res.studentName}}</a></td>
                   <td><small>{{res.templateID.shortDesc}}</small></td>
                   <td><small>{{res.dateTime}}</small></td>
+                  <td><small>{{res.typedResponse}}</small></td>
                   <td><small><a href="{% url 'ShareResponse_with_responseID' res.id %}">Share</a></small></td>
                   <td><small><a href="{% url 'DeleteResponse_by_id' res.pk %}">Delete</a></small></td>
                 </tr>
@@ -118,6 +120,7 @@ Simcon | Researcher View
                   <th>Response From</th>
                   <th>Template</th>
                   <th>Date</th>
+                  <th>Ends with typed response?</th>
                 </tr>
               </thead>
               <tbody>
@@ -126,6 +129,7 @@ Simcon | Researcher View
                     <td><a href="{% url 'SingleResponse' sh.responseID.id %}">{{sh.responseID.studentName}}</a></td>
                     <td><small>{{sh.responseID.templateID.shortDesc}}</small></td>
                     <td><small>{{sh.responseID.dateTime}}</small></td>
+                    <td><small>{{sh.responseID.typedResponse}}</small></td>
                   </tr>
                 {% endfor %}
               </tbody>

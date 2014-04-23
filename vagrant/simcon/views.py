@@ -23,13 +23,14 @@ def StudentLogin(request,VKey = 123):
     try:
         access = StudentAccess.objects.get(validationKey = VKey)
     except Exception,e:
-        return render('Student_Expired.html')
+        return render(request, 'Student_Expired.html')
 
     convo_Expiration = access.expirationDate
     currentdate = datetime.date.today()
     request.session['playbackAudio'] = access.playbackAudio
     request.session['playbackVideo'] = access.playbackVideo
     request.session['collectEmail']  = access.collectEmail
+    request.session['allowTypedResponse'] = access.allowTypedResponse
     #On other option that is cleaner is to pass the current time and expiration to the template, and have an if statement in the template
 
     if(currentdate <= convo_Expiration):
@@ -300,8 +301,37 @@ def PostChoice(request):
     request.session.modified = True
     return HttpResponse("success")
 
+def PostTypedResponse(request):
+    c = {}
+    c.update(csrf(request))
+    piID = request.session.get('PIID')
+    cID = request.session.get('convo')
+    convoOrder = request.session.get('ConvoOrder')
+    #studentsChoice = request.session.get('choice')
+    
+    #fill a response object with the students audio and their choice
+    #responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
+    
+    
+    
+    T = Response.objects.create(pageInstanceID_id = piID, 
+                                conversationID_id = cID, 
+                                order             = convoOrder, 
+                                choice_id         = 0,  # default to 0 
+                                audioFile         = request.session.get('path'),
+                                typedResponse     = request.POST.get('typedResponse'))
+    T.save()
+    
+    C = Conversation.objects.get(pk = cID)
+    C.typedResponse = True # tag the conversation as a typed response
+    C.save()
+    # custom typed respons saved, go to submission
+    
+    request.session.flush()
+    return HttpResponse("success")#render(request, 'Student_Submission.html')
     
 def Submission(request):
+    request.session.flush()
     return render(request, 'Student_Submission.html')
 
 # class for rich text field in a form
