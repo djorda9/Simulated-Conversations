@@ -307,7 +307,6 @@ def PostTypedResponse(request):
     piID = request.session.get('PIID')
     cID = request.session.get('convo')
     convoOrder = request.session.get('ConvoOrder')
-    #studentsChoice = request.session.get('choice')
     
     #fill a response object with the students audio and their choice
     #responseRel = TemplateResponseRel.objects.get(templateResponseRelID = studentsChoice)
@@ -327,10 +326,9 @@ def PostTypedResponse(request):
     C.save()
     # custom typed respons saved, go to submission
     
-    request.session.flush()
-    return HttpResponse("success")#render(request, 'Student_Submission.html')
+    return HttpResponse("success")
     
-def Submission(request):
+def SubmitResponse(request):
     request.session.flush()
     return render(request, 'Student_Submission.html')
 

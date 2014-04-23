@@ -25,7 +25,7 @@ class Response(models.Model):
         order           = models.SmallIntegerField()
         choice          = models.ForeignKey('TemplateResponseRel') # needs to default to a certain flag so can be nullable, in case of recorded audio with no choice
         audioFile       = models.FileField(upload_to='audio')
-        typedResponse   = models.CharField(max_length=50, null=True) # this holds an optional typed response
+        typedResponse   = models.CharField(max_length=100, null=True) # this holds an optional typed response
 #       audioFile is tied to MEDIA_ROOT set in settings, to save in a
 #       subdirectory within MEDIA_ROOT, set upload_to=$PATH.  
 #       To do the madia management manually change this to assume ( FilePathField );

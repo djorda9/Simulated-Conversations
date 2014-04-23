@@ -10,7 +10,11 @@
         </audio>
         {% endif %}
 
-      <div class="alert alert-success">Choose the response that best matches the audio you just recorded.</div>
+      <div class="alert alert-success">Choose the response that best matches the audio you just recorded.  
+      {% if request.session.allowTypedResponse %}
+      If your response doesn't match any in the list, then type in your response in the given space.  NOTE:  if you enter anything in the custom response space, your selection from the given list will be ignored
+      {% endif %}
+      </div>
 		  <div id="responses">
           {% for response in responses %}
             <input type="radio" name="choice" value="{{ response.templateResponseRelID }}" {% if forloop.counter == 1 %} checked {% endif %}>
@@ -19,7 +23,7 @@
           {% if request.session.allowTypedResponse %}
           <br/>
           <label for="typedResponse">Custom response?</label>
-          <input type="text" id="typedResponse">
+          <input type="text" id="typedResponse" size=100 maxlength=100>
           <br/>
           {% endif %}
           <button class="btn btn-default" value="Next" onclick="nextVideo()">Next</button>

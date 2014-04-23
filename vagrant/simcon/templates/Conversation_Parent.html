@@ -26,7 +26,7 @@ function nextVideo(){
    } else {
        var data = { typedResponse: $("#typedResponse").val() };
        var args = { type:"POST", url:"{% url 'PostTypedResponse' %}", data:data, cache:false, complete:function(){
-                      $("#modePane").load("{% url 'Submission' %}");
+                      $("#modePane").load("{% url 'Submit' %}");
                    } };
        $.ajax(args);      
    }
