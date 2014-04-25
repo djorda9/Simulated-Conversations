@@ -316,7 +316,7 @@ def PostTypedResponse(request):
     T = Response.objects.create(pageInstanceID_id = piID, 
                                 conversationID_id = cID, 
                                 order             = convoOrder, 
-                                choice_id         = 0,  # default to 0 
+                                choice_id         = 1,  # default to 1 
                                 audioFile         = request.session.get('path'),
                                 typedResponse     = request.POST.get('typedResponse'))
     T.save()
