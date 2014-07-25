@@ -10,19 +10,33 @@
 {% block extrahead %}
 {% getRecorderHead %}
 {# NOTE:  the above includes the required ajax code #}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 <script>
 function gotoNext(){
    $("#modePane").load("{% url 'StudentConvoStep' %}");
 }
 
+function showDialog(){
+  var dynamicDialog = $('<div id="errorDialog"><P>You must select an option or type a response to continue.</P></div>');
+  dynamicDialog.dialog({ title: "Error in submission",
+                          modal: true,
+                          buttons: [{ text: "OK", click: function () {$(this).dialog("close");} }]
+                         }); 
+}
+
 function nextVideo(){  
    if (typeof $("#typedResponse").val() === 'undefined' || $("#typedResponse").val().length == 0){ // no response entered
        var choice = $("input[type='radio']:checked").val();
-       var data = { choice: choice  };
-       var args = { type:"POST", url:"{% url 'PostChoice' %}", data:data, cache:false, complete:function(){
-                       gotoNext();
+       if (choice == null) {
+         showDialog();
+       } else {
+        var data = { choice: choice  };
+        var args = { type:"POST", url:"{% url 'PostChoice' %}", data:data, cache:false, complete:function(){
+        gotoNext();
                    } };
-       $.ajax(args);
+        $.ajax(args);
+       }
    } else {
        var data = { typedResponse: $("#typedResponse").val() };
        var args = { type:"POST", url:"{% url 'PostTypedResponse' %}", data:data, cache:false, complete:function(){
